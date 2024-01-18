@@ -3,5 +3,6 @@ const userServices = require('./user.services');
 
 module.exports = {
     authServices,
-    userServices
+    userServices,
+    bookingService,
 }
