@@ -14,8 +14,11 @@ const users = new Schema({
     },
     email: {
         type: String,
-        required: false,
-        unique: 1,
+        required: false
+    },
+    phone: {
+        type: String,
+        require: true,
     },
     profilePicture: {
         type: String,

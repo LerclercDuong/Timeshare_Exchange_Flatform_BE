@@ -3,7 +3,13 @@ const {StatusCodes} = require('http-status-codes');
 class User {
 
     async GetAllUsers(req, res, next) {
-
+        try{
+            const userList = await userService.GetUsers();
+            res.status(StatusCodes.OK).json(userList)
+        }
+        catch{
+            res.status(StatusCodes.NO_CONTENT).json({message: 'User not found'})
+        }
     }
 
     async GetUserById(req, res, next) {
@@ -25,6 +31,8 @@ class User {
         }
         res.status(StatusCodes.NO_CONTENT).json({message: 'User not found'})
     }
+
+    
 }
 
 module.exports = new User;
