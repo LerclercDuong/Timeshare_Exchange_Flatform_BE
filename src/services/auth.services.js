@@ -30,7 +30,7 @@ class AuthService {
         }
     }
 
-    async GenerateAuthToken(userData){
+    async GenerateAuthToken(userData) {
         const accessTokenId = await tokenService.GenerateToken(userData, 'ACCESS', process.env.ACCESS_SECRET_KEY, process.env.ACCESS_TOKEN_LIFE_HOUR + 'h');
         const refreshTokenId = await tokenService.GenerateToken(userData, 'REFRESH', process.env.REFRESH_SECRET_KEY, process.env.REFRESH_TOKEN_LIFE_DAY + 'd');
 
@@ -63,7 +63,7 @@ class AuthService {
                 throw new Error();
             }
 
-            await TokenModel.deleteOne({ _id: refreshTokenDoc._id });
+            await TokenModel.deleteOne({_id: refreshTokenDoc._id});
 
             return this.GenerateAuthToken(userData);
         } catch (err) {

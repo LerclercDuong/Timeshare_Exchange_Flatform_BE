@@ -12,7 +12,7 @@ class Authentication {
             if (password === repeatPassword) {
                 const userData = await authService.SignUp(username, password);
                 const tokens = await authService.GenerateAuthToken(userData);
-                res.status(StatusCodes.OK).json({userData, tokens})
+                res.status(StatusCodes.CREATED).json({userData, tokens})
             } else {
                 throw new Error('Repeat password is wrong');
             }
@@ -28,9 +28,11 @@ class Authentication {
             if (userData) {
                 const tokens = await authService.GenerateAuthToken(userData);
                 res.status(StatusCodes.OK).json({userData, tokens});
+            }else{
+                res.status(StatusCodes.UNAUTHORIZED).json();
             }
         } catch (err) {
-            res.status(StatusCodes.UNAUTHORIZED).json({message: err.message});
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({message: err.message});
         }
     }
 
@@ -38,9 +40,14 @@ class Authentication {
         const {refreshToken} = req.body;
         try {
             const data = await authService.RefreshAuthToken(refreshToken);
-            res.status(StatusCodes.OK).json({tokens: data})
+            if(data){
+                res.status(StatusCodes.OK).json({tokens: data})
+            }else{
+                res.status(StatusCodes.UNAUTHORIZED).json({message: err.message});
+            }
+            
         } catch (err) {
-            res.status(StatusCodes.UNAUTHORIZED).json({message: err.message});
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({message: err.message});
         }
     }
 
