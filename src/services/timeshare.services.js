@@ -54,6 +54,19 @@ class TimeshareService {
         const newTimeshare = new TimeshareModel({...timeshareData});
         return newTimeshare.save().catch();
     }
+
+    async DeleteTimeshare(req) {
+        const deleteTimeshare = await TimeshareModel.delete({_id: req.params.id}, req.body)
+        return deleteTimeshare;
+    }
+    async UpdateTimeshare(req) {
+        const updateTimeshare = await TimeshareModel.updateOne({_id: req.params.id}, req.body)
+        return updateTimeshare;
+    }
+    async RestoreTimeshare(req) {
+        const restoreTimeshare = await TimeshareModel.restore({_id: req.params.id}, req.body)
+        return restoreTimeshare;
+    }
 }
 
 module.exports = new TimeshareService;
