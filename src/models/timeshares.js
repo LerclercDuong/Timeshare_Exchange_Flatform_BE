@@ -1,9 +1,8 @@
-// properties.js
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const Users = require('./users'); // Import the Users model
-
-const timeshares = new mongoose.Schema({
+const mongooseDelete = require('mongoose-delete');
+const timeshares = new Schema({
   name: { 
     type: String,
     required: true,
@@ -33,11 +32,6 @@ const timeshares = new mongoose.Schema({
     type: String,
     required: true, 
   },
-  current_owner:{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Users',
-    required: true,
-  },
   username:{
     type: String,
   },
@@ -54,6 +48,7 @@ const timeshares = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
+
 });
 
 timeshares.pre('save', async function (next) {
@@ -72,6 +67,8 @@ timeshares.pre('save', async function (next) {
   }
 });
 
-
+timeshares.plugin(mongooseDelete,
+  { deletedAt : true });
+// sử dụng thư viện soft delete và overrideMethods (hide or show)
 module.exports = mongoose.model('Timeshares', timeshares);
 

@@ -1,10 +1,10 @@
-const userService = require('../services/user.services.js');
+const { userServices }  = require('../services');
 const {StatusCodes} = require('http-status-codes');
 class User {
 
     async GetAllUsers(req, res, next) {
         try{
-            const userList = await userService.GetUsers();
+            const userList = await userServices.GetUsers();
             res.status(StatusCodes.OK).json(userList)
         }
         catch{
@@ -14,7 +14,7 @@ class User {
 
     async GetUserById(req, res, next) {
         const { userId } = req.params;
-        const userData = await userService.GetUserById(userId);
+        const userData = await userServices.GetUserById(userId);
         if (userData) {
             res.status(StatusCodes.OK).json(userData)
             return;
@@ -24,7 +24,7 @@ class User {
 
     async GetUserByUsername(req, res, next) {
         const { username } = req.params;
-        const userData = await userService.GetUserByName(username);
+        const userData = await userServices.GetUserByName(username);
         if (userData) {
             res.status(StatusCodes.OK).json(userData)
             return;
