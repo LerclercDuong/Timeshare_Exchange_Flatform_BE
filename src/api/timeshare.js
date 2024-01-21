@@ -33,6 +33,33 @@ class Timeshares {
         res.status(StatusCodes.NO_CONTENT).json({message: 'Timeshare not found'})
     }
 
+    async DeleteTimeshare(req, res, next) {
+        try {
+            const deleteTimeshare = await timeshareServices.DeleteTimeshare(req);
+            res.status(StatusCodes.OK).json(deleteTimeshare)
+        } catch {
+            res.status(StatusCodes.NO_CONTENT).json({message: 'Timeshare not found'})
+        }
+    }
+
+    async UpdateTimeshare(req, res, next) {
+        try {
+            const updateTimeshare = await timeshareServices.UpdateTimeshare(req);
+            res.status(StatusCodes.OK).json(updateTimeshare)
+        } catch {
+            res.status(StatusCodes.NO_CONTENT).json({message: 'Timeshare not found'})
+        }
+    }
+
+    async RestoreTimeshare(req, res, next) {
+        try {
+            const restoreTimeshare = await timeshareServices.RestoreTimeshare(req);
+            res.status(StatusCodes.OK).json(restoreTimeshare)
+        } catch {
+            res.status(StatusCodes.NO_CONTENT).json({message: 'Timeshare not found'})
+        }
+    }
+
 }
 
 module.exports = new Timeshares;
