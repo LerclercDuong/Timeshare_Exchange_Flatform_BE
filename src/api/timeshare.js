@@ -60,6 +60,24 @@ class Timeshares {
         }
     }
 
+    async ForceDeleteTimeshare(req, res, next) {
+        try {
+            const forceDeleteTimeshare = await timeshareServices.ForceDeleteTimeshare(req);
+            res.status(StatusCodes.OK).json(forceDeleteTimeshare)
+        } catch {
+            res.status(StatusCodes.NO_CONTENT).json({message: 'Timeshare not found'})
+        }
+    }
+
+    async GetTimeShareByTrash(req, res, next) {
+        try {
+            const trashList = await timeshareServices.GetTimeShareByTrash();
+            res.status(StatusCodes.OK).json(trashList)
+        } catch {
+            res.status(StatusCodes.NO_CONTENT).json({message: 'Timeshare not found'})
+        }
+    }
+
 }
 
 module.exports = new Timeshares;

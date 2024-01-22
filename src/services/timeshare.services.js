@@ -5,18 +5,6 @@ const TimeshareModel = require("../models/timeshares");
 
 class TimeshareService {
 
-    // //signup function
-    // async SignUp(username, password) {
-    //     const userExists = await UserModel.findOne({username: username});
-    //     if (userExists) throw new Error("User is exist")
-    //     const userData = {
-    //         username: username,
-    //         password: password,
-    //         role: 'user',
-    //     }
-    //     const newUser = new UserModel({...userData});
-    //     return newUser.save().catch();
-    // }
     async GetTimeshare() {
         return TimeshareModel
             .find()
@@ -26,6 +14,14 @@ class TimeshareService {
             })
             .select('_id name start_date end_date current_owner location price')
             .lean();
+    }
+    async GetTimeShareByTrash(){
+        return TimeshareModel.find({deleted: true}).populate({
+            path: 'deleted',
+            select: '_id name start_date end_date current_owner location price deletedAt'
+        })
+        .select('_id name start_date end_date current_owner location price deletedAt')
+        .lean();
     }
 
     async GetTimeshareByCurrentOwner(current_owner) {
@@ -58,14 +54,18 @@ class TimeshareService {
     async DeleteTimeshare(req) {
         const deleteTimeshare = await TimeshareModel.delete({_id: req.params.id}, req.body)
         return deleteTimeshare;
-    }
+    } // thu vien mongoose soft-delete
     async UpdateTimeshare(req) {
         const updateTimeshare = await TimeshareModel.updateOne({_id: req.params.id}, req.body)
         return updateTimeshare;
-    }
+    } // thu vien mongoose soft-delete
     async RestoreTimeshare(req) {
         const restoreTimeshare = await TimeshareModel.restore({_id: req.params.id}, req.body)
         return restoreTimeshare;
+    } // thu vien mongoose soft-delete
+    async ForceDeleteTimeshare(req) {
+        const forceDeleteTimeshare = await TimeshareModel.deleteOne({_id: req.params.id}, req.body)
+        return forceDeleteTimeshare;
     }
 }
 

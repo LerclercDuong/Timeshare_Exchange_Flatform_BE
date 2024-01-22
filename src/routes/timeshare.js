@@ -2,14 +2,14 @@ const express = require('express');
 const router = express.Router();
 const Timeshare = require('../api/timeshare');
 
-router.post('/post/:userId', Timeshare.PostTimeshare);
-router.get('/list-timeshare', Timeshare.GetAllTimeshare);
-router.get('/current-owner/:current_owner', Timeshare.GetTimeshareByCurrentOwner);
-router.delete('/:id/delete', Timeshare.DeleteTimeshare);
-router.put('/:id', Timeshare.UpdateTimeshare);
-router.patch('/:id/restore', Timeshare.RestoreTimeshare);
-
-
+router.post('/post/:userId', Timeshare.PostTimeshare); //dang bai viet
+router.get('/list-timeshare', Timeshare.GetAllTimeshare); //tat ca
+router.get('/current-owner/:current_owner', Timeshare.GetTimeshareByCurrentOwner); //Hien thi timeshare by Owner
+router.delete('/:id/delete', Timeshare.DeleteTimeshare); // xoa tam thoi
+router.delete('/:id/force', Timeshare.ForceDeleteTimeshare); //xoa vinh vien
+router.put('/:id', Timeshare.UpdateTimeshare); //cap nhat
+router.patch('/:id/restore', Timeshare.RestoreTimeshare); //khoi phuc
+router.get('/:id/trash-list', Timeshare.GetTimeShareByTrash); //danh sach timehshare trong thung rac
 
 
 module.exports = router;
