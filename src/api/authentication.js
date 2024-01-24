@@ -6,11 +6,11 @@ const {StatusCodes} = require('http-status-codes');
 
 class Authentication {
     
-    async SignUp(req, res, next) {
-        const {username, password, repeatPassword} = req.body;
+    async Register(req, res, next) {
+        const {firstname, lastname, username, password, repeatPassword} = req.body;
         try {
             if (password === repeatPassword) {
-                const userData = await authService.SignUp(username, password);
+                const userData = await authService.SignUp(firstname, lastname, username, password);
                 const tokens = await authService.GenerateAuthToken(userData);
                 res.status(StatusCodes.CREATED).json({userData, tokens})
             } else {
@@ -57,7 +57,10 @@ class Authentication {
         if (authHeader) {
             try {
                 const decodedToken = await jwt.verify(token, process.env.ACCESS_SECRET_KEY);
-                if (decodedToken) res.status(StatusCodes.OK).json(decodedToken);
+                if (decodedToken) {
+                    const userData = await userService.GetUserById(decodedToken.sub)
+                    res.status(StatusCodes.OK).json(userData)
+                }
             } catch (e) {
                 res.status(StatusCodes.UNAUTHORIZED).json({ isAuth: false });
             }

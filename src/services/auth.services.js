@@ -9,10 +9,12 @@ const CheckLogin = require('../utils/checkLogin.js');
 class AuthService {
 
     //signup function
-    async SignUp(username, password) {
+    async SignUp(firstname, lastname, username, password) {
         const userExists = await UserModel.findOne({username: username});
         if (userExists) throw new Error("User is exist")
         const userData = {
+            firstname: firstname,
+            lastname: lastname,
             username: username,
             password: password,
             role: 'user',
