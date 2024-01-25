@@ -2,21 +2,12 @@ const bcrypt = require('bcrypt');
 const moment = require("moment");
 const UserId = require('../api/user');
 const TimeshareModel = require("../models/timeshares");
+const properties = require('../models/properties');
 
 class TimeshareService {
 
-    // async GetTimeshare() {
-    //     return TimeshareModel
-    //         .find()
-    //         .populate({
-    //             path: 'current_owner',
-    //             select: '_id name start_date end_date current_owner location price'
-    //         })
-    //         .select('_id name start_date end_date current_owner location price')
-    //         .lean();
-    // }
     async GetAllTimeshare(){
-        return UserModel.find({}).select('_id name start_date image end_date location price deletedAt').lean();
+        return TimeshareModel.find({}).select('_id name start_date image end_date location price deletedAt').lean();
     }
     async GetTimeShareByTrash(){
         return TimeshareModel.find({deleted: true}).populate({
@@ -74,19 +65,30 @@ class TimeshareService {
     //     return newTimeshare.save().catch();
     // }
 
-    Upload = async (req, name, price, start_date, end_date, location, images) => {
+    // Assuming you have imported the necessary modules and TimeshareModel
+
+Upload = async (req, name, nameProperty, price, start_date, end_date, images) => {
+    try {
+        // Get the selected nameProperty from the form data
+        const nameProperty = req.body.nameProperty;
+
         // Add any additional processing logic here
         const uploadData = {
             image: images,
             name: name,
-            price: price,           
+            nameProperty: nameProperty,
+            price: price,
             start_date: start_date,
             end_date: end_date,
-            location: location,
         }
-        const newUpload = new TimeshareModel({...uploadData});
-        return newUpload.save().catch();
+
+        const newUpload = new TimeshareModel({ ...uploadData });
+        return newUpload.save();
+    } catch (error) {
+        throw error; // Handle the error appropriately, log or return as needed
     }
+}
+
 
     // Upload = async (req, name, price, start_date, end_date, image) => {
     //     // Add any additional processing logic here

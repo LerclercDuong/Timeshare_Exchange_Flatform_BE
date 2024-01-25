@@ -44,9 +44,8 @@ app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Credentials', true);
     next();
 });
-// console.log(path.join(__dirname, '/src/static/img'))
 
-// app.use('/static', express.static(path.join(__dirname, '/src/static')))
+app.use('/static', express.static(path.join(__dirname, '/src/static')))
 app.use('/static', express.static(path.join(__dirname, 'src/public/img')))
 console.log(path.join(__dirname, 'src/public'))
 router(app);

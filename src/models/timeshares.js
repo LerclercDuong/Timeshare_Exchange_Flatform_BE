@@ -1,12 +1,21 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const Users = require('./users'); // Import the Users model
+const Users = require('./users'); 
+const Properties = require('./properties'); 
+
 const mongooseDelete = require('mongoose-delete');
 const timeshares = new Schema({
   image: {
     type: Array,
     path: String,
   },
+
+  nameProperty: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Properties',
+    required: true,
+},
+  
   name: { 
     type: String,
     required: true,
@@ -25,19 +34,15 @@ const timeshares = new Schema({
     required: true,
   },
 
-  location: { 
-    type: String, 
-    required: true,
-  },
+  // location: { 
+  //   type: String, 
+  //   required: true,
+  // },
   //   current_owner:{
   //   type: mongoose.Schema.Types.ObjectId,
   //   ref: 'Users',
   //   required: true,
   // },
-
-  username:{
-    type: String,
-  },
 
   availability: { 
     type: Boolean, 
@@ -53,17 +58,15 @@ const timeshares = new Schema({
 
 timeshares.pre('save', async function (next) {
   try {
-    // Lấy thông tin của User dựa trên userId
-    const user = await mongoose.model('Users').findById(this.current_owner);
+      // Assuming you want to populate the nameProperty with its corresponding document
+      const property = await Properties.findById(this.nameProperty);
+      if (property) {
+          this.location = property.location; // Assuming you want to copy the location from the property
+      }
 
-    // Gán giá trị username từ thông tin User vào trường username của Properties
-    if (user) {
-      this.username = user.username;
-    }
-
-    next();
+      next();
   } catch (error) {
-    next(error);
+      next(error);
   }
 });
 
