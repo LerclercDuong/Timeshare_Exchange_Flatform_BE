@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Timeshare = require('../api/timeshare');
+const Timeshare = require('../../controllers/v1/timeshare');
 const multer = require('multer');
 const upload = multer({ dest: 'src/public/img/' });
 

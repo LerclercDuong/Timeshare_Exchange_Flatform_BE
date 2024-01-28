@@ -1,10 +1,10 @@
 const bcrypt = require('bcrypt');
-const userService = require('../services/user.services.js');
-const TokenModel = require('../models/tokens')
+const userService = require('./user.services.js');
+const TokenModel = require('../../models/tokens')
 const moment = require("moment");
-const UserModel = require("../models/users");
-const tokenService = require('../services/token.service');
-const CheckLogin = require('../utils/checkLogin.js');
+const UserModel = require("../../models/users");
+const tokenService = require('./token.service');
+const CheckLogin = require('../../utils/checkLogin.js');
 
 class AuthService {
 

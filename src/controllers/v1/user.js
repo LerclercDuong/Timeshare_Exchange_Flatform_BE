@@ -1,4 +1,4 @@
-const { userServices }  = require('../services');
+const { userServices }  = require('../../services/v1');
 const {StatusCodes} = require('http-status-codes');
 class User {
 

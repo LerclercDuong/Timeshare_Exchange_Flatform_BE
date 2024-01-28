@@ -1,10 +1,11 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const users = require('../models/users');
-const userService = require('../services/user.services.js');
-const TokenModel = require('../models/tokens')
+const users = require('../../models/users');
+const userService = require('./user.services.js');
+const TokenModel = require('../../models/tokens')
 const moment = require("moment");
 const { ObjectId } = require('mongodb');
+
 class TokenService {
     //generate jwt token
     //params: data (user data)

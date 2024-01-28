@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const moment = require("moment");
-const UserId = require('../api/user');
-const TimeshareModel = require("../models/timeshares");
+const UserId = require('../../controllers/v1/user');
+const TimeshareModel = require("../../models/timeshares");
 
 class TimeshareService {
 
@@ -16,8 +16,9 @@ class TimeshareService {
     //         .lean();
     // }
     async GetAllTimeshare(){
-        return UserModel.find({}).select('_id name start_date image end_date location price deletedAt').lean();
+        return TimeshareModel.find({}).select('_id name start_date image end_date location price deletedAt').lean();
     }
+
     async GetTimeShareByTrash(){
         return TimeshareModel.find({deleted: true}).populate({
             path: 'deleted',
@@ -74,10 +75,11 @@ class TimeshareService {
     //     return newTimeshare.save().catch();
     // }
 
-    Upload = async (req, name, price, start_date, end_date, location, images) => {
+    Upload = async (req, current_owner, name, price, start_date, end_date, location, images) => {
         // Add any additional processing logic here
         const uploadData = {
             image: images,
+            current_owner: current_owner,
             name: name,
             price: price,           
             start_date: start_date,

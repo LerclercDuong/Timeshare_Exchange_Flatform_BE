@@ -1,8 +1,8 @@
 const express = require('express');
-const Timeshare = require('../models/timeshares');
+const Timeshare = require('../../models/timeshares');
 const exphbs  = require('express-handlebars');
 const UserId = require('./user.js');
-const {timeshareServices} = require('../services');
+const {timeshareServices} = require('../../services/v1');
 const app = express();
 const fs = require('fs');
 const path = require('path');
@@ -111,14 +111,15 @@ async  Upload(req, res) {
           fs.renameSync(uploadedFile.path, newFilePath);
     
           // Add information about the uploaded image to the images array
-          images.push({ path: newFilePath });
+          images.push({ path: newFileName });
         }
     
-        const { name, price, start_date, end_date, location } = req.body;
+        const { current_owner, name, price, start_date, end_date, location } = req.body;
     
         // Assuming timeshareServices.Upload is an asynchronous function that handles database operations
         const uploadedFileInfo = await timeshareServices.Upload(
           req,
+          current_owner,
           name,
           price,
           start_date,

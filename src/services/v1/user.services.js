@@ -1,4 +1,4 @@
-const UserModel = require('../models/users');
+const UserModel = require('../../models/users');
 
 class UserService {
     //create user
