@@ -1,10 +1,10 @@
-const userService = require('../../services/v1/user.services.js');
-const authService = require('../../services/v1/auth.services.js');
-const tokenService = require('../../services/v1/token.service');
+const userService = require('../../services/v2/user.service.js');
+const authService = require('../../services/v2/auth.service.js');
+const tokenService = require('../../services/v2/token.service');
 const jwt = require('jsonwebtoken');
 const { StatusCodes } = require('http-status-codes');
 
-class Authentication {
+class AuthController {
 
     //Register:
     //Req: firstname, lastname, username, password, repeatPassword
@@ -80,4 +80,4 @@ class Authentication {
     }
 }
 
-module.exports = new Authentication;
+module.exports = new AuthController;

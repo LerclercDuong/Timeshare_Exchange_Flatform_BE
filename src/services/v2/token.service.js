@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const users = require('../../models/users');
-const userService = require('./user.services.js');
+const userService = require('./user.service.js');
 const TokenModel = require('../../models/tokens')
 const moment = require("moment");
 const { ObjectId } = require('mongodb');

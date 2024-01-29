@@ -1,7 +1,7 @@
 const express = require('express');
-const Timeshare = require('../../models/timeshares');
+const PostController = require('../../models/timeshares');
 const exphbs  = require('express-handlebars');
-const UserId = require('./user.js');
+const UserId = require('./user.controller.js');
 const {timeshareServices} = require('../../services/v1');
 const app = express();
 const fs = require('fs');
@@ -17,7 +17,7 @@ class Timeshares {
             const timeshareList = await timeshareServices.GetAllTimeshare();
             res.status(StatusCodes.OK).json(timeshareList)
         } catch {
-            res.status(StatusCodes.NO_CONTENT).json({message: 'Timeshare not found'})
+            res.status(StatusCodes.NO_CONTENT).json({message: 'PostController not found'})
         }
     }
 
@@ -28,7 +28,7 @@ class Timeshares {
             res.status(StatusCodes.OK).json(timeshareData)
             return;
         }
-        res.status(StatusCodes.NO_CONTENT).json({message: 'Timeshare not found'})
+        res.status(StatusCodes.NO_CONTENT).json({message: 'PostController not found'})
     }
 
     async DeleteTimeshare(req, res, next) {
@@ -36,7 +36,7 @@ class Timeshares {
             const deleteTimeshare = await timeshareServices.DeleteTimeshare(req);
             res.status(StatusCodes.OK).json(deleteTimeshare)
         } catch {
-            res.status(StatusCodes.NO_CONTENT).json({message: 'Timeshare not found'})
+            res.status(StatusCodes.NO_CONTENT).json({message: 'PostController not found'})
         }
     }
 
@@ -45,7 +45,7 @@ class Timeshares {
             const updateTimeshare = await timeshareServices.UpdateTimeshare(req);
             res.status(StatusCodes.OK).json(updateTimeshare)
         } catch {
-            res.status(StatusCodes.NO_CONTENT).json({message: 'Timeshare not found'})
+            res.status(StatusCodes.NO_CONTENT).json({message: 'PostController not found'})
         }
     }
 
@@ -54,7 +54,7 @@ class Timeshares {
             const restoreTimeshare = await timeshareServices.RestoreTimeshare(req);
             res.status(StatusCodes.OK).json(restoreTimeshare)
         } catch {
-            res.status(StatusCodes.NO_CONTENT).json({message: 'Timeshare not found'})
+            res.status(StatusCodes.NO_CONTENT).json({message: 'PostController not found'})
         }
     }
 
@@ -63,7 +63,7 @@ class Timeshares {
             const forceDeleteTimeshare = await timeshareServices.ForceDeleteTimeshare(req);
             res.status(StatusCodes.OK).json(forceDeleteTimeshare)
         } catch {
-            res.status(StatusCodes.NO_CONTENT).json({message: 'Timeshare not found'})
+            res.status(StatusCodes.NO_CONTENT).json({message: 'PostController not found'})
         }
     }
 
@@ -72,7 +72,7 @@ class Timeshares {
             const trashList = await timeshareServices.GetTimeShareByTrash();
             res.status(StatusCodes.OK).json(trashList)
         } catch {
-            res.status(StatusCodes.NO_CONTENT).json({message: 'Timeshare not found'})
+            res.status(StatusCodes.NO_CONTENT).json({message: 'PostController not found'})
         }
     }
 

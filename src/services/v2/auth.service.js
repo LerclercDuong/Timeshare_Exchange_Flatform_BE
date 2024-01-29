@@ -1,23 +1,23 @@
 const bcrypt = require('bcrypt');
-const userService = require('./user.services.js');
+const userService = require('./user.service.js');
 const TokenModel = require('../../models/tokens')
 const moment = require("moment");
 const UserModel = require("../../models/users");
 const tokenService = require('./token.service');
 const CheckLogin = require('../../utils/checkLogin.js');
+const ApiError = require('../../utils/ApiError')
 
 class AuthService {
 
     //signup function
     async SignUp(firstname, lastname, username, password) {
         const userExists = await UserModel.findOne({username: username});
-        if (userExists) throw new Error("User is exist")
+        if (userExists) throw new ApiError(203, "User is exist");
         const userData = {
             firstname: firstname,
             lastname: lastname,
             username: username,
             password: password,
-            role: 'user',
         }
         const newUser = new UserModel({...userData});
         return newUser.save().catch();

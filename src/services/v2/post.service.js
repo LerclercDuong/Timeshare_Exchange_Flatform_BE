@@ -3,7 +3,7 @@ const moment = require("moment");
 const UserId = require('../../controllers/v1/user');
 const TimeshareModel = require("../../models/timeshares");
 
-class TimeshareService {
+class PostService {
 
     // async GetTimeshare() {
     //     return TimeshareModel
@@ -124,4 +124,4 @@ class TimeshareService {
 
 }
 
-module.exports = new TimeshareService;
+module.exports = new PostService;
