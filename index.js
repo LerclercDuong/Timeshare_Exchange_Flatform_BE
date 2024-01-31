@@ -12,6 +12,7 @@ const multer  = require('multer')
 const upload = multer({ dest: 'uploads/' })
 /////----////
 const hbs = require('express-handlebars');
+const swaggerDocs = require("./src/docs/swagger");
 
 app.engine(
     'hbs',
@@ -53,4 +54,5 @@ router(app);
 
 httpServer.listen(PORT, function () {
     console.log('listening on port 8080');
+    swaggerDocs(app, PORT);
 });

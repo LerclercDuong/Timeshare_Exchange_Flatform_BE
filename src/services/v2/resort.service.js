@@ -7,8 +7,8 @@ const ApiError = require('../../utils/ApiError')
 
 class ResortService {
 
-    async Query() {
-
+    async QueryResort(filter, options) {
+        return await ResortModel.paginate(filter, options);
     }
 
     async GetAll() {
@@ -21,6 +21,18 @@ class ResortService {
             return resort;
         } else {
             throw new ApiError(203, 'Resort not found');
+        }
+    }
+    async UpdateResort(resortId, updatedFields){
+        try {
+            const resort = await ResortModel.findById(resortId);
+            if (!resort) {
+                throw new ApiError(203, 'Resort not found');
+            }
+            Object.assign(resort, updatedFields);
+            return await resort.save();
+        } catch (error) {
+            throw new Error(`Error updating resort: ${error.message}`);
         }
     }
 }

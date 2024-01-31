@@ -2,20 +2,14 @@ const bcrypt = require('bcrypt');
 const moment = require("moment");
 const UserId = require('../../controllers/v1/user');
 const TimeshareModel = require("../../models/timeshares");
+const ApiError = require('../../utils/ApiError')
 
 class PostService {
 
-    // async GetTimeshare() {
-    //     return TimeshareModel
-    //         .find()
-    //         .populate({
-    //             path: 'current_owner',
-    //             select: '_id name start_date end_date current_owner location price'
-    //         })
-    //         .select('_id name start_date end_date current_owner location price')
-    //         .lean();
-    // }
-    async GetAllTimeshare(){
+    async QueryPosts(filter, options){
+
+    }
+    async GetAllPosts(){
         return TimeshareModel.find({}).select('_id name start_date image end_date location price deletedAt').lean();
     }
 

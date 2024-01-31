@@ -1,6 +1,20 @@
-const { userServices }  = require('../../services/v1');
+const { userServices }  = require('../../services/v2');
 const {StatusCodes} = require('http-status-codes');
+const query = require("../../utils/query");
+const {resortServices} = require("../../services/v2");
 class UserController {
+    async GetUsers(req, res, next){
+        const filter = query(req.query, ['firstname', 'lastname', 'username']);
+        const options = query(req.query, ['page']);
+        const results = await userServices.QueryUser(filter, options);
+        res.status(StatusCodes.OK).json({
+            status: {
+                code: res.statusCode,
+                message: 'Query User'
+            },
+            data: results
+        })
+    }
 
     async GetAllUsers(req, res, next) {
         try{

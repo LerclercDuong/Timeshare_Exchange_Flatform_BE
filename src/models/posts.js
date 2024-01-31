@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const Users = require('./users'); // Import the Users model
 const mongooseDelete = require('mongoose-delete');
+const paginate = require("./plugin/paginate");
+const dateRange = require('./plugin/dateRange');
 
 const postSchema = new Schema({
     title: {
@@ -53,7 +55,7 @@ const postSchema = new Schema({
 
 });
 
-timeshares.pre('save', async function (next) {
+postSchema.pre('save', async function (next) {
     try {
         // Lấy thông tin của User dựa trên userId
         const user = await mongoose.model('Users').findById(this.current_owner);
@@ -69,10 +71,13 @@ timeshares.pre('save', async function (next) {
     }
 });
 
-timeshares.plugin(mongooseDelete,
+postSchema.plugin(paginate);
+postSchema.plugin(dateRange);
+
+postSchema.plugin(mongooseDelete,
     { deletedAt: true });
 
-const Post = mongoose.model('Timeshares', timeshares);
+const Post = mongoose.model('Posts', postSchema);
 
 module.exports = Post;
 

@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
+const paginate = require("./plugin/paginate");
+const dateRange = require('./plugin/dateRange');
 
 const users = new Schema({
     firstname: {
@@ -44,7 +46,7 @@ const users = new Schema({
         default: Date.now
     }
 });
-
+users.plugin(paginate);
 users.pre('save', async function (next) {
 
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!])(?!.*\s).{8,}$/;

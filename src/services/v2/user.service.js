@@ -1,7 +1,11 @@
 const UserModel = require('../../models/users');
+const ResortModel = require("../../models/resorts");
 
 class UserService {
-    //create user
+    async QueryUser(filter, options){
+        return await UserModel.paginate(filter, options);
+    }
+
     async GetUserById(userId) {
         return UserModel.findById(userId).select('_id username profilePicture role').lean();
     }
