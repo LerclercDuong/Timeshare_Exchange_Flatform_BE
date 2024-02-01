@@ -97,6 +97,16 @@ class ResortController {
         })
     }
 
+    async GetAllPostByResortId(req, res, next) {
+        const { id } = req.params;
+        try {
+            const allPosts = await resortServices.GetAllPostByResortId(id);
+            res.status(StatusCodes.OK).json(allPosts);
+        } catch (error) {
+            next(error);
+        }
+    }
+
 }
 
 module.exports = new ResortController;

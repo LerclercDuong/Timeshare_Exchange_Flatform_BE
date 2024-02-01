@@ -2,18 +2,12 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const Users = require('./users'); // Import the Users model
 const mongooseDelete = require('mongoose-delete');
-const paginate = require("./plugin/paginate");
-const dateRange = require('./plugin/dateRange');
 
 const postSchema = new Schema({
-    title: {
-        type: String,
-        required: true,
-    },
-    username: {
-        type: String,
-        required: true,
-    },
+    // username: {
+    //     type: String,
+    //     required: true,
+    // },
     price: {
         type: String,
         required: true,
@@ -26,27 +20,24 @@ const postSchema = new Schema({
         type: Date,
         required: true,
     },
-    location: {
-        type: String,
-        required: true,
-    },
     current_owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Users',
         required: true,
     },
-    resort: {
+    resortId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Resorts',
+        required: true,
+    },
+    unitId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Units',
         required: true,
     },
     image: {
         type: Array,
         path: String,
-    },
-    is_verified:{
-        type: Boolean,
-        default: false
     },
     availability: {
         type: Boolean,
@@ -74,9 +65,6 @@ postSchema.pre('save', async function (next) {
         next(error);
     }
 });
-
-postSchema.plugin(paginate);
-postSchema.plugin(dateRange);
 
 postSchema.plugin(mongooseDelete,
     { deletedAt: true });

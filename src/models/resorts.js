@@ -3,6 +3,10 @@ const {resortServices} = require("../services/v2");
 const paginate = require("./plugin/paginate");
 
 const resortSchema = new mongoose.Schema({
+    unitId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Units',
+    },
     name: {
         type: String,
         required: true

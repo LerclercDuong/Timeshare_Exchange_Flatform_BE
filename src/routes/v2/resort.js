@@ -8,6 +8,8 @@ router.get('/', resortController.GetResort);
 router.get('/:id', resortController.GetResortById);
 router.get('/get-all', resortController.GetAllResorts);
 router.put('/update/:id', resortController.UpdateResort);
+router.get('/:id/timeshare-rentals', resortController.GetAllPostByResortId);
+
 
 module.exports = router;
 /**
