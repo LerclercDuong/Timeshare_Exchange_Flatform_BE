@@ -16,6 +16,8 @@ router.get('/post-timeshare', Timeshare.PropertyPostTimeshare); //
 // router.post('/', upload.single('image'), Timeshare.Upload);
 
 router.post('/upload', upload.array('image'), Timeshare.Upload);
+router.post('/:id/reserve', Timeshare.ReserveTimeshare);
+
 
 
 module.exports = router;

@@ -5,6 +5,18 @@ const Properties = require('./properties');
 
 const mongooseDelete = require('mongoose-delete');
 const timeshares = new Schema({
+  
+  reservations: [ 
+    {
+      start_date: { type: Date, required: true },
+      end_date: { type: Date, required: true },
+      renter: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Users',
+        required: true,
+      },
+    },
+  ],
   image: {
     type: Array,
     path: String,
@@ -15,12 +27,10 @@ const timeshares = new Schema({
     ref: 'Properties',
     required: true,
 },
-  
   name: { 
     type: String,
     required: true,
   },
-
   price: { 
     type: String,
     required: true, 
@@ -33,6 +43,7 @@ const timeshares = new Schema({
     type: Date,
     required: true,
   },
+  
 
   // location: { 
   //   type: String, 

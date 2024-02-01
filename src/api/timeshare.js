@@ -16,6 +16,19 @@ const { mutipleMongooseToObject }= require('../utils/mongoose')
 const {StatusCodes} = require('http-status-codes');
 
 class Timeshares {
+    async ReserveTimeshare(req, res, next) {
+        const { id } = req.params;
+        const { start_date, end_date } = req.body;
+        const renter = req.user; // Assuming you have the user object in the request
+      
+        try {
+          const timeshare = await timeshareServices.ReserveTimeshare(id, start_date, end_date, renter);
+          res.status(StatusCodes.OK).json(timeshare);
+          console.log('timeshare')
+        } catch (error) {
+          res.status(StatusCodes.BAD_REQUEST).json({ message: 'Failed to reserve timeshare', error: error.message });
+        }
+      }
 
     async GetAllTimeshare(req, res, next) {
         try {

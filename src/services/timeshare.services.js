@@ -3,8 +3,53 @@ const moment = require("moment");
 const UserId = require('../api/user');
 const TimeshareModel = require("../models/timeshares");
 const properties = require('../models/properties');
+const UserModel = require("../models/users");
+
 
 class TimeshareService {
+    async ReserveTimeshare(id, start_date, end_date, renter) {
+        try {
+          const timeshare = await TimeshareModel.findById(id);
+      
+          if (!timeshare) {
+            throw new Error('Timeshare not found');
+          }
+      
+          // Check if the requested reservation period is within the available time range
+          if (start_date < timeshare.start_date || end_date > timeshare.end_date) {
+            throw new Error('Invalid reservation period');
+          }
+      
+          // Check if the requested reservation period overlaps with existing reservations
+          const overlappingReservation = timeshare.reservations.find(
+            (reservation) => reservation.start_date < end_date && reservation.end_date > start_date
+          );
+      
+          if (overlappingReservation) {
+            throw new Error('The timeshare is already reserved for the requested period');
+          }
+      
+          // Ensure that renter and renter._id are defined before accessing them
+          if (!renter || !renter._id) {
+            throw new Error('Invalid renter information');
+            
+          }
+      
+          // Add the new reservation with the renter information
+          timeshare.reservations = [
+            ...timeshare.reservations,
+            { start_date, end_date, renter: renter._id }
+          ];
+          await timeshare.save();
+      
+          return timeshare;
+        } catch (error) {
+          throw error; // Ensure that the error is propagated
+        }
+      }
+      
+      
+      
 
     async GetAllTimeshare(){
         return TimeshareModel.find({}).select('_id name start_date image end_date location price deletedAt').lean();
