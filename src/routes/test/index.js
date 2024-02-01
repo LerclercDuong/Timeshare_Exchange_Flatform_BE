@@ -13,7 +13,7 @@ function router(app) {
     app.use('/api/v2/auth', authRouter);
     app.use('/api/v2/user', userRouter);
     app.use('/api/v2/resort', postRouter);
-    app.use('/api/v2/resort', resortRouter);
+    app.use('/resort', resortRouter);
 }
 
 module.exports = router;

@@ -44,6 +44,10 @@ const postSchema = new Schema({
         type: Array,
         path: String,
     },
+    is_verified:{
+        type: Boolean,
+        default: false
+    },
     availability: {
         type: Boolean,
         default: true

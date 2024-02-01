@@ -13,7 +13,7 @@ router.put('/:id', Timeshare.UpdateTimeshare); //cap nhat
 router.patch('/:id/restore', Timeshare.RestoreTimeshare); //khoi phuc
 router.get('/:id/trash-list', Timeshare.GetTimeShareByTrash); //danh sach timehshare trong thung rac
 router.get('/post-timeshare', Timeshare.PostTimeshare); //
-// router.post('/', upload.single('image'), Timeshare.Upload);
+// router.resort('/', upload.single('image'), Timeshare.Upload);
 
 router.post('/upload', upload.array('image'), Timeshare.Upload);
 

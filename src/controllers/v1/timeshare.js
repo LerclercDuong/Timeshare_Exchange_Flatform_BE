@@ -89,7 +89,7 @@ class Timeshares {
 //         }
 //     }
 
-async  Upload(req, res) {
+async Upload(req, res) {
     
     try {
         const uploadedFiles = req.files;

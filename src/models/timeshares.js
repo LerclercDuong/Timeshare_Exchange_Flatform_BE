@@ -50,7 +50,6 @@ const timeshares = new Schema({
     type: Date,
     default: Date.now
   },
-
 });
 
 timeshares.pre('save', async function (next) {

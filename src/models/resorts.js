@@ -27,9 +27,7 @@ const resortSchema = new mongoose.Schema({
     image_urls: [{
         type: String
     }],
-    room_type: [{
-        type: Object
-    }]
+    units: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Units' }],
 });
 
 resortSchema.plugin(paginate);
