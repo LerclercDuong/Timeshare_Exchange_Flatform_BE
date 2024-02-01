@@ -1,10 +1,15 @@
-// properties.js
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const Users = require('./users'); // Import the Users model
+const mongooseDelete = require('mongoose-delete');
 
-const timeshares = new mongoose.Schema({
-  name: { 
+const timeshares = new Schema({
+
+  username: {
+    type: String,
+    required: true,
+  },
+  price: {
     type: String,
     required: true,
   },
@@ -16,44 +21,33 @@ const timeshares = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  price: { 
+  location: {
     type: String,
-    required: true, 
-  },  
-  location: { 
-    type: String, 
     required: true,
   },
-    current_owner:{
+  current_owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Users',
     required: true,
   },
-  price: { 
-    type: String,
-    required: true, 
-  },
-  current_owner:{
+  resort: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Users',
+    ref: 'Resorts',
     required: true,
   },
-  username:{
-    type: String,
+  image: {
+    type: Array,
+    path: String,
   },
-  location: { 
-    type: String, 
-    required: true,
+  availability: {
+    type: Boolean,
+    default: true
   },
-  availability: { 
-    type: Boolean, 
-    default: true 
-  },
-
   timestamp: {
     type: Date,
     default: Date.now
   },
+
 });
 
 timeshares.pre('save', async function (next) {
@@ -72,6 +66,9 @@ timeshares.pre('save', async function (next) {
   }
 });
 
+timeshares.plugin(mongooseDelete,
+  { deletedAt: true });
 
+// sử dụng thư viện soft delete và overrideMethods (hide or show)
 module.exports = mongoose.model('Timeshares', timeshares);
 

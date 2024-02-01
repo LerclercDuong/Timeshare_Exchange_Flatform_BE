@@ -3,10 +3,22 @@ const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
 
 const users = new Schema({
+    firstname: {
+        type: String,
+    },
+    lastname: {
+        type: String
+    },
     username: {
         type: String,
         required: true,
         unique: 1,
+        validate: {
+            validator: function (value) {
+                return value.trim().length > 0;
+            },
+            message: 'Username cannot be blank',
+        },
     },
     password: {
         type: String,
@@ -15,10 +27,6 @@ const users = new Schema({
     email: {
         type: String,
         required: false
-    },
-    phone: {
-        type: String,
-        require: true,
     },
     profilePicture: {
         type: String,
@@ -34,7 +42,7 @@ const users = new Schema({
     timestamp: {
         type: Date,
         default: Date.now
-    }
+    },
 });
 
 users.pre('save', async function (next) {
