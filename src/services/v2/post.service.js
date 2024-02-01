@@ -1,8 +1,9 @@
 const bcrypt = require('bcrypt');
 const moment = require("moment");
 const UserId = require('../../controllers/v1/user');
-const TimeshareModel = require("../../models/timeshares");
-const ApiError = require('../../utils/ApiError')
+const PostModel = require("../../models/posts");
+const ReservationModel = require('../../models/reservations');
+const RequestModel = require('../../models/requests')
 
 class PostService {
 
@@ -68,7 +69,10 @@ class PostService {
     //     const newTimeshare = new TimeshareModel({...timeshareData});
     //     return newTimeshare.save().catch();
     // }
-
+    async GetTimeshareById(id) {
+        const getTimeshareById = await PostModel.findById(id)
+        return getTimeshareById;
+    }
     Upload = async (req, current_owner, name, price, start_date, end_date, location, images) => {
         // Add any additional processing logic here
         const uploadData = {
@@ -114,6 +118,27 @@ class PostService {
 //     return newTimeshare.save().catch();
 
 // };
+    async SubmitRentRequest(name, phone, userId, postId, requestId, status) {
+        try {
+            const submitData = {
+                name: name,
+                phone: phone,
+                postId: postId,
+                userId: userId,
+                requestId: requestId,
+                status: status,
+            };
+            const submitRent = new ReservationModel({ ...submitData });
+            await submitRent.save();
+
+            await PostModel.findByIdAndUpdate(postId, { availability: false });
+            await RequestModel.findByIdAndUpdate(requestId, { status: 'confirmed' });
+
+            return submitRent;
+        } catch (error) {
+            throw new ApiError('Error processing rent request', 500); // Handle error appropriately
+        }
+    }
 
 
 }

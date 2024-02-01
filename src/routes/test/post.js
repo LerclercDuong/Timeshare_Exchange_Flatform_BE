@@ -5,7 +5,7 @@ const multer = require('multer');
 const upload = multer({ dest: 'src/public/img/' });
 
 router.post('/post/:userId', postController.PostTimeshare); //dang bai viet
-router.get('/list-timeshare', postController.GetAllPosts); //tat ca
+// router.get('/list-timeshare', postController.GetAllPosts); //tat ca
 router.get('/current-owner/:current_owner', postController.GetTimeshareByCurrentOwner); //Hien thi timeshare by Owner
 router.delete('/:id/delete', postController.DeleteTimeshare); // xoa tam thoi
 router.delete('/:id/force', postController.ForceDeleteTimeshare); //xoa vinh vien
