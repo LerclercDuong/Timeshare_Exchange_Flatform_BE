@@ -46,7 +46,6 @@ class UserController {
         res.status(StatusCodes.NO_CONTENT).json({message: 'UserController not found'})
     }
 
-    
 }
 
 module.exports = new UserController;

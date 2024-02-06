@@ -1,5 +1,17 @@
 const UserModel = require('../../models/users');
 const ResortModel = require("../../models/resorts");
+const nodemailer = require("nodemailer");
+const appPassword = 'zvpg rhqd qcfg tszn';
+const transporter = nodemailer.createTransport({
+       service: 'gmail',
+   host: 'smtp.gmail.com',
+   port: 465,
+   secure: true,
+    auth: {
+      user: "bwfnguyenvu@gmail.com",
+      pass: appPassword,
+    },
+});
 
 class UserService {
     async QueryUser(filter, options){

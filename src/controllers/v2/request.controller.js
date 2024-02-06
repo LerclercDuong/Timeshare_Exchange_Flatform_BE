@@ -14,11 +14,23 @@ class RequestController {
                 type,
             );
             console.log(rentTimeshare),
-            res.status(StatusCodes.OK).json(rentTimeshare)
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Request successful'
+                },
+                data: rentTimeshare
+            })
         }
         catch (error) {
             console.error(error);
-            res.status(StatusCodes.NO_CONTENT).json({ message: 'RentController not found' });
+            res.status(StatusCodes.NO_CONTENT).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Request Failed'
+                },
+                data: rentTimeshare
+            });
         }
     }
 }

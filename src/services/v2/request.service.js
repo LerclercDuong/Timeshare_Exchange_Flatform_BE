@@ -6,7 +6,7 @@ const TimeshareModel = require("../../models/timeshares");
 const ApiError = require('../../utils/ApiError');
 
 class RequestService {
-    RequestRent = async (userId, postId, status, type) => {
+    async RequestRent (userId, postId, status, type){
         try {
             // Add any additional processing logic here
             const rentData = {
@@ -18,15 +18,11 @@ class RequestService {
 
             const newRent = new RequestModel({...rentData});
             await newRent.save();
-            // Update the availability in the Timeshares model
-            // await TimeshareModel.findByIdAndUpdate(timeshareId, { availability: false });
-
             return newRent;
         } catch (error) {
             throw new ApiError('Error processing rent request', 500); // Handle error appropriately
         }
     }
-
     
 }
 
