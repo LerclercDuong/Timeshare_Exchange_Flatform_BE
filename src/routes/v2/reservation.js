@@ -5,7 +5,7 @@ const multer = require('multer');
 const upload = multer({ dest: 'src/public/img/' });
 
 /**
- * @swagger
+ * @openapi
  * /api/v2/reservation/confirm/{reservationId}:
  *   post:
  *     tags: 
@@ -25,7 +25,7 @@ const upload = multer({ dest: 'src/public/img/' });
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Reservation'
+ *               $ref: ''
  *       '404':
  *         description: Reservation not found
  *       '500':
