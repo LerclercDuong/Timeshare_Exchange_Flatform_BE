@@ -18,6 +18,10 @@ const reservationSchema = new Schema({
         ref: 'Requests',
         required: true,
     },
+    verificationCode: {
+        type: Number,
+        required: true,
+    },
     reservationDate: {
         type: Date,
     },
@@ -28,6 +32,10 @@ const reservationSchema = new Schema({
 
     phone: {
         type: Number,
+        required: true,
+    },
+    email: {
+        type: String,
         required: true,
     },
     status: {

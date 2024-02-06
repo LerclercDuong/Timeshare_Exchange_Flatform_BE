@@ -101,9 +101,20 @@ class ResortController {
         const { id } = req.params;
         try {
             const allPosts = await resortServices.GetAllPostByResortId(id);
-            res.status(StatusCodes.OK).json(allPosts);
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Get all post by resort id'
+                },
+                data: allPosts
+            });
         } catch (error) {
-            next(error);
+            res.json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Resort id not found'
+                },
+            })
         }
     }
 

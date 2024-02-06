@@ -7,5 +7,4 @@ router.get('/:userId', User.GetUserById);
 router.get('/username/:username', User.GetUserByUsername);
 router.get('/users', User.GetAllUsers);
 
-
 module.exports = router;

@@ -30,6 +30,10 @@ const users = new Schema({
         type: String,
         required: false
     },
+    verificationCode:{
+        type: Number,
+        required: true,
+    },
     profilePicture: {
         type: String,
         required: true,
