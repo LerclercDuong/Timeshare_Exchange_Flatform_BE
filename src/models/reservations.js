@@ -25,7 +25,6 @@ const reservationSchema = new Schema({
         type: String,
         required: true,
     },
-
     phone: {
         type: Number,
         required: true,

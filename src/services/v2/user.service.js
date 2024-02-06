@@ -7,11 +7,11 @@ class UserService {
     }
 
     async GetUserById(userId) {
-        return UserModel.findById(userId).select('_id username profilePicture role').lean();
+        return UserModel.findById(userId).select('_id firstname lastname username profilePicture role').lean();
     }
 
     async GetUserByName(username){
-        return UserModel.findOne({username: username}).select('_id username profilePicture role').lean();
+        return UserModel.findOne({username: username}).select('_id firstname lastname username profilePicture role').lean();
     }
 
     async GetUserByEmail(email){

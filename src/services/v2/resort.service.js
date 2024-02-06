@@ -9,7 +9,8 @@ const PostModel = require("../../models/posts");
 class ResortService {
 
     async QueryResort(filter, options) {
-        return await ResortModel.paginate(filter, options);
+        const resorts = await ResortModel.paginate(filter, options);
+        return resorts;
     }
 
     async GetAll() {

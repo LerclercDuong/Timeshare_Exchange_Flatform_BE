@@ -30,6 +30,10 @@ const users = new Schema({
         type: String,
         required: false
     },
+    phone: {
+        type: String,
+        required: false
+    },
     profilePicture: {
         type: String,
         required: true,
@@ -38,7 +42,7 @@ const users = new Schema({
     role: {
         type: String,
         required: true,
-        enum: ['user', 'admin'],
+        enum: ['user', 'admin', 'member'],
         default: 'user'
     },
     timestamp: {

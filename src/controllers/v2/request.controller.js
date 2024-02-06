@@ -13,7 +13,7 @@ class RequestController {
                 status,
                 type,
             );
-            console.log(rentTimeshare),
+            console.log(rentTimeshare)
             res.status(StatusCodes.OK).json(rentTimeshare)
         }
         catch (error) {

@@ -4,10 +4,10 @@ const Users = require('./users'); // Import the Users model
 const mongooseDelete = require('mongoose-delete');
 
 const postSchema = new Schema({
-    // username: {
-    //     type: String,
-    //     required: true,
-    // },
+    type:{
+        type: String,
+        enum: ['rent', 'exchange']
+    },
     price: {
         type: String,
         required: true,

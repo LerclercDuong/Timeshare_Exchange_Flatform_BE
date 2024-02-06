@@ -9,13 +9,11 @@ class ReservationService {
     async ConfirmRent(reservationId) {
         try {
             const reservation = await ReservationModel.findById(reservationId);
-
             if (!reservation) {
                 throw new Error('Reservation not found');
             }
             reservation.status = 'confirmed';
             await reservation.save();
-
             return reservation;
         } catch (error) {
             throw new Error('Error confirming reservation');
