@@ -4,7 +4,6 @@ const {StatusCodes} = require('http-status-codes');
 
 
 class ReservationController {
-
     async ConfirmRent(req, res, next) {
         try {
             const { reservationId } = req.params;

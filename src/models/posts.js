@@ -2,15 +2,13 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const Users = require('./users'); // Import the Users model
 const mongooseDelete = require('mongoose-delete');
+const {GetPresignedUrl, uploadToS3} = require("../utils/s3Store");
+const paginate = require("./plugin/paginate");
 
 const postSchema = new Schema({
-    // username: {
-    //     type: String,
-    //     required: true,
-    // },
-    price: {
+    type: {
         type: String,
-        required: true,
+        enum: ['rent', 'exchange']
     },
     start_date: {
         type: Date,
@@ -35,9 +33,21 @@ const postSchema = new Schema({
         ref: 'Units',
         required: true,
     },
-    image: {
+    numberOfNights: {
+        type: Number,
+        required: true,
+    },
+    price: {
+        type: String,
+        required: true,
+    },
+    pricePerNight: {
+        type: String,
+        required: true,
+    },
+    images: {
         type: Array,
-        path: String,
+        path: String
     },
     availability: {
         type: Boolean,
@@ -49,7 +59,7 @@ const postSchema = new Schema({
     },
 
 });
-
+postSchema.plugin(paginate);
 postSchema.pre('save', async function (next) {
     try {
         // Lấy thông tin của User dựa trên userId
@@ -67,9 +77,31 @@ postSchema.pre('save', async function (next) {
 });
 
 postSchema.plugin(mongooseDelete,
-    { deletedAt: true });
+    {deletedAt: true});
+postSchema.pre('find', async function (docs, next) {
+    this.populate({
+        path: "resortId current_owner unitId"
+    })
+});
+postSchema.pre('findOne', async function (docs, next) {
+    this.populate({
+        path: "resortId current_owner unitId"
+    })
+});
+
+postSchema.post('find', async function (docs, next) {
+    for (let doc of docs) {
+        if (doc.images) doc.images = await Promise.all(doc.images.map(GetPresignedUrl));
+    }
+    next()
+});
+postSchema.post('findOne', async function (doc, next) {
+    if (doc.images) doc.images = await Promise.all(doc.images.map(GetPresignedUrl));
+    next()
+});
 
 const Post = mongoose.model('Posts', postSchema);
+
 
 module.exports = Post;
 

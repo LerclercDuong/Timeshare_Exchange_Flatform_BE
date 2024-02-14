@@ -26,17 +26,31 @@ class AuthController {
     //Req: username, password
     //Res: userData = {}, tokens = []
     async Login(req, res, next) {
-        const { username, password } = req.body;
+        const {username, password} = req.body;
         try {
-            const userData = await authService.LoginWithUsernameAndPassword(username, password);
-            if (userData) {
-                const tokens = await authService.GenerateAuthToken(userData);
-                res.status(StatusCodes.OK).json({ userData, tokens });
+            const loginData = await authService.LoginWithUsernameAndPassword(username, password);
+            if (loginData) {
+                const tokens = await authService.GenerateAuthToken(loginData);
+                res.status(StatusCodes.OK).json(
+                    {
+                        status: {
+                            code: res.statusCode,
+                            message: 'Login successfully'
+                        },
+                        data: {user: loginData, tokens}
+                    }
+                );
             } else {
-                res.status(StatusCodes.UNAUTHORIZED).json();
+                res.status(StatusCodes.UNAUTHORIZED).json({
+                    status: {
+                        code: res.statusCode,
+                        message: 'Login fail'
+                    },
+                    data: null
+                });
             }
         } catch (err) {
-            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: err.message });
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({message: err.message});
         }
     }
 
@@ -63,12 +77,20 @@ class AuthController {
                 const decodedToken = await jwt.verify(token, process.env.ACCESS_SECRET_KEY);
                 if (decodedToken) {
                     const userData = await userService.GetUserById(decodedToken.sub)
-                    res.status(StatusCodes.OK).json(userData)
+                    res.status(StatusCodes.OK).json({
+                        status: {
+                            code: res.statusCode,
+                            message: 'Authenticated'
+                        },
+                        data: {
+                            user: userData
+                        }
+                    })
                 }
             } catch (e) {
-                res.status(StatusCodes.UNAUTHORIZED).json({ isAuth: false });
+                res.status(StatusCodes.UNAUTHORIZED).json({isAuth: false});
             }
-        } else res.status(StatusCodes.UNAUTHORIZED).json({ isAuth: false });
+        } else res.status(StatusCodes.UNAUTHORIZED).json({isAuth: false});
     }
 
     async loginWithGoogle(req, res, next) {

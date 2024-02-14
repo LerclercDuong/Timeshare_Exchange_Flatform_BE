@@ -16,7 +16,7 @@ class TokenService {
             role: role,
             type: type,
         }, tokenSecretKey, {expiresIn: tokenLife});
-        return 'Bearer ' + token;
+        return token;
     }
 
     async SaveTokenToDB(userId, token, type, exp) {

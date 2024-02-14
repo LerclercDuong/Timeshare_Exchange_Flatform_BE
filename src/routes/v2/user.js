@@ -6,5 +6,6 @@ router.get('/', User.GetUsers);
 router.get('/:userId', User.GetUserById);
 router.get('/username/:username', User.GetUserByUsername);
 router.get('/users', User.GetAllUsers);
+router.post('/update/:userId', User.UpdateUser);
 
 module.exports = router;

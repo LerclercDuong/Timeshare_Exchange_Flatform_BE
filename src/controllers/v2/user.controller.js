@@ -2,6 +2,7 @@ const { userServices }  = require('../../services/v2');
 const {StatusCodes} = require('http-status-codes');
 const query = require("../../utils/query");
 const {resortServices} = require("../../services/v2");
+
 class UserController {
     async GetUsers(req, res, next){
         const filter = query(req.query, ['firstname', 'lastname', 'username']);
@@ -46,6 +47,31 @@ class UserController {
         res.status(StatusCodes.NO_CONTENT).json({message: 'UserController not found'})
     }
 
+    async UpdateUser(req, res, next){
+        const { userId } = req.params;
+        const updated = await userServices.UpdateUser(userId, req.body, req.files);
+        if (updated) {
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Update user successfully'
+                },
+                data: updated
+            })
+            return;
+        }
+        res.status(StatusCodes.NO_CONTENT).json({
+            status: {
+                code: res.statusCode,
+                message: 'Update user failed'
+            },
+            data: null
+        })
+    }
+
+    async UpgradeUser(req, res,next ){
+
+    }
 }
 
 module.exports = new UserController;

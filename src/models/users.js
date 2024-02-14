@@ -30,6 +30,14 @@ const users = new Schema({
         type: String,
         required: false
     },
+    phone: {
+        type:String,
+        required: false
+    },
+    country:{
+        type: String,
+        required: false
+    },
     verificationCode:{
         type: Number,
         required: true,
@@ -42,7 +50,7 @@ const users = new Schema({
     role: {
         type: String,
         required: true,
-        enum: ['user', 'admin'],
+        enum: ['user', 'admin', 'member'],
         default: 'user'
     },
     timestamp: {
