@@ -257,7 +257,7 @@ class Timeshares {
     async UploadPostWithS3(req, res, next){
         try {
             const imageFiles = req.files.imageFiles;
-            const {current_owner, resortId, unitId, numberOfNights, price, pricePerNight, start_date, end_date} = req.body;
+            const {current_owner, resortId, unitId, numberOfNights, price, pricePerNight, start_date, end_date, type} = req.body;
             const uploadedData = await postService.UploadPostWithS3({
                 imageFiles,
                 resortId,
@@ -267,7 +267,8 @@ class Timeshares {
                 price,
                 pricePerNight,
                 start_date,
-                end_date
+                end_date,
+                type
             });
             res.status(StatusCodes.OK).json({
                 status: {

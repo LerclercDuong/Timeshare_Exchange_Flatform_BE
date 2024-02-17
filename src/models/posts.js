@@ -6,9 +6,14 @@ const {GetPresignedUrl, uploadToS3} = require("../utils/s3Store");
 const paginate = require("./plugin/paginate");
 
 const postSchema = new Schema({
+    postId: {
+        type: String,
+        // required: true
+    },
     type: {
         type: String,
-        enum: ['rent', 'exchange']
+        enum: ['rental', 'exchange'],
+        required:true
     },
     start_date: {
         type: Date,
@@ -49,9 +54,13 @@ const postSchema = new Schema({
         type: Array,
         path: String
     },
-    availability: {
+    is_bookable: {
         type: Boolean,
         default: true
+    },
+    is_verified: {
+        type: Boolean,
+        default: false
     },
     timestamp: {
         type: Date,
@@ -64,7 +73,11 @@ postSchema.pre('save', async function (next) {
     try {
         // Lấy thông tin của User dựa trên userId
         const user = await mongoose.model('Users').findById(this.current_owner);
-
+        // if (!this.postId) {
+        //     const latestPost = await mongoose.model('Posts').findOne({}, {}, { sort: { 'timestamp': -1 } });
+        //     const latestPostNumber = latestPost ? parseInt(latestPost.postId.slice(1)) : 0;
+        //     this.postId = 'P' + (latestPostNumber + 1).toString().padStart(6, '0');
+        // }
         // Gán giá trị username từ thông tin User vào trường username của Properties
         if (user) {
             this.username = user.username;

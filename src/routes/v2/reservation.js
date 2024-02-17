@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const reservationRouter = require('../../controllers/v2/reservation.controller');
+const paymentController = require('../../controllers/v2/payment.controller')
 const multer = require('multer');
 const upload = multer({ dest: 'src/public/img/' });
 
@@ -31,6 +32,8 @@ const upload = multer({ dest: 'src/public/img/' });
  *       '500':
  *         description: Error confirming reservation
  */
+router.get('/:reservationId', reservationRouter.GetReservationById);
+router.post('/create', reservationRouter.MakeReservation, paymentController.CreatePayment);
 router.post('/confirm/:reservationId', reservationRouter.ConfirmRent);
 
 

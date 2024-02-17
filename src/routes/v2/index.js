@@ -3,6 +3,7 @@ const userRouter = require('./user');
 const postRouter = require('./post');
 const resortRouter = require('./resort');
 const requestRouter = require('./request')
+const paymentRouter = require('./payment')
 const reservationRouter = require('./reservation')
 const unitRouter = require('./unit')
 const CheckAuth = require('../../middlewares/auth');
@@ -19,6 +20,7 @@ function router(app) {
     app.use('/api/v2/request', requestRouter);
     app.use('/api/v2/reservation', reservationRouter);
     app.use('/api/v2/unit', unitRouter);
+    app.use('/api/v2/payment', paymentRouter);
 }
 
 module.exports = router;

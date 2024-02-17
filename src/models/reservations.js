@@ -16,16 +16,14 @@ const reservationSchema = new Schema({
     requestId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Requests',
-        required: true,
     },
     verificationCode: {
         type: Number,
-        required: true,
     },
     reservationDate: {
         type: Date,
     },
-    name: {
+    fullName: {
         type: String,
         required: true,
     },
@@ -37,14 +35,73 @@ const reservationSchema = new Schema({
         type: String,
         required: true,
     },
+    address: {
+        street: {
+            type: String,
+            required: true,
+        },
+        city: {
+            type: String,
+            required: true,
+        },
+        province: {
+            type: String,
+            required: true,
+        },
+        zipCode: {
+            type: String,
+            required: true,
+        },
+        country: {
+            type: String,
+            required: true,
+        },
+    },
+    // billing_info: {
+    //     cardHolderName: {
+    //         type: String,
+    //         required: true,
+    //     },
+    //     cardNumber: {
+    //         type: String,
+    //         required: true,
+    //     },
+    //     expirationDate: {
+    //         type: String,
+    //         required: true,
+    //     },
+    //     CVV: {
+    //         type: String,
+    //         required: true,
+    //     },
+    // },
+    amount: {
+        type: Number,
+        required: true
+    },
+    isPaid: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
     status: {
         type: String,
         enum: ['pending', 'confirmed', 'canceled'],
         default: 'pending',
     }
 });
-reservationSchema.plugin(mongooseDelete);
 
+reservationSchema.plugin(mongooseDelete);
+reservationSchema.pre('find', async function (docs, next) {
+    this.populate({
+        path: "postId userId"
+    })
+});
+reservationSchema.pre('findOne', async function (docs, next) {
+    this.populate({
+        path: "postId userId"
+    })
+});
 const Reservation = mongoose.model('Reservations', reservationSchema);
 
 module.exports = Reservation;
