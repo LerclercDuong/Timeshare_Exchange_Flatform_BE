@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Post = require('../../controllers/v2/post.controller');
+const postController = require('../../controllers/v2/post.controller');
 const multer = require('multer');
 const { plugin } = require('mongoose');
 const upload = multer({ dest: 'src/public/img/' });
@@ -14,7 +14,8 @@ const upload = multer({ dest: 'src/public/img/' });
 // router.patch('/:id/restore', Post.RestoreTimeshare); //khoi phuc
 // router.get('/:id/trash-list', Post.GetTimeShareByTrash); //danh sach timehshare trong thung rac
 // router.get('/post-timeshare', Post.PostTimeshare); //
-// router.post('/upload', upload.array('image'), Post.UploadPost);
+router.get('/', postController.GetPost);
+router.post('/upload', postController.UploadPostWithS3);
 
 // //--v2--//
 // router.get('/list-timeshare-availability', Post.PostTimeshare); //
@@ -55,7 +56,7 @@ const upload = multer({ dest: 'src/public/img/' });
  *               message: Timeshares not found
  *               data: []
  */
-router.get('/list', Post.GetAllPosts);
+router.get('/list', postController.GetAllPosts);
 
 /**
  * @openapi
@@ -98,7 +99,7 @@ router.get('/list', Post.GetAllPosts);
  *               message: Timeshares not found
  *               data: []
  */
-router.get('/current-owner/:current_owner', Post.GetTimeshareByCurrentOwner);
+router.get('/current-owner/:current_owner', postController.GetTimeshareByCurrentOwner);
 
 /**
  * @openapi
@@ -132,7 +133,7 @@ router.get('/current-owner/:current_owner', Post.GetTimeshareByCurrentOwner);
  *               message: Delete failed
  *               data: {}
  */
-router.delete('/:id', Post.DeleteTimeshare);
+router.delete('/:id', postController.DeleteTimeshare);
 
 /**
  * @openapi
@@ -166,7 +167,7 @@ router.delete('/:id', Post.DeleteTimeshare);
  *               message: Force failed
  *               data: {}
  */
-router.delete('/:id/force', Post.ForceDeleteTimeshare);
+router.delete('/:id/force', postController.ForceDeleteTimeshare);
 
 /**
  * @openapi
@@ -200,7 +201,7 @@ router.delete('/:id/force', Post.ForceDeleteTimeshare);
  *               message: Update Failed
  *               data: {}
  */
-router.put('/:id', Post.UpdateTimeshare);
+router.put('/:id', postController.UpdateTimeshare);
 
 /**
  * @openapi
@@ -234,7 +235,7 @@ router.put('/:id', Post.UpdateTimeshare);
  *               message: Restore failed
  *               data: {}
  */
-router.patch('/:id/restore', Post.RestoreTimeshare);
+router.patch('/:id/restore', postController.RestoreTimeshare);
 
 /**
  * @openapi
@@ -277,7 +278,7 @@ router.patch('/:id/restore', Post.RestoreTimeshare);
  *               message: Trash list not found
  *               data: []
  */
-router.get('/:id/trash-list', Post.GetTimeShareByTrash);
+router.get('/:id/trash-list', postController.GetTimeShareByTrash);
 
 /**
  * @openapi
@@ -293,7 +294,7 @@ router.get('/:id/trash-list', Post.GetTimeShareByTrash);
  *           text/html:
  *             example: Post timeshare page rendered successfully
  */
-router.get('/post-timeshare', Post.PostTimeshare);
+router.get('/post-timeshare', postController.PostTimeshare);
 
 /**
  * @openapi
@@ -351,7 +352,7 @@ router.get('/post-timeshare', Post.PostTimeshare);
  *               message: Upload failed
  *               data: {}
  */
-router.post('/upload', upload.array('image'), Post.UploadPost);
+// router.post('/upload', upload.array('image'), postController.UploadPost);
 
 // /**
 //  * @openapi
@@ -430,7 +431,7 @@ router.post('/upload', upload.array('image'), Post.UploadPost);
  *               message: Id not found
  *               data: {}
  */
-router.get('/:id', Post.GetTimeshareById);
+router.get('/:id', postController.GetPostById);
 
 /**
  * @openapi
@@ -501,7 +502,7 @@ router.get('/:id', Post.GetTimeshareById);
  *               message: Submission failed
  *               data: {}
  */
-router.post('/:postId/book', Post.SubmitRentRequest);
+router.post('/:postId/book', postController.SubmitRentRequest);
 
 
 

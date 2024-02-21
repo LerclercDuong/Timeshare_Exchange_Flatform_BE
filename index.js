@@ -13,7 +13,9 @@ const upload = multer({ dest: 'uploads/' })
 /////----////
 const hbs = require('express-handlebars');
 const swaggerDocs = require("./src/docs/swagger");
+const fileUpload = require('express-fileupload');
 
+app.use(fileUpload());
 app.engine(
     'hbs',
     hbs.engine({

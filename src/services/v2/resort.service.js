@@ -17,7 +17,7 @@ class ResortService {
     }
 
     async GetById(id) {
-        const resort = await ResortModel.findById(id).catch(()=>{});
+        const resort = await ResortModel.findById(id).populate('units').catch(()=>{});
         if (resort) {
             return resort;
         } else {

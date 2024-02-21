@@ -5,34 +5,39 @@ const PostModel = require("../../models/posts");
 const ReservationModel = require('../../models/reservations');
 const RequestModel = require('../../models/requests')
 const nodemailer = require("nodemailer");
+const {uploadToS3} = require("../../utils/s3Store");
+const ResortModel = require("../../models/resorts");
 const appPassword = 'zvpg rhqd qcfg tszn';
 const transporter = nodemailer.createTransport({
-       service: 'gmail',
-   host: 'smtp.gmail.com',
-   port: 465,
-   secure: true,
+    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
-      user: "bwfnguyenvu@gmail.com",
-      pass: appPassword,
+        user: "bwfnguyenvu@gmail.com",
+        pass: appPassword,
     },
-  });
+});
 
 class PostService {
 
-    async QueryPosts(filter, options){
-
+    async QueryPost(filter, options) {
+        return await PostModel.paginate(filter, options);
     }
-    async GetAllPosts(){
+
+    async GetAllPosts() {
         return PostModel.find({}).select('_id name start_date image end_date location price deletedAt').lean();
     }
-    async GetTimeShareByTrash(){
+
+    async GetTimeShareByTrash() {
         return TimeshareModel.find({deleted: true}).populate({
             path: 'deleted',
             select: '_id name start_date end_date current_owner location price deletedAt'
         })
-        .select('_id name start_date end_date current_owner location price deletedAt')
-        .lean();
+            .select('_id name start_date end_date current_owner location price deletedAt')
+            .lean();
     }
+
     async GetTimeshareByCurrentOwner(current_owner) {
         return PostModel
             .find({current_owner})
@@ -40,9 +45,9 @@ class PostService {
                 path: 'current_owner',
                 select: '_id username profilePicture role'
             })
-            .select('_id name start_date end_date current_owner location price')
             .lean();
     }
+
     async DeleteTimeshare(req) {
         const deleteTimeshare = await PostModel.delete({_id: req.params.id}, req.body)
         return deleteTimeshare;
@@ -59,20 +64,58 @@ class PostService {
         const forceDeleteTimeshare = await TimeshareModel.deleteOne({_id: req.params.id}, req.body)
         return forceDeleteTimeshare;
     }
-    async GetTimeshareById(id) {
-        const getTimeshareById = await PostModel.findById(id)
-        return getTimeshareById;
+
+    async GetPostById(id) {
+        return await PostModel.findById(id);
     }
 
-    async UploadPost (req, current_owner, unitId, price, start_date, end_date, resortId, images) {
+    async UploadPost(req, current_owner, unitId, price, start_date, end_date, resortId, images) {
         const uploadData = {
             image: images,
             current_owner: current_owner,
             unitId: unitId,
-            price: price,           
+            price: price,
             start_date: start_date,
             end_date: end_date,
             resortId: resortId,
+        }
+        const newUpload = new PostModel({...uploadData});
+        return newUpload.save().catch();
+    }
+
+    async UploadPostWithS3({
+                               imageFiles,
+                               current_owner,
+                               unitId,
+                               numberOfNights,
+                               price,
+                               pricePerNight,
+                               start_date,
+                               end_date,
+                               resortId,
+                               type
+                           }) {
+        const imageKeys = [];
+        if (!Array.isArray(imageFiles)) {
+            const {key} = await uploadToS3({file: imageFiles, userId: current_owner});
+            imageKeys.push(key);
+        } else {
+            for (const imageFile of imageFiles) {
+                const {key} = await uploadToS3({file: imageFile, userId: current_owner});
+                imageKeys.push(key);
+            }
+        }
+        const uploadData = {
+            images: imageKeys,
+            current_owner: current_owner,
+            unitId: unitId,
+            numberOfNights: numberOfNights,
+            price: price,
+            pricePerNight: pricePerNight,
+            start_date: start_date,
+            end_date: end_date,
+            resortId: resortId,
+            type: type
         }
         const newUpload = new PostModel({...uploadData});
         return newUpload.save().catch();
@@ -103,9 +146,9 @@ class PostService {
                 This email was sent to ${email}\n\n`,
             };
             console.log('Confirmation email sent to:', email);
-            const submitRent = new ReservationModel({ ...submitData });
-            await transporter.sendMail(mailOptions);            
-            await submitRent.save();    
+            const submitRent = new ReservationModel({...submitData});
+            await transporter.sendMail(mailOptions);
+            await submitRent.save();
             return submitRent;
         } catch (error) {
             console.error('Error processing rent request:', error);
@@ -113,4 +156,5 @@ class PostService {
         }
     }
 }
-    module.exports = new PostService;
+
+module.exports = new PostService;

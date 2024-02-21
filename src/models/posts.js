@@ -2,15 +2,18 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const Users = require('./users'); // Import the Users model
 const mongooseDelete = require('mongoose-delete');
+const {GetPresignedUrl, uploadToS3} = require("../utils/s3Store");
+const paginate = require("./plugin/paginate");
 
 const postSchema = new Schema({
-    // username: {
-    //     type: String,
-    //     required: true,
-    // },
-    price: {
+    postId: {
         type: String,
-        required: true,
+        // required: true
+    },
+    type: {
+        type: String,
+        enum: ['rental', 'exchange'],
+        required:true
     },
     start_date: {
         type: Date,
@@ -35,26 +38,45 @@ const postSchema = new Schema({
         ref: 'Units',
         required: true,
     },
-    image: {
-        type: Array,
-        path: String,
+    numberOfNights: {
+        type: Number,
+        required: true,
     },
-    availability: {
+    price: {
+        type: String,
+        required: true,
+    },
+    pricePerNight: {
+        type: String,
+        required: true,
+    },
+    images: {
+        type: Array,
+        path: String
+    },
+    is_bookable: {
         type: Boolean,
         default: true
+    },
+    is_verified: {
+        type: Boolean,
+        default: false
     },
     timestamp: {
         type: Date,
         default: Date.now
     },
-
 });
-
+postSchema.plugin(paginate);
 postSchema.pre('save', async function (next) {
     try {
         // Lấy thông tin của User dựa trên userId
         const user = await mongoose.model('Users').findById(this.current_owner);
-
+        // if (!this.postId) {
+        //     const latestPost = await mongoose.model('Posts').findOne({}, {}, { sort: { 'timestamp': -1 } });
+        //     const latestPostNumber = latestPost ? parseInt(latestPost.postId.slice(1)) : 0;
+        //     this.postId = 'P' + (latestPostNumber + 1).toString().padStart(6, '0');
+        // }
         // Gán giá trị username từ thông tin User vào trường username của Properties
         if (user) {
             this.username = user.username;
@@ -67,9 +89,31 @@ postSchema.pre('save', async function (next) {
 });
 
 postSchema.plugin(mongooseDelete,
-    { deletedAt: true });
+    {deletedAt: true});
+postSchema.pre('find', async function (docs, next) {
+    this.populate({
+        path: "resortId current_owner unitId"
+    })
+});
+postSchema.pre('findOne', async function (docs, next) {
+    this.populate({
+        path: "resortId current_owner unitId"
+    })
+});
+
+postSchema.post('find', async function (docs, next) {
+    for (let doc of docs) {
+        if (doc.images) doc.images = await Promise.all(doc.images.map(GetPresignedUrl));
+    }
+    next()
+});
+postSchema.post('findOne', async function (doc, next) {
+    if (doc.images) doc.images = await Promise.all(doc.images.map(GetPresignedUrl));
+    next()
+});
 
 const Post = mongoose.model('Posts', postSchema);
+
 
 module.exports = Post;
 
