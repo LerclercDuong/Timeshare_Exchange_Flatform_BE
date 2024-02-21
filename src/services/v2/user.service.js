@@ -10,15 +10,6 @@ class UserService {
     async GetUserById(userId) {
         try {
             const user = await UserModel.findById(userId).select('_id firstname lastname username email phone profilePicture role').lean();
-            if (user) {
-                if (!user.profilePicture) {
-                    return {...user, profilePicture: ''};
-                }
-                if ((user.profilePicture).startsWith(user._id)) {
-                    const presignedUrl = await s3Utils.GetPresignedUrl(user.profilePicture);
-                    return {...user, profilePicture: presignedUrl};
-                }
-            }
             return user;
         } catch (err) {
             throw err;
@@ -28,15 +19,6 @@ class UserService {
     async GetUserByName(username) {
         try {
             const user = await UserModel.findOne({username: username}).lean();
-            if (user) {
-                if (!user.profilePicture) {
-                    return {...user, profilePicture: ''};
-                }
-                if ((user.profilePicture).startsWith(user._id)) {
-                    const presignedUrl = await s3Utils.GetPresignedUrl(user.profilePicture);
-                    return {...user, profilePicture: presignedUrl};
-                }
-            }
             return user;
         } catch (err) {
             throw err;

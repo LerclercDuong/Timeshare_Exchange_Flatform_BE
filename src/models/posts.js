@@ -66,7 +66,6 @@ const postSchema = new Schema({
         type: Date,
         default: Date.now
     },
-
 });
 postSchema.plugin(paginate);
 postSchema.pre('save', async function (next) {

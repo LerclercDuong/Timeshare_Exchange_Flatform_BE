@@ -32,7 +32,10 @@ const upload = multer({ dest: 'src/public/img/' });
  *       '500':
  *         description: Error confirming reservation
  */
+router.patch('/:reservationId/confirm', reservationRouter.ConfirmReservation);
 router.get('/:reservationId', reservationRouter.GetReservationById);
+router.get('/of-user/:userId', reservationRouter.GetReservationOfUser);
+router.get('/of-post/:postId', reservationRouter.GetReservationOfPost);
 router.post('/create', reservationRouter.MakeReservation, paymentController.CreatePayment);
 router.post('/confirm/:reservationId', reservationRouter.ConfirmRent);
 

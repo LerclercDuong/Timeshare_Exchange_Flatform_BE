@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
 const paginate = require("./plugin/paginate");
 const dateRange = require('./plugin/dateRange');
+const {GetPresignedUrl} = require("../utils/s3Store");
 
 const users = new Schema({
     firstname: {
@@ -31,14 +32,14 @@ const users = new Schema({
         required: false
     },
     phone: {
-        type:String,
-        required: false
-    },
-    country:{
         type: String,
         required: false
     },
-    verificationCode:{
+    country: {
+        type: String,
+        required: false
+    },
+    verificationCode: {
         type: Number,
         required: true,
     },
@@ -59,6 +60,16 @@ const users = new Schema({
     }
 });
 users.plugin(paginate);
+users.post('findOne', async function (doc, next) {
+    if (doc.profilePicture) doc.profilePicture = await GetPresignedUrl(doc.profilePicture);
+    next()
+});
+users.post('find', async function (docs, next) {
+    for (let doc of docs) {
+        if (doc.profilePicture) doc.profilePicture = await GetPresignedUrl(doc.profilePicture);
+    }
+    next()
+});
 users.pre('save', async function (next) {
 
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!])(?!.*\s).{8,}$/;

@@ -34,7 +34,6 @@ class ResortController {
             data: results
         })
     }
-
     /**
      * Retrieves a resort by its unique identifier.
      *

@@ -4,10 +4,34 @@ const {StatusCodes} = require('http-status-codes');
 
 
 class ReservationController {
-    async GetReservationByUserId(req, res, next) {
+    async ConfirmReservation(req, res, next) {
         try {
-            const {userId} = req.params;
-            const result = await reservationServices.GetReservationByUserId(reservationId);
+            const reservationId = req.params?.reservationId;
+            const confirmedData = await reservationServices.ConfirmReservation(reservationId)
+            if(confirmedData){
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: `Confirm success for reservation ${confirmedData.reservation_id}`
+                    },
+                    data: confirmedData
+                });
+            }
+        } catch (error) {
+            res.status(StatusCodes.BAD_REQUEST).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Confirm fail'
+                },
+                data: null
+            });
+        }
+    }
+
+    async GetReservationOfPost(req, res, next) {
+        try {
+            const {postId} = req.params;
+            const result = await reservationServices.GetReservationOfPost(postId);
             if (result) {
                 res.status(StatusCodes.OK).json({
                     status: {
@@ -27,6 +51,31 @@ class ReservationController {
             });
         }
     }
+
+    async GetReservationOfUser(req, res, next) {
+        try {
+            const {userId} = req.params;
+            const result = await reservationServices.GetReservationOfUser(userId);
+            if (result) {
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: "Reserve found"
+                    },
+                    data: result
+                });
+            }
+        } catch (error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Error'
+                },
+                data: null
+            });
+        }
+    }
+
     async GetReservationById(req, res, next) {
         try {
             const {reservationId} = req.params;
@@ -69,7 +118,6 @@ class ReservationController {
             });
         }
     }
-
     async ConfirmRent(req, res, next) {
         try {
             const {reservationId} = req.params;
@@ -79,6 +127,7 @@ class ReservationController {
             next(error);
         }
     }
+
 }
 
 module.exports = new ReservationController;

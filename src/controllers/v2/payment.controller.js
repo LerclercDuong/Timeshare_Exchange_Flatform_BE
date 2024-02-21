@@ -1,15 +1,6 @@
-const userService = require('../../services/v2/user.service.js');
-const authService = require('../../services/v2/auth.service.js');
-const tokenService = require('../../services/v2/token.service');
-const reservationService = require('../../services/v2/reservation.service')
 const ReservationModel = require('../../models/reservations')
-const jwt = require('jsonwebtoken');
+const PostModel = require('../../models/posts')
 const {StatusCodes} = require('http-status-codes');
-// Node v10.15.3
-const axios = require('axios').default; // npm install axios
-const CryptoJS = require('crypto-js'); // npm install crypto-js
-const moment = require('moment'); // npm install moment
-const os = require('os');
 const paypal = require('paypal-rest-sdk');
 
 const {PAYPAL_MODE, PAYPAL_CLIENT_KEY, PAYPAL_SECRET_KEY} = process.env;
@@ -24,6 +15,7 @@ class PaymentController {
     async CreatePayment(req, res, next) {
         try {
             const paymentInfo = req.reservation;
+            console.log(paymentInfo)
             const create_payment_json = {
                 "intent": "sale",
                 "payer": {
@@ -50,10 +42,9 @@ class PaymentController {
                     "description": `Reservation for ${paymentInfo.fullName}`
                 }]
             };
-
             paypal.payment.create(create_payment_json, function (error, payment) {
                 if (error) {
-                    throw error;
+                    console.log(error);
                 } else {
                     for (let i = 0; i < payment.links.length; i++) {
                         if (payment.links[i].rel === 'approval_url') {
@@ -68,7 +59,6 @@ class PaymentController {
                     }
                 }
             });
-
         } catch (error) {
             res.status(StatusCodes.OK).json({
                 status: {
@@ -82,6 +72,8 @@ class PaymentController {
 
     async ExecutePayment(req, res, next) {
         try {
+            const postId = req.params.postId;
+            console.log(postId)
             const reservationId = req.body.reservationId;
             const payerId = req.body.PayerID;
             const paymentId = req.body.paymentId;
@@ -98,8 +90,6 @@ class PaymentController {
             };
             paypal.payment.execute(paymentId, execute_payment_json, async function (error, payment) {
                 if (error) {
-                    // console.log('hello error')
-                    // console.log(error.response);
                     throw error;
                 } else {
                     // console.log('hello')
@@ -115,6 +105,21 @@ class PaymentController {
                         .catch(err => {
                             console.error('Error updating isPaid:', err);
                         });
+                    await PostModel.updateOne(
+                        { _id: postId },
+                        {
+                            $set: {
+                                is_bookable: false
+                            }
+                        }
+                    ).exec();
+                    res.status(StatusCodes.OK).json({
+                        status: {
+                            code: res.statusCode,
+                            message: 'payment data'
+                        },
+                        data: payment
+                    })
                 }
             });
 

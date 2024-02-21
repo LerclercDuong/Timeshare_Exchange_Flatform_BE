@@ -57,24 +57,6 @@ const reservationSchema = new Schema({
             required: true,
         },
     },
-    // billing_info: {
-    //     cardHolderName: {
-    //         type: String,
-    //         required: true,
-    //     },
-    //     cardNumber: {
-    //         type: String,
-    //         required: true,
-    //     },
-    //     expirationDate: {
-    //         type: String,
-    //         required: true,
-    //     },
-    //     CVV: {
-    //         type: String,
-    //         required: true,
-    //     },
-    // },
     amount: {
         type: Number,
         required: true
@@ -88,6 +70,10 @@ const reservationSchema = new Schema({
         type: String,
         enum: ['pending', 'confirmed', 'canceled'],
         default: 'pending',
+    },
+    confirmed_at: {
+        type: Date,
+        require: false
     }
 });
 
