@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const unitSchema = new Schema({
     name: {type: String, required: true},
     details: {type: String, required: true},
-    image_urls:{
+    image_urls: {
         type: Array,
         path: String
     },
