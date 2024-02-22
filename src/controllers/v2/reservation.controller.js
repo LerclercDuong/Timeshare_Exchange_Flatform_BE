@@ -6,7 +6,7 @@ const {StatusCodes} = require('http-status-codes');
 class ReservationController {
     async ConfirmReservation(req, res, next) {
         try {
-            const reservationId = req.params?.reservationId;
+            const {reservationId} = req.params;
             const confirmedData = await reservationServices.ConfirmReservation(reservationId)
             if(confirmedData){
                 res.status(StatusCodes.OK).json({
@@ -18,6 +18,7 @@ class ReservationController {
                 });
             }
         } catch (error) {
+            console.log(error)
             res.status(StatusCodes.BAD_REQUEST).json({
                 status: {
                     code: res.statusCode,
