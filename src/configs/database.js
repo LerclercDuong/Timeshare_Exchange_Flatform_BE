@@ -7,6 +7,7 @@ function connect() {
         })
         .catch(function (err) {
             console.log('MongoDB connection fail');
+            console.log(err)
         })
 }
 
