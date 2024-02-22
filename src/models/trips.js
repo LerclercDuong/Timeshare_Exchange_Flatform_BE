@@ -1,17 +1,34 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const jsbarcode = require('jsbarcode');
 
 const tripSchema = new Schema({
-    reservation: {
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Users',
+        required: true,
+    },
+    resortId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Resorts',
+        required: true,
+    },
+    unitId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Units',
+        required: true,
+    },
+    check_in: {
+        type: Date,
+        required: true,
+    },
+    check_out: {
+        type: Date,
+        required: true,
+    },
+    reservationId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Reservations',
         required: true,
-    },
-    barcode: {
-        type: String,
-        required: true,
-        unique: true,
     },
     created_at: {
         type: Date,
@@ -19,23 +36,16 @@ const tripSchema = new Schema({
     },
 });
 
-tripSchema.pre('save', async function (next) {
-    try {
-        // Generate barcode based on the reservationId
-        const reservationIdString = this.reservation.toString();
-        jsbarcode(this.barcode, reservationIdString, {
-            format: 'CODE128',
-            width: 2,
-            height: 40,
-        });
-
-        next();
-    } catch (error) {
-        console.log(error)
-        next(error);
-    }
+tripSchema.pre('find', async function (docs, next) {
+    this.populate({
+        path: "resortId userId unitId reservationId"
+    })
 });
-
+tripSchema.pre('findOne', async function (docs, next) {
+    this.populate({
+        path: "resortId userId unitId reservationId"
+    })
+});
 const Trip = mongoose.model('Trips', tripSchema);
 
 module.exports = Trip;

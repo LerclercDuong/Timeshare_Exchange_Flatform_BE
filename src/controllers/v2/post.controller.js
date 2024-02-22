@@ -67,7 +67,6 @@ class Timeshares {
             })
         }
     };
-
     async GetTimeshareByCurrentOwner(req, res, next) {
         try{
             const {current_owner} = req.params;
@@ -100,7 +99,6 @@ class Timeshares {
         }
 
     };
-
     async DeleteTimeshare(req, res, next) {
         try {
             const deleteTimeshare = await postServices.DeleteTimeshare(req);
@@ -121,7 +119,6 @@ class Timeshares {
             })
         }
     };
-
     async UpdateTimeshare(req, res, next) {
         try {
             const updateTimeshare = await postServices.UpdateTimeshare(req);
@@ -142,7 +139,6 @@ class Timeshares {
             })
         }
     };
-
     async RestoreTimeshare(req, res, next) {
         try {
             const restoreTimeshare = await postServices.RestoreTimeshare(req);
@@ -163,7 +159,6 @@ class Timeshares {
             })
         }
     };
-
     async ForceDeleteTimeshare(req, res, next) {
         try {
             const forceDeleteTimeshare = await timeshareServices.ForceDeleteTimeshare(req);
@@ -184,7 +179,6 @@ class Timeshares {
             })
         }
     };
-
     async GetTimeShareByTrash(req, res, next) {
         try {
             const trashList = await timeshareServices.GetTimeShareByTrash();
@@ -205,12 +199,9 @@ class Timeshares {
             })
         }
     };
-
-
     async PostTimeshare(req, res, next) {
         res.render('timeshare/home.hbs')
     };
-
     async UploadPost(req, res) {
         try {
             const uploadedFiles = req.files;
