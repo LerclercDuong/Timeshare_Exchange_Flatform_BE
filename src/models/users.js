@@ -39,10 +39,10 @@ const users = new Schema({
         type: String,
         required: false
     },
-    verificationCode: {
-        type: Number,
-        required: true,
-    },
+    // verificationCode: {
+    //     type: Number,
+    //     required: true,
+    // },
     profilePicture: {
         type: String,
         required: true,
@@ -61,12 +61,12 @@ const users = new Schema({
 });
 users.plugin(paginate);
 users.post('findOne', async function (doc, next) {
-    if (doc.profilePicture) doc.profilePicture = await GetPresignedUrl(doc.profilePicture);
+    if (doc && doc.profilePicture) doc.profilePicture = await GetPresignedUrl(doc.profilePicture);
     next()
 });
 users.post('find', async function (docs, next) {
     for (let doc of docs) {
-        if (doc.profilePicture) doc.profilePicture = await GetPresignedUrl(doc.profilePicture);
+        if (doc && doc.profilePicture) doc.profilePicture = await GetPresignedUrl(doc.profilePicture);
     }
     next()
 });
