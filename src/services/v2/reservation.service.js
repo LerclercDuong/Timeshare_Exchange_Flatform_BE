@@ -59,14 +59,14 @@ class ReservationService {
             throw new Error('Post not found');
         }
         await PostModel.updateOne(
-            { _id: reservation.postId },
+            { _id: reservation.postId._id },
             {
                 $set: {
                     is_bookable: false
                 }
             }
         );
-        await tripService.CreateTrip(reservationId);
+        await tripService.CreateTrip(reservation);
         return {
             reservation_id: reservation.postId,
             code: 200,

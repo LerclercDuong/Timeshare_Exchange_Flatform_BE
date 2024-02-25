@@ -1,25 +1,20 @@
-const bcrypt = require('bcrypt');
-const moment = require("moment");
-const ReservationModel = require("../../models/reservations");
-const TimeshareModel = require("../../models/timeshares");
-const RequestModel = require("../../models/requests");
-const PostModel = require("../../models/posts")
 const TripModel = require("../../models/trips")
 class TripService {
     async CheckInTrip(tripId){
 
     }
     async GetTripOfUser(userId) {
-        return TripModel.find({'reservation.userId._id': userId});
+        return TripModel.find({userId: userId});
     }
-    async CreateTrip(reservationId){
-        const reservationExists = await ReservationModel.exists({ _id: reservationId });
-        if (!reservationExists) {
-            throw new Error('Reservation not found');
-        }
-        // Create a new trip
+
+    async CreateTrip(reservation){
         const newTrip = new TripModel({
-            reservation: reservationId,
+            reservationId: reservation._id,
+            userId: reservation.userId._id,
+            resortId: reservation.postId.resortId._id,
+            unitId: reservation.postId.unitId._id,
+            check_in: reservation.postId.start_date,
+            check_out: reservation.postId.end_date,
         });
         // Save the trip to the database
         return await newTrip.save();
