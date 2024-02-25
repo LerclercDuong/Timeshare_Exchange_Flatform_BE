@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const PORT = 8080;
-const router = require('./src/routes/index');
+const router = require('./src/routes/v2');
 const mongoDB = require('./src/configs/database');
 const http = require('http');
 const path = require('path');
@@ -12,7 +12,10 @@ const multer  = require('multer')
 const upload = multer({ dest: 'uploads/' })
 /////----////
 const hbs = require('express-handlebars');
+const swaggerDocs = require("./src/docs/swagger");
+const fileUpload = require('express-fileupload');
 
+app.use(fileUpload());
 app.engine(
     'hbs',
     hbs.engine({
@@ -53,4 +56,5 @@ router(app);
 
 httpServer.listen(PORT, function () {
     console.log('listening on port 8080');
+    swaggerDocs(app, PORT);
 });

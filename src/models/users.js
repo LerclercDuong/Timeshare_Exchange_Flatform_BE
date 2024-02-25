@@ -1,8 +1,17 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
+const paginate = require("./plugin/paginate");
+const dateRange = require('./plugin/dateRange');
+const {GetPresignedUrl} = require("../utils/s3Store");
 
 const users = new Schema({
+    firstname: {
+        type: String,
+    },
+    lastname: {
+        type: String
+    },
     username: {
         type: String,
         required: true,
@@ -20,7 +29,24 @@ const users = new Schema({
     },
     email: {
         type: String,
+        required: true
+    },
+    phone: {
+        type: String,
         required: false
+    },
+    country: {
+        type: String,
+        required: false
+    },
+    // verificationCode: {
+    //     type: Number,
+    //     required: true,
+    // },
+    emailVerified: {
+        type: Boolean,
+        required: true,
+        default: false,
     },
     profilePicture: {
         type: String,
@@ -30,7 +56,7 @@ const users = new Schema({
     role: {
         type: String,
         required: true,
-        enum: ['user', 'admin'],
+        enum: ['user', 'admin', 'member'],
         default: 'user'
     },
     timestamp: {
@@ -38,12 +64,22 @@ const users = new Schema({
         default: Date.now
     }
 });
-
+users.plugin(paginate);
+users.post('findOne', async function (doc, next) {
+    if (doc && doc.profilePicture) doc.profilePicture = await GetPresignedUrl(doc.profilePicture);
+    next()
+});
+users.post('find', async function (docs, next) {
+    for (let doc of docs) {
+        if (doc && doc.profilePicture) doc.profilePicture = await GetPresignedUrl(doc.profilePicture);
+    }
+    next()
+});
 users.pre('save', async function (next) {
 
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!])(?!.*\s).{8,}$/;
 
-    const emailRegex = '^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$';
+    const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
     const user = await this.constructor.findOne({username: this.username});
 
