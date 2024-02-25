@@ -6,7 +6,11 @@ const requestRouter = require('./request')
 const paymentRouter = require('./payment')
 const reservationRouter = require('./reservation')
 const unitRouter = require('./unit')
+
+const emailRouter = require('./email')
+
 const tripRouter = require('./trip')
+
 const CheckAuth = require('../../middlewares/auth');
 const multer = require('multer')
 
@@ -22,7 +26,11 @@ function router(app) {
     app.use('/api/v2/reservation', reservationRouter);
     app.use('/api/v2/unit', unitRouter);
     app.use('/api/v2/payment', paymentRouter);
+
+    app.use('/api/v2/email', CheckAuth, emailRouter);
+
     app.use('/api/v2/trip', tripRouter);
+
 }
 
 module.exports = router;

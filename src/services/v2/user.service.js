@@ -9,7 +9,7 @@ class UserService {
 
     async GetUserById(userId) {
         try {
-            const user = await UserModel.findById(userId).select('_id firstname lastname username email phone profilePicture role').lean();
+            const user = await UserModel.findById(userId).select('_id firstname lastname username email emailVerified phone profilePicture role').lean();
             return user;
         } catch (err) {
             throw err;
@@ -54,6 +54,21 @@ class UserService {
             throw new Error('User not found');
         }
         return updatedUser;
+    }
+    /**
+     * Update email verification status for user
+     * @param {*} userId 
+     */
+    async UpdateEmailStatus(userId) {
+        try {
+            await UserModel.findOneAndUpdate(
+                {_id: userId},
+                {emailVerified: true}
+            )
+        }
+        catch (err) {
+            throw err;
+        }
     }
 }
 
