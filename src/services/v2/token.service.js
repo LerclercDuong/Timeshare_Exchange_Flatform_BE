@@ -31,7 +31,7 @@ class TokenService {
     async VerifyToken(bearerToken, type, secretKey) {
         const token = bearerToken.split(' ')[1];
         const payload = jwt.verify(token, secretKey);
-        const tokenDoc = await TokenModel.findOne({token: bearerToken, type: type, user: payload.sub});
+        const tokenDoc = await TokenModel.findOne({token: token, type: type, user: payload.sub});
         if (!tokenDoc) {
             throw new Error('Token not found');
         }
