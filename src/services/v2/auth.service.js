@@ -10,13 +10,14 @@ const ApiError = require('../../utils/ApiError')
 class AuthService {
 
     //signup function
-    async SignUp(firstname, lastname, username, password) {
+    async SignUp(firstname, lastname, username, email, password) {
         const userExists = await UserModel.findOne({username: username});
         if (userExists) throw new ApiError(203, "User is exist");
         const userData = {
             firstname: firstname,
             lastname: lastname,
             username: username,
+            email: email,
             password: password,
         }
         const newUser = new UserModel({...userData});

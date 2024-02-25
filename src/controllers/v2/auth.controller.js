@@ -11,14 +11,15 @@ class AuthController {
     //Res: userData = {}, tokens = []
     async Register(req, res, next) {
         try {
-            const { firstname, lastname, username, password, repeatPassword } = req.body;
+            const { firstname, lastname, username, email, password, repeatPassword } = req.body;
             if (password !== repeatPassword) {
                 throw new Error('Password and repeat password do not match');
             }
-            const userData = await authService.SignUp(firstname, lastname, username, password);
+            const userData = await authService.SignUp(firstname, lastname, username, email, password);
             const tokens = await authService.GenerateAuthToken(userData);
             res.status(StatusCodes.CREATED).json({ userData, tokens });
         } catch (err) {
+            console.log(err)
             res.status(StatusCodes.BAD_REQUEST).send(err.message);
         }
     }

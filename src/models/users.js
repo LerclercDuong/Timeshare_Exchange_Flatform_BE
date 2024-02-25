@@ -29,7 +29,7 @@ const users = new Schema({
     },
     email: {
         type: String,
-        required: false
+        required: true
     },
     phone: {
         type: String,
@@ -43,6 +43,11 @@ const users = new Schema({
     //     type: Number,
     //     required: true,
     // },
+    emailVerified: {
+        type: Boolean,
+        required: true,
+        default: false,
+    },
     profilePicture: {
         type: String,
         required: true,
@@ -74,7 +79,7 @@ users.pre('save', async function (next) {
 
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!])(?!.*\s).{8,}$/;
 
-    const emailRegex = '^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$';
+    const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
     const user = await this.constructor.findOne({username: this.username});
 
