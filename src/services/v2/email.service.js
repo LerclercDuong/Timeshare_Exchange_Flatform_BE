@@ -18,12 +18,21 @@ class EmailService {
 
     async SendVerificationEmail(to, token) {
         const subject = 'Email Verification';
-        const verificationEmailUrl = `http://localhost:8080/verify-email?token=${token}`;
+        const verificationEmailUrl = `http://localhost:3000/verify-email?token=${token}`;
         const text = `Dear user,
                              To verify your email, click on this link: ${verificationEmailUrl}
                              If you did not create an account, then ignore this email.`;
         await this.SendEmail(to, subject, text);
     };
+
+    async SendPasswordRecoveryEmail(to, token) {
+        const subject = 'Password Recovery for account abc';
+        const recoveryUrl = `http:localhost:3000/change-password?token=${token}`;
+        const text = `Dear user,
+                        To recover your password, click on this link: ${recoveryUrl}
+                        If you did not request to change password, then ignore the email.`
+        await this.SendEmail(to, subject, text);
+    }
 
     async SendReservationInfo(to, reservationInfo) {
         const subject = 'Reservation at NiceTrip';
@@ -45,11 +54,30 @@ class EmailService {
             };
         }
         catch (err) {
-            console.log(err.message);
+            throw err;
         }
     }
 
-    async VerifyToken(token) {
+    async GeneratePasswordRecoveryToken(user) {
+        try {
+            const data = {
+                _id: user._id,
+                role: '',
+            }
+            const tokenId = await tokenService.GenerateToken(data, 'RESET_PASSWORD', process.env.PASSWORD_RESET_SECRET_KEY, process.env.PASSWORD_RESET_LIFE_HOUR + 'h');
+            const tokenExpires = moment().add(process.env.PASSWORD_RESET_LIFE_HOUR, 'hours');
+            await tokenService.SaveTokenToDB(user._id, tokenId, 'RESET_PASSWORD', tokenExpires);
+            return {
+                token: tokenId,
+                exp: tokenExpires.toDate()
+            };
+        }
+        catch (err) {
+            throw new Error(`Failed to generate password recovery token: ${err.message}`);
+        }
+    }
+
+    async VerifyEmailToken(token) {
         try {
             let result = false;
             console.log(token);
@@ -61,7 +89,16 @@ class EmailService {
             return result;
         }
         catch (err) {
-            console.log(err);
+            throw err;
+        }
+    }
+    async DecryptPasswordResetToken(token) {
+        try {
+            const data = await tokenService.VerifyToken(`Bearer ${token}`, 'RESET_PASSWORD', process.env.PASSWORD_RESET_SECRET_KEY);
+            return data;
+        }
+        catch (err) {
+            throw err;
         }
     }
 }
