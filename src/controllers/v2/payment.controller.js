@@ -2,6 +2,7 @@ const ReservationModel = require('../../models/reservations')
 const PostModel = require('../../models/posts')
 const {StatusCodes} = require('http-status-codes');
 const paypal = require('paypal-rest-sdk');
+const {paymentServices} = require('../../services/v2')
 
 const {PAYPAL_MODE, PAYPAL_CLIENT_KEY, PAYPAL_SECRET_KEY} = process.env;
 
@@ -127,6 +128,38 @@ class PaymentController {
             console.log(error.message);
         }
 
+    }
+
+    async CreateVNPay(req, res) {
+        try {
+            const paymentUrl = await paymentServices.CreateVNPay(req);
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'payment data'
+                },
+                data: paymentUrl
+            })
+        } catch (error) {
+            console.error(error);
+            res.status(500).send("Internal Server Error");
+        }
+    }
+
+    async VNPayReturn(req, res, next) {
+        try {
+            const vnpayReturn = await paymentServices.VNPayReturn(req, res);
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'payment data'
+                },
+                data: vnpayReturn
+            })
+        } catch (error) {
+            console.error(error);
+            res.status(500).send("Internal Server Error");
+        }
     }
 }
 
