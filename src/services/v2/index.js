@@ -7,7 +7,7 @@ const reservationServices = require('./reservation.service');
 const unitServices = require('./unit.service');
 const postServices = require('./post.service');
 const tripServices = require('./trip.service')
-
+const paymentServices = require('./payment.service')
 
 module.exports = {
     authServices,
@@ -18,6 +18,7 @@ module.exports = {
     reservationServices,
     unitServices,
     postServices,
-    tripServices
+    tripServices,
+    paymentServices
 }
 
