@@ -104,7 +104,6 @@ users.pre('save', async function (next) {
 });
 
 users.pre('findOneAndUpdate', async function (next) {
-    console.log(this._update.password);
 
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!])(?!.*\s).{8,}$/;
 
@@ -112,20 +111,23 @@ users.pre('findOneAndUpdate', async function (next) {
 
     if (this._update.email && !emailRegex.test(this._update.email)) throw new Error('Email must follow condition')
 
-    if (!passwordRegex.test(this._update.password)) throw new Error('password must follow condition')
+    if (this._update.password) {
+        if (!passwordRegex.test(this._update.password)) throw new Error('password must follow condition')
+        try {
+            // Generate a salt and hash the password
+            const saltRounds = 10;
+            this._update.password = await bcrypt.hash(this._update.password, saltRounds);
+            next();
+        } catch (error) {
+            next(error);
+        }
+    }
 
     // //just hash password when modified password (change password, create new user)
     // if (!this.isModified('password')) {
     //     return next();
     // }
-    try {
-        // Generate a salt and hash the password
-        const saltRounds = 10;
-        this._update.password = await bcrypt.hash(this._update.password, saltRounds);
-        next();
-    } catch (error) {
-        next(error);
-    }
+    
 });
 
 
