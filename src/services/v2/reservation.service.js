@@ -3,7 +3,6 @@ const moment = require("moment");
 const ReservationModel = require("../../models/reservations");
 const TimeshareModel = require("../../models/timeshares");
 const RequestModel = require("../../models/requests");
-const PostModel = require("../../models/posts")
 const tripService = require("./trip.service");
 class ReservationService {
     async GetReservationOfUser(userId) {
@@ -54,11 +53,11 @@ class ReservationService {
                 }
             }
         );
-        const post = await PostModel.findById(reservation.postId);
+        const post = await TimeshareModel.findById(reservation.postId);
         if (!post) {
             throw new Error('Post not found');
         }
-        await PostModel.updateOne(
+        await TimeshareModel.updateOne(
             { _id: reservation.postId._id },
             {
                 $set: {

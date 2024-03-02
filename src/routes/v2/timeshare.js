@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const postController = require('../../controllers/v2/post.controller');
+const timeshareController = require('../../controllers/v2/timeshare.controller');
 const multer = require('multer');
 const { plugin } = require('mongoose');
 const upload = multer({ dest: 'src/public/img/' });
@@ -14,8 +14,8 @@ const upload = multer({ dest: 'src/public/img/' });
 // router.patch('/:id/restore', Post.RestoreTimeshare); //khoi phuc
 // router.get('/:id/trash-list', Post.GetTimeShareByTrash); //danh sach timehshare trong thung rac
 // router.get('/post-timeshare', Post.PostTimeshare); //
-router.get('/', postController.GetPost);
-router.post('/upload', postController.UploadPostWithS3);
+router.get('/', timeshareController.GetPost);
+router.post('/upload', timeshareController.UploadPostWithS3);
 
 // //--v2--//
 // router.get('/list-timeshare-availability', Post.PostTimeshare); //
@@ -24,7 +24,7 @@ router.post('/upload', postController.UploadPostWithS3);
 
 /**
  * @openapi
- * /api/v2/post/list:
+ * /api/v2/timeshare/list:
  *   get:
  *     tags:
  *       - Post API
@@ -56,11 +56,11 @@ router.post('/upload', postController.UploadPostWithS3);
  *               message: Timeshares not found
  *               data: []
  */
-router.get('/list', postController.GetAllPosts);
+router.get('/list', timeshareController.GetAllPosts);
 
 /**
  * @openapi
- * /api/v2/post/current-owner/{current_owner}:
+ * /api/v2/timeshare/current-owner/{current_owner}:
  *   get:
  *     tags:
  *       - Post API
@@ -99,11 +99,11 @@ router.get('/list', postController.GetAllPosts);
  *               message: Timeshares not found
  *               data: []
  */
-router.get('/current-owner/:current_owner', postController.GetTimeshareByCurrentOwner);
+router.get('/current-owner/:current_owner', timeshareController.GetTimeshareByCurrentOwner);
 
 /**
  * @openapi
- * /api/v2/post/{id}:
+ * /api/v2/timeshare/{id}:
  *   delete:
  *     tags:
  *       - Post API
@@ -133,11 +133,11 @@ router.get('/current-owner/:current_owner', postController.GetTimeshareByCurrent
  *               message: Delete failed
  *               data: {}
  */
-router.delete('/:id', postController.DeleteTimeshare);
+router.delete('/:id', timeshareController.DeleteTimeshare);
 
 /**
  * @openapi
- * /api/v2/post/{id}/force:
+ * /api/v2/timeshare/{id}/force:
  *   delete:
  *     tags:
  *       - Post API
@@ -167,11 +167,11 @@ router.delete('/:id', postController.DeleteTimeshare);
  *               message: Force failed
  *               data: {}
  */
-router.delete('/:id/force', postController.ForceDeleteTimeshare);
+router.delete('/:id/force', timeshareController.ForceDeleteTimeshare);
 
 /**
  * @openapi
- * /api/v2/post/{id}:
+ * /api/v2/timeshare/{id}:
  *   put:
  *     tags:
  *       - Post API
@@ -201,11 +201,11 @@ router.delete('/:id/force', postController.ForceDeleteTimeshare);
  *               message: Update Failed
  *               data: {}
  */
-router.put('/:id', postController.UpdateTimeshare);
+router.put('/:id', timeshareController.UpdateTimeshare);
 
 /**
  * @openapi
- * /api/v2/post/{id}/restore:
+ * /api/v2/timeshare/{id}/restore:
  *   patch:
  *     tags:
  *       - Post API
@@ -235,11 +235,11 @@ router.put('/:id', postController.UpdateTimeshare);
  *               message: Restore failed
  *               data: {}
  */
-router.patch('/:id/restore', postController.RestoreTimeshare);
+router.patch('/:id/restore', timeshareController.RestoreTimeshare);
 
 /**
  * @openapi
- * /api/v2/post/{id}/trash-list:
+ * /api/v2/timeshare/{id}/trash-list:
  *   get:
  *     tags:
  *       - Post API
@@ -278,11 +278,11 @@ router.patch('/:id/restore', postController.RestoreTimeshare);
  *               message: Trash list not found
  *               data: []
  */
-router.get('/:id/trash-list', postController.GetTimeShareByTrash);
+router.get('/:id/trash-list', timeshareController.GetTimeShareByTrash);
 
 /**
  * @openapi
- * /api/v2/post/post-timeshare:
+ * /api/v2/timeshare/post-timeshare:
  *   get:
  *     tags:
  *       - Post API
@@ -294,11 +294,11 @@ router.get('/:id/trash-list', postController.GetTimeShareByTrash);
  *           text/html:
  *             example: Post timeshare page rendered successfully
  */
-router.get('/post-timeshare', postController.PostTimeshare);
+router.get('/post-timeshare', timeshareController.PostTimeshare);
 
 /**
  * @openapi
- * /api/v2/post/upload:
+ * /api/v2/timeshare/upload:
  *   post:
  *     tags:
  *       - Post API
@@ -393,7 +393,7 @@ router.get('/post-timeshare', postController.PostTimeshare);
 
 /**
  * @openapi
- * /api/v2/post/{id}:
+ * /api/v2/timeshare/{id}:
  *   get:
  *     tags:
  *       - Post API
@@ -431,11 +431,11 @@ router.get('/post-timeshare', postController.PostTimeshare);
  *               message: Id not found
  *               data: {}
  */
-router.get('/:id', postController.GetPostById);
+router.get('/:id', timeshareController.GetPostById);
 
 /**
  * @openapi
- * /api/v2/post/{postId}/book:
+ * /api/v2/timeshare/{postId}/book:
  *   post:
  *     tags:
  *       - Post API
@@ -502,7 +502,7 @@ router.get('/:id', postController.GetPostById);
  *               message: Submission failed
  *               data: {}
  */
-router.post('/:postId/book', postController.SubmitRentRequest);
+router.post('/:postId/book', timeshareController.SubmitRentRequest);
 
 
 

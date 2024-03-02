@@ -1,9 +1,8 @@
 const ReservationModel = require('../../models/reservations')
-const PostModel = require('../../models/posts')
 const {StatusCodes} = require('http-status-codes');
 const paypal = require('paypal-rest-sdk');
 const {paymentServices} = require('../../services/v2')
-
+const TimeshareModel = require('../../models/timeshares')
 const {PAYPAL_MODE, PAYPAL_CLIENT_KEY, PAYPAL_SECRET_KEY} = process.env;
 
 paypal.configure({
@@ -106,7 +105,7 @@ class PaymentController {
                         .catch(err => {
                             console.error('Error updating isPaid:', err);
                         });
-                    await PostModel.updateOne(
+                    await TimeshareModel.updateOne(
                         { _id: postId },
                         {
                             $set: {
