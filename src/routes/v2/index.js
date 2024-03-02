@@ -1,6 +1,6 @@
 const authRouter = require('./auth');
 const userRouter = require('./user');
-const postRouter = require('./post');
+const timeshareRouter = require('./timeshare');
 const resortRouter = require('./resort');
 const requestRouter = require('./request')
 const paymentRouter = require('./payment')
@@ -20,7 +20,7 @@ const upload = multer({dest: 'uploads/'})
 function router(app) {
     app.use('/api/v2/auth', authRouter);
     app.use('/api/v2/user', userRouter );
-    app.use('/api/v2/post', postRouter);
+    app.use('/api/v2/timeshare', timeshareRouter);
     app.use('/api/v2/resort', resortRouter);
     app.use('/api/v2/request', requestRouter);
     app.use('/api/v2/reservation', reservationRouter);

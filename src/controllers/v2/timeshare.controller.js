@@ -1,15 +1,14 @@
 const express = require('express');
-const PostController = require('../../models/timeshares');
+const TimeshareModel = require('../../models/timeshares');
 const exphbs = require('express-handlebars');
 const UserId = require('./user.controller.js');
-const {postServices, resortServices} = require('../../services/v2');
+const {timeshareServices, resortServices} = require('../../services/v2');
 const app = express();
 const fs = require('fs');
 const path = require('path');
 
 
 const {StatusCodes} = require('http-status-codes');
-const postService = require('../../services/v2/post.service');
 const query = require("../../utils/query");
 
 class Timeshares {
@@ -17,7 +16,7 @@ class Timeshares {
     async GetPost(req, res, next){
         const filter = query(req.query, ['resort', 'current_owner']);
         const options = query(req.query, ['page']);
-        const results = await postServices.QueryPost(filter, options);
+        const results = await timeshareServices.QueryPost(filter, options);
         res.status(StatusCodes.OK).json({
             status: {
                 code: res.statusCode,
@@ -29,7 +28,7 @@ class Timeshares {
     async GetPostById(req, res, next) {
         const {id} = req.params;
         try {
-            const postData = await postServices.GetPostById(id);
+            const postData = await timeshareServices.GetPostById(id);
             res.status(StatusCodes.OK).json({
                 status: {
                     code: res.statusCode,
@@ -49,7 +48,7 @@ class Timeshares {
     };
     async GetAllPosts(req, res, next) {
         try {
-            const timeshareList = await postServices.GetAllPosts();
+            const timeshareList = await timeshareServices.GetAllPosts();
             res.status(StatusCodes.OK).json({
                 status: {
                     code: res.statusCode,
@@ -70,7 +69,7 @@ class Timeshares {
     async GetTimeshareByCurrentOwner(req, res, next) {
         try{
             const {current_owner} = req.params;
-            const timeshareData = await postServices.GetTimeshareByCurrentOwner(current_owner);
+            const timeshareData = await timeshareServices.GetTimeshareByCurrentOwner(current_owner);
             if (timeshareData) {
                 res.status(StatusCodes.OK).json({
                     status: {
@@ -101,7 +100,7 @@ class Timeshares {
     };
     async DeleteTimeshare(req, res, next) {
         try {
-            const deleteTimeshare = await postServices.DeleteTimeshare(req);
+            const deleteTimeshare = await timeshareServices.DeleteTimeshare(req);
             res.status(StatusCodes.OK).json({
                 status: {
                     code: res.statusCode,
@@ -121,7 +120,7 @@ class Timeshares {
     };
     async UpdateTimeshare(req, res, next) {
         try {
-            const updateTimeshare = await postServices.UpdateTimeshare(req);
+            const updateTimeshare = await timeshareServices.UpdateTimeshare(req);
             res.status(StatusCodes.OK).json({
                 status: {
                     code: res.statusCode,
@@ -141,7 +140,7 @@ class Timeshares {
     };
     async RestoreTimeshare(req, res, next) {
         try {
-            const restoreTimeshare = await postServices.RestoreTimeshare(req);
+            const restoreTimeshare = await timeshareServices.RestoreTimeshare(req);
             res.status(StatusCodes.OK).json({
                 status: {
                     code: res.statusCode,
@@ -214,7 +213,7 @@ class Timeshares {
                 images.push({path: newFileName});
             }
             const {current_owner, resortId, unitId, price, start_date, end_date} = req.body;
-            const uploadedFileInfo = await postService.UploadPost(
+            const uploadedFileInfo = await timeshareServices.UploadPost(
                 req,
                 resortId,
                 unitId,
@@ -249,7 +248,7 @@ class Timeshares {
         try {
             const imageFiles = req.files.imageFiles;
             const {current_owner, resortId, unitId, numberOfNights, price, pricePerNight, start_date, end_date, type} = req.body;
-            const uploadedData = await postService.UploadPostWithS3({
+            const uploadedData = await timeshareServices.UploadPostWithS3({
                 imageFiles,
                 resortId,
                 unitId,
@@ -281,7 +280,7 @@ class Timeshares {
     async SubmitRentRequest(req, res) {
         try {
             const {name, phone, email, userId, postId, requestId, status, verificationCode} = req.body;
-            const submitRentRequest = await postServices.SubmitRentRequest(
+            const submitRentRequest = await timeshareServices.SubmitRentRequest(
                 name,
                 phone,
                 email,
