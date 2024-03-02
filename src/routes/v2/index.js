@@ -27,7 +27,7 @@ function router(app) {
     app.use('/api/v2/unit', unitRouter);
     app.use('/api/v2/payment', paymentRouter);
 
-    app.use('/api/v2/email', CheckAuth, emailRouter);
+    app.use('/api/v2/email', emailRouter);
 
     app.use('/api/v2/trip', tripRouter);
 
