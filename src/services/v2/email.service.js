@@ -2,6 +2,7 @@ const moment = require("moment");
 const transporter = require('../../utils/email')
 const tokenService = require('./token.service')
 const userService = require('./user.service')
+const ReservationModel = require('../../models/reservations')
 
 class EmailService {
     /**
@@ -39,6 +40,7 @@ class EmailService {
         const text = `Thank you for your reservation at NiceTrip, please waiting for owner acceptance`;
         await this.SendEmail(to, subject, text);
     };
+    
     async GenerateVerifyToken(userId) {
         try {
             const data = {
@@ -101,6 +103,31 @@ class EmailService {
             throw err;
         }
     }
+    async countReservationsByTimeshareId(timeshareId) {
+        try {
+            const count = await ReservationModel.countDocuments({ timeshareId: timeshareId });
+            return count;
+        } catch (error) {
+            throw new Error("Error counting reservations: " + error.message);
+        }
+    }
+    
+    async NotificationExchangeSuccessToOwnerTimeshareId(toOwnerMyTimeshare, reservationInfo) {
+        const subject = 'You have notifications about at NiceTrip';
+        const text = `Owner đã chấp nhận exchange. Đây là Trip của bạn`;
+        await this.SendEmail(toOwnerMyTimeshare, subject, text);
+    };
+    async NotificationExchangeSuccessToOwnerMyTimeshareId(toOwnerTimeshare, reservationInfo) {
+        const subject = 'You have notifications about at NiceTrip';
+        const text = `Bạn đã chấp nhận exchange. Đây là Trip của bạn`;
+        await this.SendEmail(toOwnerTimeshare, subject, text);
+    };
+
+    async SendRequestExchange(to, reservationInfo, count, countExchange, countRent) {
+        const subject = 'You have ' + count +' notifications about at NiceTrip';
+        const text = `You have ${countExchange + countRent} notifications about at NiceTrip, including ${countExchange} exchange requests and ${countRent} rental requests`;
+        await this.SendEmail(to, subject, text);
+    };
 }
 
 module.exports = new EmailService;
