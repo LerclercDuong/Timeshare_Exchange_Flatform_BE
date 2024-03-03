@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const reservationRouter = require('../../controllers/v2/reservation.controller');
+const reservationController = require('../../controllers/v2/reservation.controller');
 const paymentController = require('../../controllers/v2/payment.controller')
 const multer = require('multer');
 const upload = multer({ dest: 'src/public/img/' });
-
+const emailController = require('../../controllers/v2/email.controller');
 /**
  * @openapi
  * /api/v2/reservation/confirm/{reservationId}:
@@ -32,12 +32,12 @@ const upload = multer({ dest: 'src/public/img/' });
  *       '500':
  *         description: Error confirming reservation
  */
-router.patch('/:reservationId/confirm', reservationRouter.ConfirmReservation);
-router.get('/:reservationId', reservationRouter.GetReservationById);
-router.get('/of-user/:userId', reservationRouter.GetReservationOfUser);
-router.get('/of-post/:postId', reservationRouter.GetReservationOfPost);
-router.post('/create', reservationRouter.MakeReservation, paymentController.CreatePayment);
-router.post('/confirm/:reservationId', reservationRouter.ConfirmRent);
-
+// router.patch('/:reservationId/confirm', reservationRouter.ConfirmReservation);
+router.get('/:reservationId', reservationController.GetReservationById);
+router.get('/of-user/:userId', reservationController.GetReservationOfUser);
+router.get('/of-post/:postId', reservationController.GetReservationOfPost);
+router.post('/create', reservationController.MakeReservation);
+router.post('/confirm/:reservationId', reservationController.ConfirmRent);
+router.patch('/:reservationId/confirm', reservationController.ConfirmReservationByToken);
 
 module.exports = router;

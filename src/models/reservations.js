@@ -71,6 +71,11 @@ const reservationSchema = new Schema({
         enum: ['pending', 'confirmed', 'canceled'],
         default: 'pending',
     },
+    is_confirmed:{
+        type: Boolean,
+        required: true,
+        default: false,
+    },
     confirmed_at: {
         type: Date,
         require: false

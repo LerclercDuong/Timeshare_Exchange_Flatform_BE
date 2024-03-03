@@ -1,24 +1,23 @@
 const jwt = require('jsonwebtoken');
-const { StatusCodes } = require('http-status-codes');
+const {StatusCodes} = require('http-status-codes');
 const emailService = require('../../services/v2/email.service')
 const userService = require('../../services/v2/user.service');
 const tokenService = require('../../services/v2/token.service');
+const {reservationServices} = require("../../services/v2");
 
 class EmailController {
     async SendVerificationCode(req, res, next) {
         try {
             const user = await userService.GetUserById(req.user.userId);
             // If the user is not verified, send the verification link
-            if (user.emailVerified == false) {
+            if (user.emailVerified === false) {
                 // Generate token
                 const token = await emailService.GenerateVerifyToken(user._id);
                 // Send verification email to the user
-                emailService.SendVerificationEmail(user.email, token.token);
+                await emailService.SendVerificationEmail(user.email, token.token);
                 res.status(StatusCodes.OK).json({message: "Email sent"});
-            }
-            else res.status(StatusCodes.FORBIDDEN).json({message: 'The email is already verified'});
-        }
-        catch (err) {
+            } else res.status(StatusCodes.FORBIDDEN).json({message: 'The email is already verified'});
+        } catch (err) {
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
         }
     }
@@ -28,21 +27,18 @@ class EmailController {
             const email = req.body.email;
             if (!email) {
                 res.status(StatusCodes.BAD_REQUEST).json({message: 'Email is not provided'});
-            }
-            else {
+            } else {
                 const user = await userService.GetUserByEmail(email);
                 if (user) {
                     const token = await emailService.GeneratePasswordRecoveryToken(user);
                     await emailService.SendPasswordRecoveryEmail(email, token.token);
                     res.status(StatusCodes.OK).json({message: 'Email sent'})
-                }
-                else res.status(StatusCodes.NOT_FOUND).json({message: 'Email is not associated with any account'});
+                } else res.status(StatusCodes.NOT_FOUND).json({message: 'Email is not associated with any account'});
             }
-        }
-        catch (err) {
+        } catch (err) {
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({message: err.message});
         }
-        
+
     }
 
     async VerifyEmailVerification(req, res, next) {
@@ -51,17 +47,15 @@ class EmailController {
             console.log(token);
             if (!token) {
                 res.status(StatusCodes.BAD_REQUEST).json({message: 'Bad request, must have token as a parameter'});
-            }
-            else if (await emailService.VerifyEmailToken(token)) {
+            } else if (await emailService.VerifyEmailToken(token)) {
                 res.status(StatusCodes.OK).json({message: 'Verify complete'});
-            }
-            else res.status(StatusCodes.BAD_REQUEST).json({message: 'Token is invalid or expired'});
-        }
-        catch (err) {
+            } else res.status(StatusCodes.BAD_REQUEST).json({message: 'Token is invalid or expired'});
+        } catch (err) {
             console.log(err);
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
         }
     }
+
     async VerifyPasswordReset(req, res, next) {
         try {
             const token = req.body.token;
@@ -69,8 +63,7 @@ class EmailController {
             const passwordRepeat = req.body.passwordRepeat;
             if (!token || !password || !passwordRepeat) {
                 res.status(StatusCodes.BAD_REQUEST).json({message: 'Missing required parameter'});
-            }
-            else {
+            } else {
                 const data = await emailService.DecryptPasswordResetToken(token);
                 console.log(data);
                 if (data && data.user && data.user._id) {
@@ -80,15 +73,34 @@ class EmailController {
                         //TODO: Implement token invalidate
                         await tokenService.expireToken(data._id);
                         res.status(StatusCodes.OK).json({message: 'Password changed'});
-                    }
-                    else res.status(StatusCodes.BAD_REQUEST).json({message: 'Password does not match'});
-                }
-                else res.status(StatusCodes.BAD_REQUEST).json({message: 'Invalid or expired token'});
+                    } else res.status(StatusCodes.BAD_REQUEST).json({message: 'Password does not match'});
+                } else res.status(StatusCodes.BAD_REQUEST).json({message: 'Invalid or expired token'});
             }
-        }
-        catch (err) {
+        } catch (err) {
             console.log(err);
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({message: err.message});
+        }
+    }
+
+    async SendConfirmReservationEmail(req, res, next) {
+        try {
+            const reservationInfo = req.body;
+            console.log(reservationInfo)
+            const user = await userService.GetUserById(reservationInfo.userId);
+            if (reservationInfo?.is_confirmed === false) {
+                const token = await tokenService.GenerateReservationConfirmToken(user._id);
+                // Send verification email to the user
+                await emailService.SendReservationConfirmEmail(user.email, reservationInfo, token.token);
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: "Confirm reservation email was sent"
+                    },
+                    data: null
+                })
+            } else res.status(StatusCodes.FORBIDDEN).json({message: 'The reservation has been already confirmed'});
+        } catch (err) {
+            // res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
         }
     }
 }

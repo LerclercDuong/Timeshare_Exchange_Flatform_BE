@@ -1,14 +1,41 @@
 const axios = require('axios')
 const {reservationServices} = require('../../services/v2');
 const {StatusCodes} = require('http-status-codes');
+const emailService = require("../../services/v2/email.service");
 
 
 class ReservationController {
+    async ConfirmReservationByEmail(req, res, next) {
+        try {
+            const {reservationId} = req.params;
+            const confirmToken = req.query.token;
+            const confirmedData = await reservationServices.ConfirmReservationByEmail(reservationId);
+            if (confirmedData) {
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: `User has confirmed for reservation ${confirmedData.reservation_id}`
+                    },
+                    data: confirmedData
+                });
+            }
+        } catch (error) {
+            console.log(error)
+            res.status(StatusCodes.BAD_REQUEST).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'User fail to confirm this reservation'
+                },
+                data: null
+            });
+        }
+    }
+
     async ConfirmReservation(req, res, next) {
         try {
             const {reservationId} = req.params;
             const confirmedData = await reservationServices.ConfirmReservation(reservationId)
-            if(confirmedData){
+            if (confirmedData) {
                 res.status(StatusCodes.OK).json({
                     status: {
                         code: res.statusCode,
@@ -106,8 +133,15 @@ class ReservationController {
             const reservedData = req.body;
             const reservationSaved = await reservationServices.MakeReservation(reservedData);
             if (reservationSaved) {
-                req.reservation = reservationSaved
-                next()
+                // req.reservation = reservationSaved;
+                // next();
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: 'Reservation created'
+                    },
+                    data: reservationSaved
+                });
             }
         } catch (error) {
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -119,11 +153,34 @@ class ReservationController {
             });
         }
     }
+
     async ConfirmRent(req, res, next) {
         try {
             const {reservationId} = req.params;
             const confirmedReservation = await reservationServices.ConfirmRent(reservationId);
             res.json(confirmedReservation);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async ConfirmReservationByToken(req, res, next) {
+        try {
+            const token = req.query.token;
+            const reservationId = req.params.reservationId;
+            if (!token) {
+                res.status(StatusCodes.BAD_REQUEST).json({message: 'Bad request, must have token as a parameter'});
+            } else {
+                const confirmData = await reservationServices.ConfirmReservationByToken(reservationId, token)
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: 'Verify complete'
+                    },
+                    data: confirmData
+                });
+            }
+            // } else res.status(StatusCodes.BAD_REQUEST).json({message: 'Token is invalid or expired'});
         } catch (error) {
             next(error);
         }

@@ -34,11 +34,19 @@ class EmailService {
         await this.SendEmail(to, subject, text);
     }
 
-    async SendReservationInfo(to, reservationInfo) {
+    async SendReservationConfirmEmail(to, reservationInfo, token) {
+        const postId = reservationInfo.postId._id;
+        const reservationId = reservationInfo._id;
+        const confirmReservationUrl = `http://localhost:3000/post/${postId}/reservation/${reservationId}/confirm?token=${token}`
         const subject = 'Reservation at NiceTrip';
-        const text = `Thank you for your reservation at NiceTrip, please waiting for owner acceptance`;
+        const text = `Thank you for your reservation at NiceTrip,
+                             To confirm your reservation at post ${postId}
+                             Click on this link: 
+                             <a href="${confirmReservationUrl}"></a>`;
         await this.SendEmail(to, subject, text);
     };
+
+
     async GenerateVerifyToken(userId) {
         try {
             const data = {
@@ -80,10 +88,9 @@ class EmailService {
     async VerifyEmailToken(token) {
         try {
             let result = false;
-            console.log(token);
             const data = await tokenService.VerifyToken(`Bearer ${token}`, 'VERIFY_EMAIL', process.env.EMAIL_SECRET_KEY);
             if (data) {
-                userService.UpdateEmailStatus(data.user._id);
+                await userService.UpdateEmailStatus(data.user._id);
                 result = true;
             }
             return result;
