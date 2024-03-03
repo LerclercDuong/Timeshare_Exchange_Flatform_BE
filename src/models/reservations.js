@@ -8,10 +8,15 @@ const reservationSchema = new Schema({
         ref: 'Users',
         required: true,
     },
-    postId: {
+    timeshareId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Posts',
+        ref: 'Timeshares',
         required: true,
+    },
+    myTimeshareId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Timeshares',
+        required: false,
     },
     requestId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -19,6 +24,12 @@ const reservationSchema = new Schema({
     },
     verificationCode: {
         type: Number,
+    },
+    type: {
+        type: String,
+        enum : ['rent', 'exchange'],
+        default: ['rent'],
+        required: true,
     },
     reservationDate: {
         type: Date,
@@ -38,23 +49,23 @@ const reservationSchema = new Schema({
     address: {
         street: {
             type: String,
-            required: true,
+            // required: true,
         },
         city: {
             type: String,
-            required: true,
+            // required: true,
         },
         province: {
             type: String,
-            required: true,
+            // required: true,
         },
         zipCode: {
             type: String,
-            required: true,
+            // required: true,
         },
         country: {
             type: String,
-            required: true,
+            // required: true,
         },
     },
     amount: {
@@ -63,7 +74,7 @@ const reservationSchema = new Schema({
     },
     isPaid: {
         type: Boolean,
-        required: true,
+        // required: true,
         default: false
     },
     status: {
@@ -80,12 +91,12 @@ const reservationSchema = new Schema({
 reservationSchema.plugin(mongooseDelete);
 reservationSchema.pre('find', async function (docs, next) {
     this.populate({
-        path: "postId userId"
+        path: "timeshareId myTimeshareId userId"
     })
 });
 reservationSchema.pre('findOne', async function (docs, next) {
     this.populate({
-        path: "postId userId"
+        path: "timeshareId myTimeshareId userId"
     })
 });
 const Reservation = mongoose.model('Reservations', reservationSchema);
