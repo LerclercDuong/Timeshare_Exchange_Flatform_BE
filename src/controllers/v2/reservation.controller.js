@@ -129,6 +129,73 @@ class ReservationController {
         }
     }
 
+    async MakeExchange(req, res, next) {
+        try {
+            const {timeshareId} = req.params
+            const {myTimeshareId, type, userId, fullName, phone, email, amount} = req.body;
+            const exchangeData = await reservationServices.MakeExchange(
+                timeshareId, 
+                myTimeshareId, 
+                type, 
+                userId, 
+                fullName, 
+                phone, 
+                email, 
+                amount
+                );
+            console.log(exchangeData)
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Exchange status "pending"'
+                },
+                data: exchangeData
+            });
+        } catch (error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Error'
+                },
+                data: null
+            });
+        }
+    }
+
+    async ConfirmExchange(req, res, next) {
+        try {
+            const { exchangeId } = req.params;
+            if (!exchangeId) {
+                return res.status(StatusCodes.BAD_REQUEST).json({
+                    status: {
+                        code: StatusCodes.BAD_REQUEST,
+                        message: 'Missing exchangeId parameter'
+                    },
+                    data: null
+                });
+            }
+            const confirmedExchangeData = await reservationServices.ConfirmExchange(exchangeId);
+            if (confirmedExchangeData) {
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: `Confirm success for exchange`
+                    },
+                    data: confirmedExchangeData
+                });
+            }
+        } catch (error) {
+            console.error(error);
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                status: {
+                    code: StatusCodes.INTERNAL_SERVER_ERROR,
+                    message: 'Confirm fail'
+                },
+                data: null
+            });
+        }
+    }
+
 }
 
 module.exports = new ReservationController;

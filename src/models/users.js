@@ -56,7 +56,7 @@ const users = new Schema({
     role: {
         type: String,
         required: true,
-        enum: ['user', 'admin', 'member'],
+        enum: ['user', 'admin', 'member-basic', 'member-fullservice'],
         default: 'user'
     },
     timestamp: {

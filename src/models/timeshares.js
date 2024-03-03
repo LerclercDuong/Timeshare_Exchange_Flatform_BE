@@ -6,10 +6,6 @@ const {GetPresignedUrl, uploadToS3} = require("../utils/s3Store");
 const paginate = require("./plugin/paginate");
 
 const timeshareSchema = new Schema({
-    postId: {
-        type: String,
-        // required: true
-    },
     type: {
         type: String,
         enum: ['rental', 'exchange'],

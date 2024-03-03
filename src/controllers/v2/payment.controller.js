@@ -131,7 +131,8 @@ class PaymentController {
 
     async CreateVNPay(req, res) {
         try {
-            const paymentUrl = await paymentServices.CreateVNPay(req);
+            const {userId} = req.body;
+            const paymentUrl = await paymentServices.CreateVNPay(req, userId);
             res.status(StatusCodes.OK).json({
                 status: {
                     code: res.statusCode,
@@ -144,20 +145,22 @@ class PaymentController {
             res.status(500).send("Internal Server Error");
         }
     }
+    
 
-    async VNPayReturn(req, res, next) {
+    async VNPayReturn(req, res) {
         try {
-            const vnpayReturn = await paymentServices.VNPayReturn(req, res);
+            const { userId } = req.params;
+            const vnpayReturn = await paymentServices.VNPayReturn(req, res, userId);
             res.status(StatusCodes.OK).json({
                 status: {
                     code: res.statusCode,
                     message: 'payment data'
                 },
                 data: vnpayReturn
-            })
+            });
         } catch (error) {
             console.error(error);
-            res.status(500).send("Internal Server Error");
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
         }
     }
 }
