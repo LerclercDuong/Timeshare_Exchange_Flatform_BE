@@ -71,7 +71,7 @@ const users = new Schema({
     isDeleted: {
         type: Boolean,
         required: true,
-        default: false
+        default: false,
     }
 });
 users.plugin(paginate);

@@ -1,5 +1,6 @@
 const UserModel = require('../../models/users');
 const RequestModel = require('../../models/requests');
+const PaymentModel = require('../../models/payments');
 const {StatusCodes} = require('http-status-codes');
 const query = require('../../utils/query')
 
@@ -77,6 +78,7 @@ class AdminService {
     async getDeletedAccount(){
         try {
             return UserModel.find({isDeleted: true});
+
         } catch (error) {
             console.error('Error deleting user:', error);
         }
@@ -105,6 +107,16 @@ class AdminService {
     }
     async getNotAdminAccount(){
         return UserModel.find({ role : { $ne:'admin' } }, {isDeleted: false});
+    }
+
+    //Payment management
+
+    async getAllPayment(){
+        try{
+            return PaymentModel.find({});
+        }catch(error){
+            console.log("error in get payment" + error);
+        }
     }
 }
 

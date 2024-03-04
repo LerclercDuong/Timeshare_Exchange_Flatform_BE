@@ -32,7 +32,7 @@ class AdminController {
     
     //[GET] /ban-account/:id
     async BanAccount(req, res, next){
-        adminServices.banAccount(req.params.id);
+        await adminServices.banAccount(req.params.id);
         res.status(StatusCodes.OK).json({
             status:{
                 code: res.statusCode,
@@ -56,7 +56,7 @@ class AdminController {
 
     //[GET] /unban-account/:id
     async unbanAccount(req, res, next){
-        adminServices.unbanAccount(req.params.id);
+        await adminServices.unbanAccount(req.params.id);
         res.status(StatusCodes.OK).json({
             status:{
                 code: res.statusCode,
@@ -67,7 +67,7 @@ class AdminController {
 
     //[GET] /force-delete-account/:id
     async ForceDeleteAccount(req, res, next){
-        adminServices.forceDeleteAccount(req,params.id);
+        await adminServices.forceDeleteAccount(req.params.id);
         res.status(StatusCodes.OK).json({
             status:{
                 code: res.statusCode,
@@ -79,7 +79,7 @@ class AdminController {
     
     //[GET] /delete-account/:id
     async DeleteAccount(req, res, next){
-        adminServices.softDeleteAccount(req.params.id);
+        await adminServices.softDeleteAccount(req.params.id);
         res.status(StatusCodes.OK).json({
             status:{
                 code: res.statusCode,
@@ -91,7 +91,7 @@ class AdminController {
 
     //[GET] /restore-account/:id
     async RestoreAccount(req, res, next){
-        adminServices.restoreAccount(req.params.id);
+        await adminServices.restoreAccount(req.params.id);
         res.status(StatusCodes.OK).json({
             status:{
                 code: res.statusCode,
@@ -103,7 +103,7 @@ class AdminController {
 
     //[GET] /deleted-account-list
     async ShowDeletedAccount(req, res, next){
-        const allDeletedAccount = adminServices.getDeletedAccount();
+        const allDeletedAccount = await adminServices.getDeletedAccount();
         res.status(StatusCodes.OK).json({
             status:{
                 code: res.statusCode,
@@ -143,7 +143,7 @@ class AdminController {
     }
     //[GET] /deny-request/:id
     async CancelRequest(req, res, next){
-        adminServices.cancelRequest(req.params.id);
+        await adminServices.cancelRequest(req.params.id);
         res.status(StatusCodes.OK).json({
             status:{
                 code: res.statusCode,
@@ -174,7 +174,7 @@ class AdminController {
     //[GET] /accept-request:/id
     async AcceptRequest(req, res, next){
         const id = req.params.id;
-        adminServices.confirmARequest(id);
+        await adminServices.confirmARequest(id);
         res.status(StatusCodes.OK).json({
             status: {
                 code: res.statusCode,
@@ -201,6 +201,18 @@ class AdminController {
                 message: 'Resorts found'
             },
             data: allResort
+        })
+    }
+
+    //[GET] /report-balance
+    async ShowAllPayment(req, res, next){
+        const allPayment = await adminServices.getAllPayment();
+        res.status(StatusCodes.OK).json({
+            status:{
+                code: res.statusCode,
+                message: 'Resorts found'
+            },
+            data: allPayment
         })
     }
 }
