@@ -51,6 +51,7 @@ class AuthController {
                 });
             }
         } catch (err) {
+            console.log(err);
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({message: err.message});
         }
     }
@@ -95,10 +96,6 @@ class AuthController {
     }
 
     async loginWithGoogle(req, res, next) {
-
-    }
-
-    async forgotPassword(req, res) {
 
     }
 }

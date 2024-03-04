@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
 const UnauthenticatedError = require('../errors/un-authenticated')
 const moment = require("moment");
-const {StatusCodes} = require('http-status-codes');
+const { StatusCodes } = require('http-status-codes');
+const { GetUserById } = require('../services/v2/user.service');
 
 const auth = (req, res, next) => {
     const authHeader = req.headers.authorization;
@@ -16,8 +17,16 @@ const auth = (req, res, next) => {
         }
         next();
     } catch {
-        res.status(StatusCodes.UNAUTHORIZED).json({message: 'You are unauthorized to access this resource'})
+        res.status(StatusCodes.UNAUTHORIZED).json({ message: 'You are unauthorized to access this resource' })
     }
 }
 
+// Authorization middleware
+const authorizeAdmin = async (req, res, next) => {
+    const user = await GetUserById(req.user);
+    if (user.role === 'admin') {
+        next();
+    }
+    else res.status(403).send('Access forbidden');
+}
 module.exports = auth;
