@@ -62,6 +62,16 @@ const users = new Schema({
     timestamp: {
         type: Date,
         default: Date.now
+    },
+    isBanned: {
+        type: Boolean,
+        required: true,
+        default: false,
+    },
+    isDeleted: {
+        type: Boolean,
+        required: true,
+        default: false
     }
 });
 users.plugin(paginate);
