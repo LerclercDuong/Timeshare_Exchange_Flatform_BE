@@ -35,12 +35,12 @@ class EmailService {
     }
 
     async SendReservationConfirmEmail(to, reservationInfo, token) {
-        const postId = reservationInfo.postId._id;
+        const timeshareId = reservationInfo.timeshareId._id;
         const reservationId = reservationInfo._id;
-        const confirmReservationUrl = `http://localhost:3000/post/${postId}/reservation/${reservationId}/confirm?token=${token}`
+        const confirmReservationUrl = `http://localhost:3000/timeshare/${timeshareId}/reservation/${reservationId}/confirm?token=${token}`
         const subject = 'Reservation at NiceTrip';
         const text = `Thank you for your reservation at NiceTrip,
-                             To confirm your reservation at post ${postId}
+                             To confirm your reservation at post ${timeshareId}
                              Click on this link: 
                              <a href="${confirmReservationUrl}"></a>`;
         await this.SendEmail(to, subject, text);
@@ -101,8 +101,7 @@ class EmailService {
     }
     async DecryptPasswordResetToken(token) {
         try {
-            const data = await tokenService.VerifyToken(`Bearer ${token}`, 'RESET_PASSWORD', process.env.PASSWORD_RESET_SECRET_KEY);
-            return data;
+            return await tokenService.VerifyToken(`Bearer ${token}`, 'RESET_PASSWORD', process.env.PASSWORD_RESET_SECRET_KEY);
         }
         catch (err) {
             throw err;

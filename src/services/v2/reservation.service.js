@@ -8,15 +8,15 @@ const tokenServices = require("./token.service");
 
 class ReservationService {
     async GetReservationOfUser(userId) {
-        return await ReservationModel.find({userId: userId})
+        return ReservationModel.find({userId: userId});
     }
 
-    async GetReservationOfPost(postId) {
-        return await ReservationModel.find({postId: postId, isPaid: true})
+    async GetReservationOfPost(timeshareId) {
+        return ReservationModel.find({timeshareId: timeshareId, isPaid: true});
     }
 
     async GetReservationById(id) {
-        return await ReservationModel.findById(id).lean();
+        return ReservationModel.findById(id).lean();
     }
 
     async ConfirmReservationByEmail(reservationId, token) {
@@ -33,12 +33,12 @@ class ReservationService {
                 }
             }
         );
-        const post = await PostModel.findById(reservation.postId);
+        const post = await TimeshareModel.findById(reservation.timeshareId);
         if (!post) {
-            throw new Error('Post not found');
+            throw new Error('Timeshare not found');
         }
-        await PostModel.updateOne(
-            {_id: reservation.postId._id},
+        await TimeshareModel.updateOne(
+            {_id: reservation.timeshareId._id},
             {
                 $set: {
                     is_bookable: false
@@ -47,7 +47,7 @@ class ReservationService {
         );
         await tripService.CreateTrip(reservation);
         return {
-            reservation_id: reservation.postId,
+            reservation_id: reservation.timeshareId,
             code: 200,
             confirmed_at: reservation.confirmed_at,
             message: 'Guest name confirmed'
@@ -56,7 +56,7 @@ class ReservationService {
 
     async MakeReservation(data) {
         const {
-            userId, postId, reservationDate, fullName, phone, email, country,
+            userId, timeshareId, reservationDate, fullName, phone, email, country,
             street,
             city,
             province,
@@ -66,7 +66,7 @@ class ReservationService {
         // Create a new reservation instance
         const newReservation = new ReservationModel({
             userId,
-            postId,
+            timeshareId,
             reservationDate,
             fullName,
             phone,

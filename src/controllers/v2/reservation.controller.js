@@ -107,7 +107,9 @@ class ReservationController {
     async GetReservationById(req, res, next) {
         try {
             const {reservationId} = req.params;
+            console.log(reservationId);
             const result = await reservationServices.GetReservationById(reservationId);
+            console.log(result);
             if (result) {
                 res.status(StatusCodes.OK).json({
                     status: {
@@ -130,6 +132,7 @@ class ReservationController {
 
     async MakeReservation(req, res, next) {
         try {
+            const type = req.query.type;
             const reservedData = req.body;
             const reservationSaved = await reservationServices.MakeReservation(reservedData);
             if (reservationSaved) {

@@ -8,9 +8,9 @@ const reservationSchema = new Schema({
         ref: 'Users',
         required: true,
     },
-    postId: {
+    timeshareId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Posts',
+        ref: 'Timeshares',
         required: true,
     },
     requestId: {
@@ -85,13 +85,13 @@ const reservationSchema = new Schema({
 reservationSchema.plugin(mongooseDelete);
 reservationSchema.pre('find', async function (docs, next) {
     this.populate({
-        path: "postId userId"
-    })
+        path: "timeshareId userId"
+    }).where({ is_confirmed: true })
 });
 reservationSchema.pre('findOne', async function (docs, next) {
     this.populate({
-        path: "postId userId"
-    })
+        path: "timeshareId userId"
+    }).where({ is_confirmed: true })
 });
 const Reservation = mongoose.model('Reservations', reservationSchema);
 

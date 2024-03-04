@@ -21,7 +21,7 @@ const transporter = nodemailer.createTransport({
 class TimeshareService {
 
     async QueryPost(filter, options) {
-        return await TimeshareModel.paginate(filter, options);
+        return TimeshareModel.paginate(filter, options);
     }
 
     async GetAllPosts() {
