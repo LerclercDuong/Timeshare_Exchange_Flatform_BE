@@ -1,8 +1,7 @@
-const adminServices = require('../../services/v2/admin.service');
-const postServices = require('../../services/v2/post.service');
-const resortServices = require('../../services/v2/resort.service');
+const { adminServices } = require('../../services/v2');
+const { postServices } = require('../../services/v2');
+const { resortServices } = require('../../services/v2');
 const { StatusCodes } = require('http-status-codes');
-const { softDeleteAccount } = require('../../services/v2/admin.service');
 
 class AdminController {
     // [GET] /
@@ -80,13 +79,13 @@ class AdminController {
     
     //[GET] /delete-account/:id
     async DeleteAccount(req, res, next){
-        softDeleteAccount(req.params.id);
+        adminServices.softDeleteAccount(req.params.id);
         res.status(StatusCodes.OK).json({
             status:{
                 code: res.statusCode,
-                message: 'delete success'
+                message: 'delete success '
             },
-            data: null
+            data: req.params.id
         })
     }
 
@@ -143,8 +142,8 @@ class AdminController {
         })
     }
     //[GET] /deny-request/:id
-    async DenyRequest(req, res, next){
-        adminServices.denyRequest(req.params.id);
+    async CancelRequest(req, res, next){
+        adminServices.cancelRequest(req.params.id);
         res.status(StatusCodes.OK).json({
             status:{
                 code: res.statusCode,

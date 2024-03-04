@@ -29,7 +29,7 @@ class AdminService {
         }
     }
 
-    async denyRequest(id){
+    async cancelRequest(id){
         try {
             return RequestModel.updateOne({ _id: id }, { status: 'canceled' });
         } catch (error) {
@@ -61,7 +61,7 @@ class AdminService {
     }
     async softDeleteAccount(id) {
         try {
-            return UserModel.UpdateOne({_id: id}, { isDeleted: true });
+            return UserModel.updateOne({_id: id}, {isDeleted: true});
         } catch (error) {
             console.error('Error soft deleting user:', error);
         }
@@ -76,14 +76,14 @@ class AdminService {
     }
     async getDeletedAccount(){
         try {
-            return UserModel.find({isBanned: false});
+            return UserModel.find({isDeleted: true});
         } catch (error) {
             console.error('Error deleting user:', error);
         }
     }
     async restoreAccount(id){
         try {
-            return UserModel.UpdateOne({_id: id}, { isDeleted: false });
+            return UserModel.updateOne({_id: id}, { isDeleted: false });
         } catch (error) {
             console.error('Error restore user:', error);
         }
