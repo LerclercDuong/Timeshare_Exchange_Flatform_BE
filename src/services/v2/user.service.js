@@ -1,6 +1,7 @@
 const UserModel = require('../../models/users');
 const ResortModel = require("../../models/resorts");
-const s3Utils = require("../../utils/s3Store")
+const s3Utils = require("../../utils/s3Store");
+const checkLogin = require('../../utils/checkLogin');
 
 class UserService {
     async QueryUser(filter, options) {
@@ -71,7 +72,7 @@ class UserService {
         }
     }
 
-    async UpdatePassword(userId, newPassword) {
+    async ResetPassword(userId, newPassword) {
         try {
             const update = {
                 password: newPassword,
@@ -80,6 +81,18 @@ class UserService {
                 {_id: userId},
                 update,
             )
+        }
+        catch (err) {
+            throw err;
+        }
+    }
+    async ChangePassword(userId, oldPassword, newPassword) {
+        try {
+            const userData = await this.GetUserById(userId);
+            if (await checkLogin(userData.username, oldPassword)) {
+                await this.ResetPassword(userId, newPassword);
+            }
+            else throw Error('Wrong password');
         }
         catch (err) {
             throw err;
