@@ -1,7 +1,6 @@
 const bcrypt = require('bcrypt');
 const moment = require("moment");
-const UserId = require('../../controllers/v1/user');
-const PostModel = require("../../models/posts");
+const TimeshareModel = require("../../models/timeshares");
 const ReservationModel = require('../../models/reservations');
 const RequestModel = require('../../models/requests')
 const nodemailer = require("nodemailer");
@@ -19,14 +18,14 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-class PostService {
+class TimeshareService {
 
     async QueryPost(filter, options) {
-        return await PostModel.paginate(filter, options);
+        return await TimeshareModel.paginate(filter, options);
     }
 
     async GetAllPosts() {
-        return PostModel.find({}).select('_id name start_date image end_date location price deletedAt').lean();
+        return TimeshareModel.find({}).select('_id name start_date image end_date location price deletedAt').lean();
     }
 
     async GetTimeShareByTrash() {
@@ -39,7 +38,7 @@ class PostService {
     }
 
     async GetTimeshareByCurrentOwner(current_owner) {
-        return PostModel
+        return TimeshareModel
             .find({current_owner})
             .populate({
                 path: 'current_owner',
@@ -49,15 +48,15 @@ class PostService {
     }
 
     async DeleteTimeshare(req) {
-        const deleteTimeshare = await PostModel.delete({_id: req.params.id}, req.body)
+        const deleteTimeshare = await TimeshareModel.delete({_id: req.params.id}, req.body)
         return deleteTimeshare;
     } // thu vien mongoose soft-delete
     async UpdateTimeshare(req) {
-        const updateTimeshare = await PostModel.updateOne({_id: req.params.id}, req.body)
+        const updateTimeshare = await TimeshareModel.updateOne({_id: req.params.id}, req.body)
         return updateTimeshare;
     } // thu vien mongoose soft-delete
     async RestoreTimeshare(req) {
-        const restoreTimeshare = await PostModel.restore({_id: req.params.id}, req.body)
+        const restoreTimeshare = await TimeshareModel.restore({_id: req.params.id}, req.body)
         return restoreTimeshare;
     } // thu vien mongoose soft-delete
     async ForceDeleteTimeshare(req) {
@@ -66,7 +65,7 @@ class PostService {
     }
 
     async GetPostById(id) {
-        return await PostModel.findById(id);
+        return await TimeshareModel.findById(id);
     }
 
     async UploadPost(req, current_owner, unitId, price, start_date, end_date, resortId, images) {
@@ -79,7 +78,7 @@ class PostService {
             end_date: end_date,
             resortId: resortId,
         }
-        const newUpload = new PostModel({...uploadData});
+        const newUpload = new TimeshareModel({...uploadData});
         return newUpload.save().catch();
     }
 
@@ -117,7 +116,7 @@ class PostService {
             resortId: resortId,
             type: type
         }
-        const newUpload = new PostModel({...uploadData});
+        const newUpload = new TimeshareModel({...uploadData});
         return newUpload.save().catch();
     }
 
@@ -157,4 +156,4 @@ class PostService {
     }
 }
 
-module.exports = new PostService;
+module.exports = new TimeshareService;

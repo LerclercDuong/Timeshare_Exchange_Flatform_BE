@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const moment = require("moment");
 const UserId = require('../../controllers/v1/user');
-const PostModel = require("../../models/posts");
+const TimeshareModel = require("../../models/timeshares");
 const ReservationModel = require('../../models/reservations');
 const RequestModel = require('../../models/requests')
 const nodemailer = require("nodemailer");
@@ -98,6 +98,179 @@ class PaymentService {
     async RefundPayment(){
 
     }
+    async CreateVNPay(req, userId) {
+        process.env.TZ = 'Asia/Ho_Chi_Minh';
+        let date = new Date();
+        let createDate = moment(date).format('YYYYMMDDHHmmss');
+    
+        let ipAddr =
+            req.headers['x-forwarded-for'] ||
+            req.connection.remoteAddress ||
+            req.socket.remoteAddress ||
+            req.connection.socket.remoteAddress;
+    
+        let config = require('../../configs/default.json');
+    
+        let tmnCode = "TG4G0CYV";
+        let secretKey = "OIEUZLVYEHNDVYKFPDOAJXIMTWIDVKJT";
+        let vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+        let returnUrl = `http://localhost:3000/payment/${userId}/vnpay_return`;
+
+        // let returnUrl = "http://localhost:8080/api/v2/payment/vnpay_return";
+
+        let orderId = moment(date).format('DDHHmmss');
+        let amount = req.body.amount;
+        let bankCode = req.body.bankCode;
+    
+        let locale = req.body.language;
+        if (locale === null || locale === '') {
+            locale = 'vn';
+        }
+    
+        let currCode = 'VND';
+        let vnp_Params = {};
+        vnp_Params['vnp_Version'] = '2.1.0';
+        vnp_Params['vnp_Command'] = 'pay';
+        vnp_Params['vnp_TmnCode'] = tmnCode;
+        vnp_Params['vnp_Locale'] = locale;
+        vnp_Params['vnp_CurrCode'] = currCode;
+        vnp_Params['vnp_TxnRef'] = orderId;
+        vnp_Params['vnp_OrderInfo'] = 'Thanh toan cho ma GD:' + orderId;
+        vnp_Params['vnp_OrderType'] = 'other';
+        vnp_Params['vnp_Amount'] = parseFloat(amount) * 100; // Convert amount to Number before multiplication
+        vnp_Params['vnp_ReturnUrl'] = returnUrl;
+        vnp_Params['vnp_IpAddr'] = ipAddr;
+        vnp_Params['vnp_CreateDate'] = createDate;
+        if (bankCode !== null && bankCode !== '') {
+            vnp_Params['vnp_BankCode'] = bankCode;
+        }
+    
+        vnp_Params = sortObject(vnp_Params);
+    
+        let querystring = require('qs');
+        let signData = querystring.stringify(vnp_Params, { encode: false });
+        let crypto = require("crypto");
+        let hmac = crypto.createHmac("sha512", secretKey);
+        let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");
+        vnp_Params['vnp_SecureHash'] = signed;
+        vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
+    
+        const vnpayData = {
+            orderId: orderId,
+            vnp_Version: vnp_Params['vnp_Version'],
+            vnp_Command: vnp_Params['vnp_Command'],
+            vnp_TmnCode: tmnCode,
+            vnp_Locale: locale,
+            vnp_CurrCode: currCode,
+            vnp_TxnRef: orderId,
+            vnp_OrderInfo: 'Thanh toan cho ma GD:' + orderId,
+            vnp_OrderType: vnp_Params['vnp_OrderType'],
+            vnp_Amount: parseFloat(amount), // Assign the original amount here
+            vnp_ReturnUrl: returnUrl,
+            vnp_IpAddr: ipAddr,
+            vnp_CreateDate: createDate,
+            vnp_BankCode: bankCode,
+            vnp_SecureHash: signed,
+            transactionStatus: 'Pending',
+            userId: userId,
+        };
+        try {
+            const vnpay = new PaymentModel(vnpayData);
+            await vnpay.save();
+        } catch (error) {
+            console.error(error);
+        }
+        return vnpUrl;
+    }
+    
+
+    async VNPayReturn(req, res, next, userId) {
+        try {
+            let vnp_Params = req.query;    
+            let secureHash = vnp_Params['vnp_SecureHash'];
+    
+            delete vnp_Params['vnp_SecureHash'];
+            delete vnp_Params['vnp_SecureHashType'];
+    
+            vnp_Params = sortObject(vnp_Params);
+    
+            let config = require('../../configs/default.json');
+            let secretKey = config.vnp_HashSecret;
+    
+            let querystring = require('qs');
+            let signData = querystring.stringify(vnp_Params, { encode: false });
+            let crypto = require("crypto");
+            let hmac = crypto.createHmac("sha512", secretKey);
+            let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");
+        
+            if (secureHash === signed) {
+                let responseData = {};
+                if (vnp_Params['vnp_ResponseCode'] === '00') {
+                    let payment = await PaymentModel.findOneAndUpdate({ orderId: vnp_Params['vnp_TxnRef'] }, { transactionStatus: 'Success' });
+    
+                    // Update user's role based on the payment amount
+                    // const amount = parseFloat(vnp_Params['vnp_Amount']);
+                    // let role = '';
+                    // if (amount === 10000000) {
+                    //     role = 'member-basic';
+                    // } else if (amount === 20000000) {
+                    //     role = 'member-fullservice';
+                    // }
+                    // if (role) {
+                    const user = await UserModel.findOneAndUpdate({ userId: userId }, { role: 'member-basic' });
+                    console.log("User role updated:", user);
+                    console.log("Received user ID:", userId);
+
+                    // }
+    
+                    // console.log("Payment successful. Updated transaction:", payment);
+                    responseData = {
+                        success: true,
+                        message: 'Payment successful',
+                        code: vnp_Params['vnp_ResponseCode']
+                    };
+                } else if (vnp_Params['vnp_ResponseCode'] === '24') {
+                    let payment = await PaymentModel.findOneAndUpdate({ orderId: vnp_Params['vnp_TxnRef'] }, { transactionStatus: 'Failed' });
+                    // console.log("Payment canceled. Updated transaction:", payment);
+                    responseData = {
+                        success: false,
+                        message: 'Payment canceled by user',
+                        code: vnp_Params['vnp_ResponseCode']
+                    };
+                }
+                // console.log("Sending response:", responseData);
+                return responseData; // Return response instead of directly sending it
+            } else {
+                // Secure hash mismatch
+                console.log("Secure hash mismatch");
+                return {
+                    success: false,
+                    message: 'Secure hash mismatch',
+                    code: '97'
+                };
+            }
+        } catch (error) {
+            console.error("Error occurred:", error);
+            throw error; // Re-throw the error for proper error handling in the controller
+        }
+    }
+    
+    
+}    
+function sortObject(obj) {
+    let sorted = {};
+    let str = [];
+    let key;
+    for (key in obj){
+        if (obj.hasOwnProperty(key)) {
+        str.push(encodeURIComponent(key));
+        }
+    }
+    str.sort();
+    for (key = 0; key < str.length; key++) {
+        sorted[str[key]] = encodeURIComponent(obj[str[key]]).replace(/%20/g, "+");
+    }
+    return sorted;
 }
 
 module.exports = new PaymentService;

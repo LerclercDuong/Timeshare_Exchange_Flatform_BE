@@ -39,5 +39,9 @@ router.get('/of-post/:postId', reservationRouter.GetReservationOfPost);
 router.post('/create', reservationRouter.MakeReservation, paymentController.CreatePayment);
 router.post('/confirm/:reservationId', reservationRouter.ConfirmRent);
 
+// router.get('/of-post/:postId', reservationRouter.GetExchangeOfPost);
+router.post('/exchange/:timeshareId', reservationRouter.MakeExchange);
+router.patch('/:exchangeId/confirm-exchange', reservationRouter.ConfirmExchange);
+
 
 module.exports = router;

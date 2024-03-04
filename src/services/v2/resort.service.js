@@ -4,7 +4,6 @@ const UserId = require('../../controllers/v1/user');
 const TimeshareModel = require("../../models/timeshares");
 const ResortModel = require("../../models/resorts");
 const ApiError = require('../../utils/ApiError')
-const PostModel = require("../../models/posts");
 
 class ResortService {
 
@@ -40,7 +39,7 @@ class ResortService {
         try {
             const resortId = await ResortModel.findById(id);
             if (resortId) {
-                return PostModel.find({ resortId: id }).lean();
+                return TimeshareModel.find({ resortId: id }).lean();
             } else {
                 throw new ApiError(203, 'Resort not found');
             }

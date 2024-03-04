@@ -1,8 +1,8 @@
 const ReservationModel = require('../../models/reservations')
-const PostModel = require('../../models/posts')
 const {StatusCodes} = require('http-status-codes');
 const paypal = require('paypal-rest-sdk');
-
+const {paymentServices} = require('../../services/v2')
+const TimeshareModel = require('../../models/timeshares')
 const {PAYPAL_MODE, PAYPAL_CLIENT_KEY, PAYPAL_SECRET_KEY} = process.env;
 
 paypal.configure({
@@ -105,7 +105,7 @@ class PaymentController {
                         .catch(err => {
                             console.error('Error updating isPaid:', err);
                         });
-                    await PostModel.updateOne(
+                    await TimeshareModel.updateOne(
                         { _id: postId },
                         {
                             $set: {
@@ -127,6 +127,41 @@ class PaymentController {
             console.log(error.message);
         }
 
+    }
+
+    async CreateVNPay(req, res) {
+        try {
+            const {userId} = req.body;
+            const paymentUrl = await paymentServices.CreateVNPay(req, userId);
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'payment data'
+                },
+                data: paymentUrl
+            })
+        } catch (error) {
+            console.error(error);
+            res.status(500).send("Internal Server Error");
+        }
+    }
+    
+
+    async VNPayReturn(req, res) {
+        try {
+            const { userId } = req.params;
+            const vnpayReturn = await paymentServices.VNPayReturn(req, res, userId);
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'payment data'
+                },
+                data: vnpayReturn
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+        }
     }
 }
 
