@@ -8,5 +8,6 @@ router.get('/send-verification-email', CheckAuth, emailController.SendVerificati
 router.get('/verify-email', emailController.VerifyEmailVerification);
 router.post('/request-password-reset', emailController.SendPasswordRecoveryEmail);
 router.post('/reset-password', emailController.VerifyPasswordReset);
+router.post('/send-confirm-reservation-email', emailController.SendConfirmReservationEmail);
 
 module.exports = router;

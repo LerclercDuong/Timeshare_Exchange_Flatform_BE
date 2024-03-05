@@ -91,6 +91,27 @@ class EmailController {
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({message: err.message});
         }
     }
+    async SendConfirmReservationEmail(req, res, next) {
+        try {
+            const reservationInfo = req.body;
+            const user = await userService.GetUserById(reservationInfo.userId._id);
+            console.log(user)
+            if (reservationInfo?.is_confirmed === false) {
+                const token = await tokenService.GenerateReservationConfirmToken(user._id);
+                // Send verification email to the user
+                await emailService.SendReservationConfirmEmail(reservationInfo.email, reservationInfo, token.token);
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: "Confirm reservation email was sent"
+                    },
+                    data: null
+                })
+            } else res.status(StatusCodes.FORBIDDEN).json({message: 'The reservation has been already confirmed'});
+        } catch (err) {
+            // res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+        }
+    }
 }
 
 module.exports = new EmailController;

@@ -4,10 +4,10 @@ const {StatusCodes} = require('http-status-codes');
 
 
 class ReservationController {
-    async ConfirmReservation(req, res, next) {
+    async AcceptReservation(req, res, next) {
         try {
             const {reservationId} = req.params;
-            const confirmedData = await reservationServices.ConfirmReservation(reservationId)
+            const confirmedData = await reservationServices.AcceptReservation(reservationId)
             if(confirmedData){
                 res.status(StatusCodes.OK).json({
                     status: {
@@ -28,11 +28,34 @@ class ReservationController {
             });
         }
     }
-
+    async GetRentRequestOfTimeshare(req, res, next) {
+        try {
+            const { timeshareId } = req.params;
+            const result = await reservationServices.GetRentRequestOfTimeshare(timeshareId);
+            if (result) {
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: "Reservation found"
+                    },
+                    data: result
+                });
+            }
+        } catch (error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Error'
+                },
+                data: null
+            });
+        }
+    }
     async GetReservationOfPost(req, res, next) {
         try {
-            const {postId} = req.params;
-            const result = await reservationServices.GetReservationOfPost(postId);
+            const type = req.query.type;
+            const {timeshareId} = req.params;
+            const result = await reservationServices.GetReservationOfPost(timeshareId, type);
             if (result) {
                 res.status(StatusCodes.OK).json({
                     status: {
@@ -103,13 +126,23 @@ class ReservationController {
 
     async MakeReservation(req, res, next) {
         try {
+            const type = req.query.type;
             const reservedData = req.body;
-            const reservationSaved = await reservationServices.MakeReservation(reservedData);
+            console.log(reservedData)
+            const reservationSaved = await reservationServices.MakeReservation(type, reservedData);
             if (reservationSaved) {
-                req.reservation = reservationSaved
-                next()
+                // req.reservation = reservationSaved;
+                // next();
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: 'Reservation created'
+                    },
+                    data: reservationSaved
+                });
             }
         } catch (error) {
+            console.log(error)
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 status: {
                     code: res.statusCode,
@@ -195,7 +228,28 @@ class ReservationController {
             });
         }
     }
-
+    async ConfirmReservationByToken(req, res, next) {
+        try {
+            const token = req.query.token;
+            console.log(token)
+            const reservationId = req.params.reservationId;
+            if (!token) {
+                res.status(StatusCodes.BAD_REQUEST).json({message: 'Bad request, must have token as a parameter'});
+            } else {
+                const confirmData = await reservationServices.ConfirmReservationByToken(reservationId, token)
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: 'Verify complete'
+                    },
+                    data: confirmData
+                });
+            }
+            // } else res.status(StatusCodes.BAD_REQUEST).json({message: 'Token is invalid or expired'});
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 module.exports = new ReservationController;

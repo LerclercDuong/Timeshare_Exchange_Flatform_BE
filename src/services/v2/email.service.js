@@ -128,6 +128,18 @@ class EmailService {
         const text = `You have ${countExchange + countRent} notifications about at NiceTrip, including ${countExchange} exchange requests and ${countRent} rental requests`;
         await this.SendEmail(to, subject, text);
     };
+    async SendReservationConfirmEmail(to, reservationInfo, token) {
+        const timeshareId = reservationInfo.timeshareId._id;
+        const reservationId = reservationInfo._id;
+        const confirmReservationUrl = `http://localhost:3000/timeshare/${timeshareId}/reservation/${reservationId}/confirm?token=${token}`
+        const subject = 'Reservation at NiceTrip';
+        const text = `Thank you for your reservation at NiceTrip,
+                             To confirm your reservation at post ${timeshareId}
+                             Click on this link: 
+                             <a href="${confirmReservationUrl}"></a>`;
+        await this.SendEmail(to, subject, text);
+    };
+
 }
 
 module.exports = new EmailService;

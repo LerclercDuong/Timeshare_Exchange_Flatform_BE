@@ -28,7 +28,6 @@ const reservationSchema = new Schema({
     type: {
         type: String,
         enum : ['rent', 'exchange'],
-        default: ['rent'],
         required: true,
     },
     reservationDate: {
@@ -77,9 +76,19 @@ const reservationSchema = new Schema({
         // required: true,
         default: false
     },
+    is_confirmed: {
+        type: Boolean,
+        default: false,
+        required: true
+    },
+    is_accepted_by_owner: {
+        type: Boolean,
+        default: false,
+        required: true,
+    },
     status: {
         type: String,
-        enum: ['pending', 'confirmed', 'canceled'],
+        enum: ['pending', 'accepted', 'canceled'],
         default: 'pending',
     },
     confirmed_at: {
@@ -99,6 +108,18 @@ reservationSchema.pre('findOne', async function (docs, next) {
         path: "timeshareId myTimeshareId userId"
     })
 });
+reservationSchema.path('timeshareId').validate(async function (value) {
+    // Fetch the associated timeshare
+    const timeshare = await mongoose.model('Timeshares').findById(value);
+
+    // Check if the current_owner of the timeshare is the same as the userId in the reservation
+    if (timeshare && timeshare.current_owner.equals(this.userId)) {
+        throw new Error('The owner of the timeshare cannot be the same as the reservation user.');
+    }
+
+    return true;
+}, 'Validation error');
+
 const Reservation = mongoose.model('Reservations', reservationSchema);
 
 module.exports = Reservation;

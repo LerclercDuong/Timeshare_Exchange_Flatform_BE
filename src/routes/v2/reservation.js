@@ -32,13 +32,13 @@ const upload = multer({ dest: 'src/public/img/' });
  *       '500':
  *         description: Error confirming reservation
  */
-router.patch('/:reservationId/confirm', reservationRouter.ConfirmReservation);
+// router.patch('/:reservationId/confirm', reservationRouter.ConfirmReservation);
 router.get('/:reservationId', reservationRouter.GetReservationById);
 router.get('/of-user/:userId', reservationRouter.GetReservationOfUser);
-router.get('/of-post/:postId', reservationRouter.GetReservationOfPost);
-router.post('/create', reservationRouter.MakeReservation, paymentController.CreatePayment);
+router.get('/of-timeshare/:timeshareId', reservationRouter.GetReservationOfPost);
+router.post('/create', reservationRouter.MakeReservation);
 router.post('/confirm/:reservationId', reservationRouter.ConfirmRent);
-
+router.patch('/:reservationId/confirm', reservationRouter.ConfirmReservationByToken);
 // router.get('/of-post/:postId', reservationRouter.GetExchangeOfPost);
 router.post('/exchange/:timeshareId', reservationRouter.MakeExchange);
 router.patch('/:exchangeId/confirm-exchange', reservationRouter.ConfirmExchange);

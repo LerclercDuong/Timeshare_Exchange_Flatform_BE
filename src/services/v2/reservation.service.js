@@ -5,21 +5,23 @@ const TimeshareModel = require("../../models/timeshares");
 const RequestModel = require("../../models/requests");
 const tripService = require("./trip.service");
 const emailService = require('./email.service');
-
+const tokenService = require('./token.service')
 class ReservationService {
     async GetReservationOfUser(userId) {
-        return await ReservationModel.find({userId: userId, isPaid: true})
+        return ReservationModel.find({userId: userId});
     }
-    async GetReservationOfPost(postId) {
-        return await ReservationModel.find({postId: postId, isPaid: true})
+    async GetReservationOfPost(timeshareId, type) {
+        return ReservationModel.find({timeshareId: timeshareId, type: type});
     }
     async GetReservationById(id) {
-        return await ReservationModel.findById(id).lean();
+        return ReservationModel.findById(id).lean();
     }
-
-    async MakeReservation(data) {
+    async GetRentRequestOfTimeshare(timeshareId){
+        return ReservationModel.find({timeshareId: timeshareId, type: 'rent'});
+    }
+    async MakeReservation(type, data) {
         const {
-            userId, postId, reservationDate, fullName, phone, email, country,
+            userId, timeshareId, reservationDate, fullName, phone, email, country,
             street,
             city,
             province,
@@ -29,19 +31,54 @@ class ReservationService {
         // Create a new reservation instance
         const newReservation = new ReservationModel({
             userId,
-            postId,
+            timeshareId,
             reservationDate,
             fullName,
             phone,
             email,
             address,
             amount,
+            type: type,
             isPaid: false,
             status: 'pending',
         });
         return await newReservation.save().catch();
     }
-    async ConfirmReservation(reservationId){
+    async AcceptReservation(reservationId){
+        const reservation = await ReservationModel.findById(reservationId);
+        if (!reservation) {
+            throw new Error('Reservation not found');
+        }
+        await ReservationModel.updateOne(
+            { _id: reservationId },
+            {
+                $set: {
+                    status: 'confirmed',
+                    confirmed_at: new Date()
+                }
+            }
+        );
+        const post = await TimeshareModel.findById(reservation.postId);
+        if (!post) {
+            throw new Error('Post not found');
+        }
+        await TimeshareModel.updateOne(
+            { _id: reservation.postId._id },
+            {
+                $set: {
+                    is_bookable: false
+                }
+            }
+        );
+        await tripService.CreateTrip(reservation);
+        return {
+            reservation_id: reservation.postId,
+            code: 200,
+            confirmed_at: reservation.confirmed_at,
+            message: 'Guest name confirmed'
+        };
+    }
+    async AcceptReservationOld(reservationId){
         const reservation = await ReservationModel.findById(reservationId);
         if (!reservation) {
             throw new Error('Reservation not found');
@@ -196,8 +233,22 @@ class ReservationService {
             throw new Error(error.message);
         }
     }
-    
-    
+    async ConfirmReservationByToken(reservationId, token) {
+        const tokenData = await tokenService.VerifyConfirmReservationToken(token);
+        if (tokenData) {
+            console.log(tokenData)
+            const reservation = await ReservationModel.findById(reservationId);
+            if (!reservation) {
+                throw new Error('Reservation not found');
+            }
+            reservation.is_confirmed = true;
+            await reservation.save();
+            return reservation;
+        } else {
+            throw new Error('Token invalid')
+        }
+    }
+
 }
 
 
