@@ -50,6 +50,7 @@ class UserController {
     async UpdateUser(req, res, next){
         try {
             const { userId } = req.params;
+            console.log(req.body)
             const updated = await userServices.UpdateUser(userId, req.body, req.files);
             if (updated) {
                 res.status(StatusCodes.OK).json({

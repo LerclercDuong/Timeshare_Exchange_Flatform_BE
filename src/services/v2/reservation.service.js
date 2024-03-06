@@ -40,43 +40,22 @@ class ReservationService {
             amount,
             type: type,
             isPaid: false,
-            status: 'pending',
         });
         return await newReservation.save().catch();
     }
-    async AcceptReservation(reservationId){
+    async AcceptReservationByOwner(reservationId){
         const reservation = await ReservationModel.findById(reservationId);
         if (!reservation) {
             throw new Error('Reservation not found');
         }
-        await ReservationModel.updateOne(
+        return ReservationModel.updateOne(
             { _id: reservationId },
             {
                 $set: {
-                    status: 'confirmed',
-                    confirmed_at: new Date()
-                }
+                    is_accepted_by_owner: true,
+                },
             }
         );
-        const post = await TimeshareModel.findById(reservation.postId);
-        if (!post) {
-            throw new Error('Post not found');
-        }
-        await TimeshareModel.updateOne(
-            { _id: reservation.postId._id },
-            {
-                $set: {
-                    is_bookable: false
-                }
-            }
-        );
-        await tripService.CreateTrip(reservation);
-        return {
-            reservation_id: reservation.postId,
-            code: 200,
-            confirmed_at: reservation.confirmed_at,
-            message: 'Guest name confirmed'
-        };
     }
     async AcceptReservationOld(reservationId){
         const reservation = await ReservationModel.findById(reservationId);

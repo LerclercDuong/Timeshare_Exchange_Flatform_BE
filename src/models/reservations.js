@@ -88,8 +88,8 @@ const reservationSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'accepted', 'canceled'],
-        default: 'pending',
+        enum: ['Agreement phase', 'Payment phase', 'Finished', 'Canceled', 'Refunded'],
+        default: 'Agreement phase',
     },
     confirmed_at: {
         type: Date,
@@ -98,6 +98,28 @@ const reservationSchema = new Schema({
 });
 
 reservationSchema.plugin(mongooseDelete);
+// Middleware to handle when is_accepted_by_owner changes to true
+reservationSchema.pre('updateOne', async function (next) {
+    const { is_accepted_by_owner } = this.getUpdate().$set;
+
+    if (is_accepted_by_owner) {
+        // Update the 'status' field to 'Payment phase'
+        this.set({ status: 'Payment phase' });
+    }
+
+    next();
+});
+
+// Middleware to handle when isPaid changes to true
+reservationSchema.pre('updateOne', async function (next) {
+    const { isPaid } = this.getUpdate().$set;
+
+    if (isPaid) {
+        this.set({ status: 'Finished' });
+    }
+
+    next();
+});
 reservationSchema.pre('find', async function (docs, next) {
     this.populate({
         path: "timeshareId myTimeshareId userId"

@@ -39,6 +39,7 @@ router.get('/of-timeshare/:timeshareId', reservationRouter.GetReservationOfPost)
 router.post('/create', reservationRouter.MakeReservation);
 router.post('/confirm/:reservationId', reservationRouter.ConfirmRent);
 router.patch('/:reservationId/confirm', reservationRouter.ConfirmReservationByToken);
+router.patch('/:reservationId/accept', reservationRouter.AcceptReservationByOwner);
 // router.get('/of-post/:postId', reservationRouter.GetExchangeOfPost);
 router.post('/exchange/:timeshareId', reservationRouter.MakeExchange);
 router.patch('/:exchangeId/confirm-exchange', reservationRouter.ConfirmExchange);

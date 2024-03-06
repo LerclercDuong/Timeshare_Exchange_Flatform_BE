@@ -4,15 +4,15 @@ const {StatusCodes} = require('http-status-codes');
 
 
 class ReservationController {
-    async AcceptReservation(req, res, next) {
+    async AcceptReservationByOwner(req, res, next) {
         try {
             const {reservationId} = req.params;
-            const confirmedData = await reservationServices.AcceptReservation(reservationId)
+            const confirmedData = await reservationServices.AcceptReservationByOwner(reservationId)
             if(confirmedData){
                 res.status(StatusCodes.OK).json({
                     status: {
                         code: res.statusCode,
-                        message: `Confirm success for reservation ${confirmedData.reservation_id}`
+                        message: `Accept success for reservation ${confirmedData.reservation_id}`
                     },
                     data: confirmedData
                 });
