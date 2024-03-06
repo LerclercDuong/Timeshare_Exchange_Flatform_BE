@@ -9,9 +9,14 @@ const {uploadToS3} = require("../../utils/s3Store");
 const ResortModel = require("../../models/resorts");
 const paypal = require("paypal-rest-sdk");
 const {StatusCodes} = require("http-status-codes");
-
+const TransactionModel = require('../../models/transaction')
 class PaymentService {
-
+    async GetOrderPaymentInfo(userId, reservationId){
+        return TransactionModel.findOne({
+            userId,
+            reservationId,
+        });
+    }
     //return PayPal checkout link
     async CreatePayment(paymentInfo) {
         const create_payment_json = {
