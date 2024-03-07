@@ -24,6 +24,11 @@ const timeshareSchema = new Schema({
         ref: 'Users',
         required: true,
     },
+    owner_exchange: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Users',
+        required: true,
+    },
     resortId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Resorts',

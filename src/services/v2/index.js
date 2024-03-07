@@ -8,6 +8,8 @@ const unitServices = require('./unit.service');
 const tripServices = require('./trip.service')
 const paymentServices = require('./payment.service')
 const adminServices = require('./admin.service');
+const exchangeServices = require('./exchange.service');
+const servicePackServices = require('./servicePack.service')
 
 module.exports = {
     authServices,
@@ -19,6 +21,9 @@ module.exports = {
     unitServices,
     tripServices,
     paymentServices,
-    adminServices
+    adminServices,
+    exchangeServices,
+    servicePackServices,
+
 }
 

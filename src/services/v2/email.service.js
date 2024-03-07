@@ -122,6 +122,11 @@ class EmailService {
         const text = `Bạn đã chấp nhận exchange. Đây là Trip của bạn`;
         await this.SendEmail(toOwnerTimeshare, subject, text);
     };
+    async NotificationExchangeCancelToOwnerMyTimeshareId(toOwnerMyTimeshare, reservationInfo) {
+        const subject = 'You have notifications about at NiceTrip';
+        const text = `Exchange request canceled. Please find different timeshare again`;
+        await this.SendEmail(toOwnerMyTimeshare, subject, text);
+    };
 
     async SendRequestExchange(to, reservationInfo, count, countExchange, countRent) {
         const subject = 'You have ' + count +' notifications about at NiceTrip';
@@ -139,6 +144,7 @@ class EmailService {
                              <a href="${confirmReservationUrl}"></a>`;
         await this.SendEmail(to, subject, text);
     };
+    
 
 }
 
