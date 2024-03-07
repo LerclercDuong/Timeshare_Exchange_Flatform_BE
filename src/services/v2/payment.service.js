@@ -13,8 +13,15 @@ const PaymentModel = require('../../models/payments')
 const UserModel = require('../../models/users')
 const ServicePackModel = require('../../models/servicePacks'); // Import model ServicePack
 
-class PaymentService {
+const TransactionModel = require('../../models/transaction')
 
+class PaymentService {
+    async GetOrderPaymentInfo(userId, reservationId){
+        return TransactionModel.findOne({
+            userId,
+            reservationId,
+        });
+    }
     //return PayPal checkout link
     async CreatePayment(paymentInfo) {
         const create_payment_json = {

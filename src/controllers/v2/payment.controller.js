@@ -3,6 +3,7 @@ const {StatusCodes} = require('http-status-codes');
 const paypal = require('paypal-rest-sdk');
 const {paymentServices} = require('../../services/v2')
 const TimeshareModel = require('../../models/timeshares')
+const TransactionModel = require('../../models/transaction')
 const {PAYPAL_MODE, PAYPAL_CLIENT_KEY, PAYPAL_SECRET_KEY} = process.env;
 
 paypal.configure({
@@ -14,7 +15,7 @@ paypal.configure({
 class PaymentController {
     async CreatePayment(req, res, next) {
         try {
-            const paymentInfo = req.reservation;
+            const paymentInfo = req?.body;
             console.log(paymentInfo)
             const create_payment_json = {
                 "intent": "sale",
@@ -22,7 +23,7 @@ class PaymentController {
                     "payment_method": "paypal"
                 },
                 "redirect_urls": {
-                    "return_url": `http://localhost:3000/post/${paymentInfo.postId}/book/review-order/${paymentInfo._id}`,
+                    "return_url": `http://localhost:3000/timeshare/${paymentInfo.timeshareId?._id}/book/review-order/${paymentInfo._id}`,
                     "cancel_url": "http://localhost:3000/cancel"
                 },
                 "transactions": [{
@@ -73,7 +74,7 @@ class PaymentController {
     async ExecutePayment(req, res, next) {
         try {
             const postId = req.params.postId;
-            console.log(postId)
+            const userId = req.body.userId;
             const reservationId = req.body.reservationId;
             const payerId = req.body.PayerID;
             const paymentId = req.body.paymentId;
@@ -113,6 +114,18 @@ class PaymentController {
                             }
                         }
                     ).exec();
+                    const newTransaction = new TransactionModel({
+                        userId: userId /* Add userId based on your logic */,
+                        app_paymentId: paymentId/* Add paymentId based on your logic */,
+                        reservationId: reservationId,
+                        amount: amount,
+                        method: {
+                            name: "paypal",
+                        },
+                        timestamp: new Date(),
+                    });
+
+                    await newTransaction.save();
                     res.status(StatusCodes.OK).json({
                         status: {
                             code: res.statusCode,
@@ -157,6 +170,23 @@ class PaymentController {
                     message: 'payment data'
                 },
                 data: vnpayReturn
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+        }
+    }
+
+    async GetOrderPaymentInfo(req, res, next){
+        try {
+            const { userId, reservationId } = req.params;
+            const data = await paymentServices.GetOrderPaymentInfo(userId, reservationId);
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'payment data'
+                },
+                data: data
             });
         } catch (error) {
             console.error(error);
