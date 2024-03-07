@@ -7,15 +7,13 @@ const paymentRouter = require('./payment')
 const reservationRouter = require('./reservation')
 const unitRouter = require('./unit')
 const adminRouter = require('./admin');
-
 const emailRouter = require('./email')
-
 const tripRouter = require('./trip')
+const exchangeRouter = require('./exchange')
 
 const CheckAuth = require('../../middlewares/auth');
 const multer = require('multer')
-
-// Set multer file storage folder
+const servicePackRouter = require('./servicePack')
 const upload = multer({dest: 'uploads/'})
 
 function router(app) {
@@ -28,10 +26,11 @@ function router(app) {
     app.use('/api/v2/reservation', reservationRouter);
     app.use('/api/v2/unit', unitRouter);
     app.use('/api/v2/payment', paymentRouter);
-
     app.use('/api/v2/email', emailRouter);
-
     app.use('/api/v2/trip', tripRouter);
+    app.use('/api/v2/exchange', exchangeRouter);
+    app.use('/api/v2/servicePack', servicePackRouter);
+
     
 
 }

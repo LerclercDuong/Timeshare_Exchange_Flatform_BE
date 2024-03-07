@@ -85,6 +85,7 @@ class TimeshareService {
     async UploadPostWithS3({
                                imageFiles,
                                current_owner,
+                               owner_exchange,
                                unitId,
                                numberOfNights,
                                price,
@@ -107,6 +108,7 @@ class TimeshareService {
         const uploadData = {
             images: imageKeys,
             current_owner: current_owner,
+            owner_exchange:current_owner, 
             unitId: unitId,
             numberOfNights: numberOfNights,
             price: price,

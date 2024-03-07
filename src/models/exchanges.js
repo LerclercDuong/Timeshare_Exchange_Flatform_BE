@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const mongooseDelete = require('mongoose-delete');
 
-const reservationSchema = new Schema({
+const exchangeSchema = new Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Users',
@@ -13,17 +13,16 @@ const reservationSchema = new Schema({
         ref: 'Timeshares',
         required: true,
     },
-    requestId: {
+    myTimeshareId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Requests',
+        ref: 'Timeshares',
+        required: false,
     },
     type: {
         type: String,
-        enum : ['rent', 'exchange'],
+        enum : ['exchange'],
+        default: 'exchange',
         required: true,
-    },
-    reservationDate: {
-        type: Date,
     },
     fullName: {
         type: String,
@@ -63,11 +62,7 @@ const reservationSchema = new Schema({
         type: Number,
         required: true
     },
-    isPaid: {
-        type: Boolean,
-        // required: true,
-        default: false
-    },
+    
     is_confirmed: {
         type: Boolean,
         default: false,
@@ -80,8 +75,14 @@ const reservationSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ['Agreement phase', 'Payment phase', 'Finished', 'Canceled', 'Refunded'],
+        enum: ['Agreement phase', 'Completed', 'Canceled', 'Expired' ],
         default: 'Agreement phase',
+        required: true,
+    },
+    request_at: {
+        type: Date,
+        default: Date.now,
+        required: true
     },
     confirmed_at: {
         type: Date,
@@ -89,9 +90,9 @@ const reservationSchema = new Schema({
     }
 });
 
-reservationSchema.plugin(mongooseDelete);
+exchangeSchema.plugin(mongooseDelete);
 // Middleware to handle when is_accepted_by_owner changes to true
-reservationSchema.pre('updateOne', async function (next) {
+exchangeSchema.pre('updateOne', async function (next) {
     const { is_accepted_by_owner } = this.getUpdate().$set;
 
     if (is_accepted_by_owner) {
@@ -103,7 +104,7 @@ reservationSchema.pre('updateOne', async function (next) {
 });
 
 // Middleware to handle when isPaid changes to true
-reservationSchema.pre('updateOne', async function (next) {
+exchangeSchema.pre('updateOne', async function (next) {
     const { isPaid } = this.getUpdate().$set;
 
     if (isPaid) {
@@ -112,17 +113,17 @@ reservationSchema.pre('updateOne', async function (next) {
 
     next();
 });
-reservationSchema.pre('find', async function (docs, next) {
+exchangeSchema.pre('find', async function (docs, next) {
     this.populate({
-        path: "timeshareId userId"
+        path: "timeshareId myTimeshareId userId"
     })
 });
-reservationSchema.pre('findOne', async function (docs, next) {
+exchangeSchema.pre('findOne', async function (docs, next) {
     this.populate({
-        path: "timeshareId userId"
+        path: "timeshareId myTimeshareId userId"
     })
 });
-reservationSchema.path('timeshareId').validate(async function (value) {
+exchangeSchema.path('timeshareId').validate(async function (value) {
     // Fetch the associated timeshare
     const timeshare = await mongoose.model('Timeshares').findById(value);
 
@@ -134,6 +135,6 @@ reservationSchema.path('timeshareId').validate(async function (value) {
     return true;
 }, 'Validation error');
 
-const Reservation = mongoose.model('Reservations', reservationSchema);
+const Exchange = mongoose.model('Exchanges', exchangeSchema);
 
-module.exports = Reservation;
+module.exports = Exchange;
