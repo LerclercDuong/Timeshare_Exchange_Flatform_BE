@@ -4,6 +4,7 @@ const paypal = require('paypal-rest-sdk');
 const {paymentServices} = require('../../services/v2')
 const TimeshareModel = require('../../models/timeshares')
 const TransactionModel = require('../../models/transaction')
+const TripService = require('../../services/v2/trip.service')
 const {PAYPAL_MODE, PAYPAL_CLIENT_KEY, PAYPAL_SECRET_KEY} = process.env;
 
 paypal.configure({
@@ -124,8 +125,8 @@ class PaymentController {
                         },
                         timestamp: new Date(),
                     });
-
                     await newTransaction.save();
+
                     res.status(StatusCodes.OK).json({
                         status: {
                             code: res.statusCode,
@@ -135,7 +136,6 @@ class PaymentController {
                     })
                 }
             });
-
         } catch (error) {
             console.log(error.message);
         }
