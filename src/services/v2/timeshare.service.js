@@ -46,6 +46,22 @@ class TimeshareService {
             })
             .lean();
     }
+    async GetTimesharExchangeByCurrentOwner(current_owner) {
+        try {
+            const timeshares = await TimeshareModel
+                .find({ current_owner, type: 'exchange' })
+                .populate({
+                    path: 'current_owner',
+                    select: '_id username profilePicture role'
+                })
+                .lean();
+            return timeshares;
+        } catch (error) {
+            console.error('Error getting timeshares by current owner:', error);
+            throw error;
+        }
+    }
+    
 
     async DeleteTimeshare(req) {
         const deleteTimeshare = await TimeshareModel.delete({_id: req.params.id}, req.body)
