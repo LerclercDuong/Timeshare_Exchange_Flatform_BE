@@ -83,6 +83,7 @@ class AdminService {
             console.error('Error deleting user:', error);
         }
     }
+    
     async restoreAccount(id){
         try {
             return UserModel.updateOne({_id: id}, { isDeleted: false });
