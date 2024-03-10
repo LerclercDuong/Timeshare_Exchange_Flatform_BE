@@ -161,7 +161,6 @@ class ExchangeService {
             throw new Error(error.message);
         }
     }
-
 }
 
 async function checkAndUpdateExchangesStatus() {
@@ -174,6 +173,7 @@ async function checkAndUpdateExchangesStatus() {
         console.log(lastUpdatedTime);
 
         if (timeDiffInHours   >= 1) {
+
             await ExchangeModel.findByIdAndUpdate({ _id: exchange._id }, { status: 'Expired' });
         }
     });

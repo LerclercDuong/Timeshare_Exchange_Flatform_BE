@@ -40,7 +40,7 @@ router.post('/create', reservationRouter.MakeReservation);
 router.post('/confirm/:reservationId', reservationRouter.ConfirmRent);
 router.patch('/:reservationId/confirm', reservationRouter.ConfirmReservationByToken);
 router.patch('/:reservationId/accept', reservationRouter.AcceptReservationByOwner);
-
+router.patch('/:reservationId/deny', reservationRouter.DenyReservationByOwner);
 
 
 module.exports = router;
