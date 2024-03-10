@@ -50,35 +50,36 @@ class ExchangeService {
             if (!exchange) {
                 throw new Error('Reservation not found');
             }
+            const timeshare = await TimeshareModel.findById(exchange.timeshareId);
+            const myTimeshare = await TimeshareModel.findById(exchange.myTimeshareId);
+            console.log(myTimeshare.owner_exchange);
+            console.log(timeshare.owner_exchange);
     
+            if (myTimeshare.is_bookable === false) {
+                throw new Error('Timeshare is not bookable');
+            }
+
             await ExchangeModel.updateOne(
                 { _id: exchangeId },
                 {
                     $set: {
                         status: 'Completed',
-                        confirmed_at: new Date()
-                    }
+                        confirmed_at: new Date(),
+                    },
                 }
             );
     
-            // find information of timeshare and myTimeshare
-            const timeshare = await TimeshareModel.findById(exchange.timeshareId);
-            const myTimeshare = await TimeshareModel.findById(exchange.myTimeshareId);
-                console.log(myTimeshare.owner_exchange)
-                console.log(timeshare.owner_exchange)
-
             if (!timeshare || !myTimeshare) {
                 throw new Error('Timeshare not found');
             }
     
-            // exchange and close
             await TimeshareModel.updateOne(
                 { _id: exchange.timeshareId },
                 {
                     $set: {
                         owner_exchange: myTimeshare.owner_exchange,
-                        is_bookable: false
-                    }
+                        is_bookable: false,
+                    },
                 }
             );
     
@@ -87,39 +88,39 @@ class ExchangeService {
                 {
                     $set: {
                         owner_exchange: timeshare.owner_exchange,
-                        is_bookable: false
-                    }
+                        is_bookable: false,
+                    },
                 }
             );
     
-            // create trip 
             await tripService.CreateTripByTimeshareId(exchange);
             await tripService.CreateTripByMyTimeshareId(exchange);
-            
-
-            // const count = await ReservationModel.countDocuments({ timeshareId: exchange.timeshareId });
-            // const subject = 'You have' + {count} + 'notifications about at NiceTrip';
-            // const text = `Thank you for your reservation at NiceTrip, please waiting for owner acceptance`;
-            // await this.SendEmail(to, subject, text);
-
             const toOwnerMyTimeshare = exchange.email;
             const toOwnerTimeshare = exchange.timeshareId.current_owner.email;
-            console.log(toOwnerTimeshare)
-            console.log(toOwnerMyTimeshare)
+            console.log(toOwnerTimeshare);
+            console.log(toOwnerMyTimeshare);
             await emailService.NotificationExchangeSuccessToOwnerTimeshareId(toOwnerTimeshare, exchange);
             await emailService.NotificationExchangeSuccessToOwnerMyTimeshareId(toOwnerMyTimeshare, exchange);
+            await ExchangeModel.updateMany(
+                { timeshareId: exchange.timeshareId, type: 'exchange', status: { $ne: 'Completed' } },
+                { $set: { status: 'Expired' } }
+            );
+            await ExchangeModel.updateMany(
+                { myTimeshareId: exchange.myTimeshareId, type: 'exchange', status: { $ne: 'Completed' } },
+                { $set: { status: 'Expired' } }
+            );
     
             return {
                 exchange_id: exchange.timeshareId,
                 code: 200,
                 confirmed_at: exchange.confirmed_at,
-                message: 'Guest name confirmed'
+                message: 'Guest name confirmed',
             };
         } catch (error) {
             throw new Error(error.message);
         }
     }
-
+    
     async GetExchangeRequestOfTimeshare(timeshareId){
         return ExchangeModel.find({timeshareId: timeshareId, type: 'exchange'});
 
@@ -170,7 +171,9 @@ async function checkAndUpdateExchangesStatus() {
         const currentTime = new Date();
         const timeDiffInHours   = Math.abs(currentTime - lastUpdatedTime) / 36e5;
         console.log(lastUpdatedTime);
-        if (timeDiffInHours >= 48) {
+
+        if (timeDiffInHours   >= 1) {
+
             await ExchangeModel.findByIdAndUpdate({ _id: exchange._id }, { status: 'Expired' });
         }
     });
