@@ -97,20 +97,19 @@ class AdminService {
         }catch(err){
             throw new Error(`Error in get account: ${error.message}`);
         }
-        
     }
-    async getAllUserAccount(){
-        return UserModel.find({ role: user }, {isDeleted: false});
-    }
-    async getAllMemberAccount(){
-        return UserModel.find({ role: member }, {isDeleted: false});
-    }
-    async getNotAdminAccount(){
-        return UserModel.find({ role : { $ne:'admin' } }, {isDeleted: false});
-    }
+
+    // async getAllUserAccount(){
+    //     return UserModel.find({ role: user }, {isDeleted: false});
+    // }
+    // async getAllMemberAccount(){
+    //     return UserModel.find({ role: member }, {isDeleted: false});
+    // }
+    // async getNotAdminAccount(){
+    //     return UserModel.find({ role : { $ne:'admin' } }, {isDeleted: false});
+    // }
 
     //Payment management
-
     async getAllPayment(){
         try{
             return PaymentModel.find({});

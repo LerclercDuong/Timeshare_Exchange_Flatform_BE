@@ -7,14 +7,14 @@ router.get('/ban-account/:id', Admin.BanAccount);
 router.get('/unban-account/:id', Admin.unbanAccount);
 router.get('/show-banned-accounts', Admin.ShowBannedAccount);
 router.get('/account-list', Admin.GetAllAccounts);
-router.get('/delete-account/:id', Admin.DeleteAccount);
+router.delete('/delete-account/:id', Admin.DeleteAccount);
 router.get('/restore-account/:id', Admin.RestoreAccount);
 router.get('/deleted-account-list', Admin.ShowDeletedAccount);
-router.get('/force-delete-account/:id', Admin.ForceDeleteAccount);
+router.delete('/force-delete-account/:id', Admin.ForceDeleteAccount);
 
 
 //Post management
-router.get('/post-list', Admin.GetAllPost);
+// router.get('/post-list', Admin.GetAllPost);
 
 //Request management
 router.get('/accept-request/:id', Admin.AcceptRequest);
@@ -26,8 +26,6 @@ router.get('/request-list', Admin.ShowAllRequest);
 router.get('/resort-list', Admin.GetAllResort);
 
 //Report balance
-router.get('/report-balance', Admin.ShowAllPayment)
-//Admin homepage
-// router.get('/', Admin.AdminHomepage);
+router.get('/report-balance', Admin.ShowAllPayment);
 
 module.exports = router;
