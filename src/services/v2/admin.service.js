@@ -94,7 +94,7 @@ class AdminService {
 
     async getAllAccount(){
         try{
-            return UserModel.find({isDeleted: false});
+            return UserModel.find({isDeleted: false, isBanned: false});
         }catch(err){
             throw new Error(`Error in get account: ${error.message}`);
         }
