@@ -48,7 +48,7 @@ class AdminService {
     }
     async getAllBannedAccount(){
         try {
-            return UserModel.find({isBanned: true});
+            return UserModel.find({isBanned: true, isDeleted: false});
         } catch (error) {
             throw new Error(`Error show ban account: ${error.message}`);
         }
@@ -83,6 +83,7 @@ class AdminService {
             console.error('Error deleting user:', error);
         }
     }
+    
     async restoreAccount(id){
         try {
             return UserModel.updateOne({_id: id}, { isDeleted: false });
@@ -93,24 +94,23 @@ class AdminService {
 
     async getAllAccount(){
         try{
-            return UserModel.find({isDeleted: false});
+            return UserModel.find({isDeleted: false, isBanned: false});
         }catch(err){
             throw new Error(`Error in get account: ${error.message}`);
         }
-        
     }
-    async getAllUserAccount(){
-        return UserModel.find({ role: user }, {isDeleted: false});
-    }
-    async getAllMemberAccount(){
-        return UserModel.find({ role: member }, {isDeleted: false});
-    }
-    async getNotAdminAccount(){
-        return UserModel.find({ role : { $ne:'admin' } }, {isDeleted: false});
-    }
+
+    // async getAllUserAccount(){
+    //     return UserModel.find({ role: user }, {isDeleted: false});
+    // }
+    // async getAllMemberAccount(){
+    //     return UserModel.find({ role: member }, {isDeleted: false});
+    // }
+    // async getNotAdminAccount(){
+    //     return UserModel.find({ role : { $ne:'admin' } }, {isDeleted: false});
+    // }
 
     //Payment management
-
     async getAllPayment(){
         try{
             return PaymentModel.find({});
