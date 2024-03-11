@@ -48,7 +48,7 @@ class AdminService {
     }
     async getAllBannedAccount(){
         try {
-            return UserModel.find({isBanned: true});
+            return UserModel.find({isBanned: true, isDeleted: false});
         } catch (error) {
             throw new Error(`Error show ban account: ${error.message}`);
         }
