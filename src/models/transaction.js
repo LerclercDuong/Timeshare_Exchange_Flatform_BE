@@ -19,27 +19,32 @@ const transactionSchema = new Schema({
     },
     app_paymentId: {
         type: String,
-        required: true,
+        required: false,
     },
     reservationId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Reservations',
         required: true,
     },
-    amount: {
-        type: Number,
-        required: true
-    },
     method: {
         name: {
             type: String,
             enum: paymentMethods, // Enum with allowed values
-            required: true,
+            required: false,
         },
         logoImg: {
             type: String,
         },
     },
+    amount: {
+        type: Number,
+        required: true
+    },
+    // payment_deadline: {
+    //     type: Date,
+    //     default: () => Date.now() + 30 * 1000, // Set default value to current time + 30 seconds
+    //     expires: 30
+    // },
     timestamp: {
         type: Date,
         default: Date.now,

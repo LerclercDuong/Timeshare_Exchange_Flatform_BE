@@ -28,6 +28,29 @@ class ReservationController {
             });
         }
     }
+    async DenyReservationByOwner(req, res, next) {
+        try {
+            const {reservationId} = req.params;
+            const confirmedData = await reservationServices.DenyReservationByOwner(reservationId)
+            if(confirmedData){
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: `Deny for reservation ${confirmedData.reservation_id}`
+                    },
+                    data: confirmedData
+                });
+            }
+        } catch (error) {
+            res.status(StatusCodes.BAD_REQUEST).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Error in deny process'
+                },
+                data: null
+            });
+        }
+    }
     async GetRentRequestOfTimeshare(req, res, next) {
         try {
             const { timeshareId } = req.params;
@@ -128,7 +151,6 @@ class ReservationController {
         try {
             const type = req.query.type;
             const reservedData = req.body;
-            console.log(reservedData)
             const reservationSaved = await reservationServices.MakeReservation(type, reservedData);
             if (reservationSaved) {
                 // req.reservation = reservationSaved;
@@ -142,11 +164,10 @@ class ReservationController {
                 });
             }
         } catch (error) {
-            console.log(error)
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 status: {
                     code: res.statusCode,
-                    message: 'Error'
+                    message: error.message
                 },
                 data: null
             });

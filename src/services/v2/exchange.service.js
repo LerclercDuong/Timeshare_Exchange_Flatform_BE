@@ -178,6 +178,7 @@ class ExchangeService {
         }
     }
 
+
     async GetExchangeOfUser(userId) {
         return ExchangeModel.find({userId: userId});
     }
@@ -213,7 +214,7 @@ class ExchangeService {
         }
     }
     
-    
+   
 }
 
 async function checkAndUpdateExchangesStatus() {
@@ -226,6 +227,7 @@ async function checkAndUpdateExchangesStatus() {
         console.log(lastUpdatedTime);
 
         if (timeDiffInHours   >= 1) {
+
             await ExchangeModel.findByIdAndUpdate({ _id: exchange._id }, { status: 'Expired' });
         }
     });
