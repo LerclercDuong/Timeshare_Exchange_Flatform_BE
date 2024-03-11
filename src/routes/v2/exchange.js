@@ -9,6 +9,7 @@ router.patch('/:exchangeId/cancel', exchangeRouter.CancelExchange);
 
 router.get('/of-post/:timeshareId', exchangeRouter.GetExchangeRequestOfTimeshare);
 router.get('/:exchangeId', exchangeRouter.GetExchangeById);
-
+router.get('/of-user/:userId', exchangeRouter.GetExchangeOfUser)
+router.delete('/deleted/:exchangeId', exchangeRouter.DeleteExchange);
 
 module.exports = router;

@@ -6,9 +6,10 @@ const {timeshareServices, resortServices} = require('../../services/v2');
 const app = express();
 const fs = require('fs');
 const path = require('path');
-
-
-const {StatusCodes} = require('http-status-codes');
+const RequiredFieldError = require('../../errors/requiredFieldError.js');
+const S3UploadError = require('../../errors/s3UploadError.js');
+const DataProcessingError = require('../../errors/dataProcessingError.js');
+const { StatusCodes } = require('http-status-codes');
 const query = require("../../utils/query");
 
 class Timeshares {
@@ -48,7 +49,6 @@ class Timeshares {
     };
     async GetAllPosts(req, res, next) {
         try {
-            const timeshareList = await timeshareServices.GetAllPosts();
             res.status(StatusCodes.OK).json({
                 status: {
                     code: res.statusCode,
@@ -62,7 +62,7 @@ class Timeshares {
                     code: res.statusCode,
                     message: 'Timeshare not found'
                 },
-                data: timeshareList
+                data: null
             })
         }
     };
@@ -70,6 +70,38 @@ class Timeshares {
         try{
             const {current_owner} = req.params;
             const timeshareData = await timeshareServices.GetTimeshareByCurrentOwner(current_owner);
+            if (timeshareData) {
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: 'Timeshare found'
+                    },
+                    data: timeshareData
+                })
+                return;
+            }
+            res.status(StatusCodes.NO_CONTENT).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Timeshare not found'
+                },
+                data: timeshareData
+            })
+        }catch(err){
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Server error'
+                },
+                data: null
+            })
+        }
+
+    };
+    async GetTimesharExchangeByCurrentOwner(req, res, next) {
+        try{
+            const {current_owner} = req.params;
+            const timeshareData = await timeshareServices.GetTimesharExchangeByCurrentOwner(current_owner);
             if (timeshareData) {
                 res.status(StatusCodes.OK).json({
                     status: {
@@ -244,10 +276,17 @@ class Timeshares {
         }
 
     };
-    async UploadPostWithS3(req, res, next){
+    async UploadPostWithS3(req, res, next) {
         try {
             const imageFiles = req.files.imageFiles;
             const {current_owner, owner_exchange, resortId, unitId, numberOfNights, price, pricePerNight, start_date, end_date, type} = req.body;
+            
+            // Kiểm tra xem các trường bắt buộc có được cung cấp không
+            if (!imageFiles || !current_owner || !resortId || !unitId || !numberOfNights || !price || !pricePerNight || !start_date || !end_date || !type) {
+                throw new RequiredFieldError('Missing required fields');
+            }
+            
+            // Xử lý tải lên và xử lý dữ liệu
             const uploadedData = await timeshareServices.UploadPostWithS3({
                 imageFiles,
                 resortId,
@@ -261,6 +300,7 @@ class Timeshares {
                 end_date,
                 type
             });
+            
             res.status(StatusCodes.OK).json({
                 status: {
                     code: res.statusCode,
@@ -269,15 +309,38 @@ class Timeshares {
                 data: uploadedData
             });
         } catch (error) {
-            res.status(StatusCodes.NO_CONTENT).json({
-                status: {
-                    code: res.statusCode,
-                    message: 'Upload failed'
-                },
-                data: null
-            });
+            if (error instanceof RequiredFieldError) {
+                res.status(StatusCodes.BAD_REQUEST).json({
+                    status: {
+                        code: StatusCodes.BAD_REQUEST,
+                        message: error.message
+                    }
+                });
+            } else if (error instanceof S3UploadError) {
+                res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                    status: {
+                        code: StatusCodes.INTERNAL_SERVER_ERROR,
+                        message: 'Error uploading files to S3'
+                    }
+                });
+            } else if (error instanceof DataProcessingError) {
+                res.status(StatusCodes.BAD_REQUEST).json({
+                    status: {
+                        code: StatusCodes.BAD_REQUEST,
+                        message: 'Error processing data'
+                    }
+                });
+            } else {
+                res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                    status: {
+                        code: res.statusCode,
+                        message: error.message
+                    }
+                });
+            }
         }
     }
+    
     async SubmitRentRequest(req, res) {
         try {
             const {name, phone, email, userId, postId, requestId, status, verificationCode} = req.body;

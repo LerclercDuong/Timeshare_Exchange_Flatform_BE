@@ -41,7 +41,7 @@ class ExchangeController {
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 status: {
                     code: res.statusCode,
-                    message: 'Error'
+                    message: error.message
                 },
                 data: null
             });
@@ -152,7 +152,52 @@ class ExchangeController {
             });
         }
     }
+
+    async GetExchangeOfUser(req, res, next) {
+        try {
+            const {userId} = req.params;
+            const result = await exchangeServices.GetExchangeOfUser(userId);
+            if (result) {
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: "Reserve found"
+                    },
+                    data: result
+                });
+            }
+        } catch (error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Error'
+                },
+                data: null
+            });
+        }
+    }
+    async DeleteExchange(req, res, next) {
+        try {
+            const { exchangeId } = req.params;
     
+            const deletedExchange = await exchangeServices.DeleteExchange(exchangeId);
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Deleted'
+                },
+                data: deletedExchange
+            });
+        } catch (error) {
+            console.error('Error deleting exchange:', error);
+            res.status(StatusCodes.NO_CONTENT).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Delete failed'
+                }
+            });
+        }
+    }
 }
 
 module.exports = new ExchangeController;

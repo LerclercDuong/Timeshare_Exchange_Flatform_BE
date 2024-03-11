@@ -8,12 +8,32 @@ const tokenService = require('./token.service')
 const ReservationModel = require('../../models/reservations')
 
 class ExchangeService {
+    
     async MakeExchange(timeshareId, myTimeshareId, type, userId, fullName, phone, email, amount, status, request_at, country,
         street,
         city,
         province,
         zipCode,) {
         try {
+            const existingExchangeCompleted = await ExchangeModel.findOne({ myTimeshareId: myTimeshareId, status: 'Completed' });
+            const existingExchange = await ExchangeModel.findOne({ myTimeshareId: myTimeshareId, timeshareId: timeshareId });
+            const timeshare = await TimeshareModel.findById(timeshareId);
+            const myTimeshare = await TimeshareModel.findById(myTimeshareId);
+            const countExchange = await ExchangeModel.countDocuments({ timeshareId: timeshareId, type: 'exchange' });
+            const countRent = await ReservationModel.countDocuments({ timeshareId: timeshareId, type: 'rent' });
+            const count = countExchange + countRent
+            const to =  timeshare.current_owner.email;
+            if (existingExchangeCompleted) {
+                throw new Error('Request is existed');
+            }  
+            else if (existingExchange) {
+                throw new Error('Request is existed');
+            }
+            else if (timeshare?.current_owner?._id === myTimeshare?.current_owner?._id) {
+                console.log(timeshare?.current_owner?._id )
+                console.log(myTimeshare?.current_owner?._id )
+                throw new Error(`This is your timehshare, you can't exchange`);
+            }
             const address = {country, street, city, province, zipCode}
             const exchangeData = {
                 timeshareId: timeshareId,
@@ -28,17 +48,12 @@ class ExchangeService {
                 request_at:request_at,
                 address,
             };
-            const timeshare = await TimeshareModel.findById(timeshareId);
-            
-            const countExchange = await ExchangeModel.countDocuments({ timeshareId: timeshareId, type: 'exchange' });
-            const countRent = await ReservationModel.countDocuments({ timeshareId: timeshareId, type: 'rent' });
-            const count = countExchange + countRent
-            const to = timeshare.current_owner.email;
-    
-            await emailService.SendRequestExchange(to, timeshare, count, countExchange, countRent);
+
+            emailService.SendRequestExchange(to, timeshare, count, countExchange, countRent);
     
             const exchange = await ExchangeModel({ ...exchangeData });
-            return exchange.save().catch();
+            return exchange.save().catch(); 
+            
         } catch (error) {
             throw new Error('Error request');
         }
@@ -93,21 +108,22 @@ class ExchangeService {
                 }
             );
     
-            await tripService.CreateTripByTimeshareId(exchange);
+            await tripService.CreateTripExchange(exchange);
             await tripService.CreateTripByMyTimeshareId(exchange);
             const toOwnerMyTimeshare = exchange.email;
             const toOwnerTimeshare = exchange.timeshareId.current_owner.email;
             console.log(toOwnerTimeshare);
             console.log(toOwnerMyTimeshare);
-            await emailService.NotificationExchangeSuccessToOwnerTimeshareId(toOwnerTimeshare, exchange);
-            await emailService.NotificationExchangeSuccessToOwnerMyTimeshareId(toOwnerMyTimeshare, exchange);
+            emailService.NotificationExchangeSuccessToOwnerTimeshareId(toOwnerTimeshare, exchange);
+            emailService.NotificationExchangeSuccessToOwnerMyTimeshareId(toOwnerMyTimeshare, exchange);
+            // cancel  toàn bộ liên quan đến 2 timeshare if completed
             await ExchangeModel.updateMany(
                 { timeshareId: exchange.timeshareId, type: 'exchange', status: { $ne: 'Completed' } },
-                { $set: { status: 'Expired' } }
+                { $set: { status: 'Canceled' } }
             );
             await ExchangeModel.updateMany(
                 { myTimeshareId: exchange.myTimeshareId, type: 'exchange', status: { $ne: 'Completed' } },
-                { $set: { status: 'Expired' } }
+                { $set: { status: 'Canceled' } }
             );
     
             return {
@@ -161,6 +177,44 @@ class ExchangeService {
             throw new Error(error.message);
         }
     }
+
+
+    async GetExchangeOfUser(userId) {
+        return ExchangeModel.find({userId: userId});
+    }
+    async GetMyTimeshareExchange(userId) {
+        return ExchangeModel.find({userId: userId});
+    }
+    async DeleteExchange(exchangeId) {
+        try {
+            const existingExchange = await ExchangeModel.findOne({ _id: exchangeId });
+            if (!existingExchange.timeshareId.is_bookable) {
+                return false; 
+            }
+            if (!existingExchange) {
+                throw new Error('Exchange not exists');
+            }
+    
+            if (existingExchange.deleted) {
+                return false; 
+            }
+            await ExchangeModel.updateOne(
+                { _id: exchangeId },
+                {
+                    $set: {
+                        status: 'Canceled',
+                        confirmed_at: new Date()
+                    }
+                }
+            );
+            const deletedExchange = await ExchangeModel.delete({ _id: exchangeId });
+            return deletedExchange;
+        } catch (error) {
+            throw new Error('Error: ' + error.message);
+        }
+    }
+    
+   
 }
 
 async function checkAndUpdateExchangesStatus() {

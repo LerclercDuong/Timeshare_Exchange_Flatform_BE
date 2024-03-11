@@ -100,7 +100,7 @@ router.get('/list', timeshareController.GetAllPosts);
  *               data: []
  */
 router.get('/current-owner/:current_owner', timeshareController.GetTimeshareByCurrentOwner);
-
+router.get('/exchange/:current_owner', timeshareController.GetTimesharExchangeByCurrentOwner);
 /**
  * @openapi
  * /api/v2/timeshare/{id}:
