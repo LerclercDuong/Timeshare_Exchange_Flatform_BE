@@ -4,6 +4,7 @@ const reservationRouter = require('../../controllers/v2/reservation.controller')
 const paymentController = require('../../controllers/v2/payment.controller')
 const multer = require('multer');
 const upload = multer({ dest: 'src/public/img/' });
+const CheckAuth = require('../../middlewares/auth');
 
 /**
  * @openapi
@@ -33,14 +34,14 @@ const upload = multer({ dest: 'src/public/img/' });
  *         description: Error confirming reservation
  */
 // router.patch('/:reservationId/confirm', reservationRouter.ConfirmReservation);
-router.get('/:reservationId', reservationRouter.GetReservationById);
-router.get('/of-user/:userId', reservationRouter.GetReservationOfUser);
-router.get('/of-timeshare/:timeshareId', reservationRouter.GetReservationOfPost);
-router.post('/create', reservationRouter.MakeReservation);
-router.post('/confirm/:reservationId', reservationRouter.ConfirmRent);
-router.patch('/:reservationId/confirm', reservationRouter.ConfirmReservationByToken);
-router.patch('/:reservationId/accept', reservationRouter.AcceptReservationByOwner);
-router.patch('/:reservationId/deny', reservationRouter.DenyReservationByOwner);
+router.get('/:reservationId', CheckAuth, reservationRouter.GetReservationById);
+router.get('/of-user/:userId', CheckAuth, reservationRouter.GetReservationOfUser);
+router.get('/of-timeshare/:timeshareId', CheckAuth, reservationRouter.GetReservationOfPost);
+router.post('/create', CheckAuth, reservationRouter.MakeReservation);
+router.post('/confirm/:reservationId', CheckAuth, reservationRouter.ConfirmRent);
+router.patch('/:reservationId/confirm', CheckAuth, reservationRouter.ConfirmReservationByToken);
+router.patch('/:reservationId/accept', CheckAuth, reservationRouter.AcceptReservationByOwner);
+router.patch('/:reservationId/deny', CheckAuth, reservationRouter.DenyReservationByOwner);
 
 
 module.exports = router;
