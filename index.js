@@ -9,6 +9,7 @@ const cors = require('cors');
 // Import multer like the other dependencies
 const multer  = require('multer')
 // Set multer file storage folder
+const socketIO = require('./src/socket/index');
 const upload = multer({ dest: 'uploads/' })
 /////----////
 const hbs = require('express-handlebars');
@@ -48,7 +49,13 @@ app.use(function (req, res, next) {
     next();
 });
 // console.log(path.join(__dirname, '/src/static/img'))
+const io = require("socket.io")(httpServer, {
+    cors: {
+        origin: "*",
+    }
+});
 
+socketIO(io);
 // app.use('/static', express.static(path.join(__dirname, '/src/static')))
 app.use('/static', express.static(path.join(__dirname, 'src/public/img')))
 console.log(path.join(__dirname, 'src/public'))

@@ -11,7 +11,7 @@ const emailRouter = require('./email')
 const tripRouter = require('./trip')
 const exchangeRouter = require('./exchange')
 const reviewRouter = require('./review')
-
+const chatRouter = require('./chat')
 const CheckAuth = require('../../middlewares/auth');
 const multer = require('multer')
 const servicePackRouter = require('./servicePack')
@@ -32,6 +32,7 @@ function router(app) {
     app.use('/api/v2/exchange', exchangeRouter);
     app.use('/api/v2/servicePack', servicePackRouter);
     app.use('/api/v2/review', reviewRouter);
+    app.use('/api/v2/chat', chatRouter);
 }
 
 module.exports = router;
