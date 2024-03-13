@@ -5,7 +5,6 @@ const { StatusCodes } = require('http-status-codes');
 const { GetUserById } = require('../services/v2/user.service');
 
 const auth = async (req, res, next) => {
-    const token = authHeader.split(' ')[1];
     try {
         const authHeader = req.headers.authorization;
         //Token not found
@@ -13,6 +12,7 @@ const auth = async (req, res, next) => {
             res.status(StatusCodes.UNAUTHORIZED).json({message: 'JWT token not found'})
         }
         else {
+            const token = authHeader.split(' ')[1];
             const payload = jwt.verify(token, process.env.ACCESS_SECRET_KEY)
             const userData = await GetUserById(payload.sub);
             req.user = {

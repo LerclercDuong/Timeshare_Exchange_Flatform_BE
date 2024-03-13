@@ -22,7 +22,7 @@ class UserService {
             const user = await UserModel.findOne({username: username}).lean();
             return user;
         } catch (err) {
-            throw err;
+            return null;
         }
     }
 

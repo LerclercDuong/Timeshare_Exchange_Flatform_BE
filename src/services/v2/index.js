@@ -10,6 +10,7 @@ const paymentServices = require('./payment.service')
 const adminServices = require('./admin.service');
 const exchangeServices = require('./exchange.service');
 const servicePackServices = require('./servicePack.service')
+const reviewServices = require('./review.service')
 
 module.exports = {
     authServices,
@@ -24,6 +25,6 @@ module.exports = {
     adminServices,
     exchangeServices,
     servicePackServices,
-
+    reviewServices,
 }
 

@@ -27,10 +27,6 @@ const resortSchema = new mongoose.Schema({
         type: String
     }],
     units: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Units' }],
-    reviews: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Reviews',
-    }],
 });
 
 resortSchema.plugin(paginate);
