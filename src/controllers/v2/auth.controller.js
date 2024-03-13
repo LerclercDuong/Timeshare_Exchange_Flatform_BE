@@ -15,6 +15,9 @@ class AuthController {
             if (password !== repeatPassword) {
                 throw new Error('Password and repeat password do not match');
             }
+            if (await userService.GetUserByName(username)) {
+                throw new Error('User is exist');
+            }
             const userData = await authService.SignUp(firstname, lastname, username, email, password);
             const tokens = await authService.GenerateAuthToken(userData);
             res.status(StatusCodes.CREATED).json({ userData, tokens });

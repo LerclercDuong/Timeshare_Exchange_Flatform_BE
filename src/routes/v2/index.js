@@ -10,6 +10,7 @@ const adminRouter = require('./admin');
 const emailRouter = require('./email')
 const tripRouter = require('./trip')
 const exchangeRouter = require('./exchange')
+const reviewRouter = require('./review')
 
 const CheckAuth = require('../../middlewares/auth');
 const multer = require('multer')
@@ -30,9 +31,7 @@ function router(app) {
     app.use('/api/v2/trip', tripRouter);
     app.use('/api/v2/exchange', exchangeRouter);
     app.use('/api/v2/servicePack', servicePackRouter);
-
-    
-
+    app.use('/api/v2/review', reviewRouter);
 }
 
 module.exports = router;

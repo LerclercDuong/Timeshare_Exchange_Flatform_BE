@@ -1,7 +1,4 @@
 const express = require('express');
-const TimeshareModel = require('../../models/timeshares');
-const exphbs = require('express-handlebars');
-const UserId = require('./user.controller.js');
 const {timeshareServices, resortServices} = require('../../services/v2');
 const app = express();
 const fs = require('fs');

@@ -4,6 +4,8 @@ const timeshareController = require('../../controllers/v2/timeshare.controller')
 const multer = require('multer');
 const { plugin } = require('mongoose');
 const upload = multer({ dest: 'src/public/img/' });
+const CheckAuth = require('../../middlewares/auth');
+const AuthorizeTimeshare = require('../../middlewares/timeshare')
 
 
 // router.get('/list', Post.GetAllTimeshare); //tat ca
@@ -15,7 +17,7 @@ const upload = multer({ dest: 'src/public/img/' });
 // router.get('/:id/trash-list', Post.GetTimeShareByTrash); //danh sach timehshare trong thung rac
 // router.get('/post-timeshare', Post.PostTimeshare); //
 router.get('/', timeshareController.GetPost);
-router.post('/upload', timeshareController.UploadPostWithS3);
+router.post('/upload', CheckAuth, timeshareController.UploadPostWithS3);
 
 // //--v2--//
 // router.get('/list-timeshare-availability', Post.PostTimeshare); //
@@ -133,7 +135,7 @@ router.get('/exchange/:current_owner', timeshareController.GetTimesharExchangeBy
  *               message: Delete failed
  *               data: {}
  */
-router.delete('/:id', timeshareController.DeleteTimeshare);
+router.delete('/:id', CheckAuth, AuthorizeTimeshare, timeshareController.DeleteTimeshare);
 
 /**
  * @openapi
@@ -167,7 +169,7 @@ router.delete('/:id', timeshareController.DeleteTimeshare);
  *               message: Force failed
  *               data: {}
  */
-router.delete('/:id/force', timeshareController.ForceDeleteTimeshare);
+router.delete('/:id/force', CheckAuth, AuthorizeTimeshare, timeshareController.ForceDeleteTimeshare);
 
 /**
  * @openapi
@@ -201,7 +203,7 @@ router.delete('/:id/force', timeshareController.ForceDeleteTimeshare);
  *               message: Update Failed
  *               data: {}
  */
-router.put('/:id', timeshareController.UpdateTimeshare);
+router.put('/:id', CheckAuth, AuthorizeTimeshare, timeshareController.UpdateTimeshare);
 
 /**
  * @openapi
@@ -235,7 +237,7 @@ router.put('/:id', timeshareController.UpdateTimeshare);
  *               message: Restore failed
  *               data: {}
  */
-router.patch('/:id/restore', timeshareController.RestoreTimeshare);
+router.patch('/:id/restore', CheckAuth, AuthorizeTimeshare, timeshareController.RestoreTimeshare);
 
 /**
  * @openapi
@@ -278,7 +280,7 @@ router.patch('/:id/restore', timeshareController.RestoreTimeshare);
  *               message: Trash list not found
  *               data: []
  */
-router.get('/:id/trash-list', timeshareController.GetTimeShareByTrash);
+router.get('/:id/trash-list', CheckAuth, timeshareController.GetTimeShareByTrash);
 
 /**
  * @openapi
@@ -294,7 +296,7 @@ router.get('/:id/trash-list', timeshareController.GetTimeShareByTrash);
  *           text/html:
  *             example: Post timeshare page rendered successfully
  */
-router.get('/post-timeshare', timeshareController.PostTimeshare);
+router.get('/post-timeshare', CheckAuth, timeshareController.PostTimeshare);
 
 /**
  * @openapi
@@ -502,7 +504,7 @@ router.get('/:id', timeshareController.GetPostById);
  *               message: Submission failed
  *               data: {}
  */
-router.post('/:postId/book', timeshareController.SubmitRentRequest);
+router.post('/:postId/book', CheckAuth, timeshareController.SubmitRentRequest);
 
 
 
