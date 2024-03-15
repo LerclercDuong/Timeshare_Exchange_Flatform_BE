@@ -6,7 +6,7 @@ const { plugin } = require('mongoose');
 const upload = multer({ dest: 'src/public/img/' });
 const CheckAuth = require('../../middlewares/auth');
 const AuthorizeTimeshare = require('../../middlewares/timeshare')
-
+const CountUploadTimeshareByUser = require('../../middlewares/servicePack')
 
 // router.get('/list', Post.GetAllTimeshare); //tat ca
 // router.get('/current-owner/:current_owner', Post.GetTimeshareByCurrentOwner); //Hien thi timeshare by Owner
@@ -17,7 +17,7 @@ const AuthorizeTimeshare = require('../../middlewares/timeshare')
 // router.get('/:id/trash-list', Post.GetTimeShareByTrash); //danh sach timehshare trong thung rac
 // router.get('/post-timeshare', Post.PostTimeshare); //
 router.get('/', timeshareController.GetPost);
-router.post('/upload', CheckAuth, timeshareController.UploadPostWithS3);
+router.post('/upload', CheckAuth, CountUploadTimeshareByUser, timeshareController.UploadPostWithS3);
 
 // //--v2--//
 // router.get('/list-timeshare-availability', Post.PostTimeshare); //
@@ -135,8 +135,8 @@ router.get('/exchange/:current_owner', timeshareController.GetTimesharExchangeBy
  *               message: Delete failed
  *               data: {}
  */
-router.delete('/:id', CheckAuth, AuthorizeTimeshare, timeshareController.DeleteTimeshare);
-
+router.delete('/:timeshareId',  timeshareController.DeleteTimeshare);
+// CheckAuth, AuthorizeTimeshare,
 /**
  * @openapi
  * /api/v2/timeshare/{id}/force:

@@ -4,9 +4,9 @@ const { GetPostById } = require("../services/v2/timeshare.service");
 
 const AuthorizeTimeshare = async (req, res, next) => {
     const user = req.user.data;
-    const timeshare = GetPostById(req.params.id);
+    const timeshare = await GetPostById(req.params.id);   
     if (timeshare) {
-        if (user.role === 'admin' || timeshare.current_owner === user._id) {
+        if (user.role === 'admin' || timeshare.current_owner._id.toString() === user._id.toString()) {
             req.timeshare = {
                 data: timeshare,
             }
