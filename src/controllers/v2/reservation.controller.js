@@ -205,6 +205,51 @@ class ReservationController {
             next(error);
         }
     }
+    async CancelMyRentalRequest(req, res, next) {
+        try {
+            const { reservationId } = req.params;
+    
+            const canceled = await reservationServices.CancelMyRentalRequest(reservationId);
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Canceled'
+                },
+                data: canceled
+            });
+        } catch (error) {
+            console.error('Error deleting exchange:', error);
+            res.status(StatusCodes.NO_CONTENT).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Cancel failed'
+                }
+            });
+        }
+    }
+    async DeleteMyRentalRequest(req, res, next) {
+        try {
+            const { reservationId } = req.params;
+    
+            const deletedRental = await reservationServices.DeleteMyRentalRequest(reservationId);
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Deleted'
+                },
+                data: deletedRental
+            });
+        } catch (error) {
+            console.error('Error deleting exchange:', error);
+            res.status(StatusCodes.NO_CONTENT).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Delete failed'
+                }
+            });
+        }
+    }
+    
 }
 
 module.exports = new ReservationController;

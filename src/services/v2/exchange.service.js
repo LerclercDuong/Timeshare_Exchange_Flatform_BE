@@ -16,6 +16,7 @@ class ExchangeService {
         zipCode,) {
         try {
             const existingExchangeCompleted = await ExchangeModel.findOne({ myTimeshareId: myTimeshareId, status: 'Completed' });
+            const checkStatus = await ExchangeModel.findOne({ timeshareId: timeshareId, status: 'Completed' });
             const existingExchange = await ExchangeModel.findOne({ myTimeshareId: myTimeshareId, timeshareId: timeshareId });
             const timeshare = await TimeshareModel.findById(timeshareId);
             const myTimeshare = await TimeshareModel.findById(myTimeshareId);
@@ -23,6 +24,10 @@ class ExchangeService {
             const countRent = await ReservationModel.countDocuments({ timeshareId: timeshareId, type: 'rent' });
             const count = countExchange + countRent
             const to =  timeshare.current_owner.email;
+
+            if ( checkStatus ) {
+                throw new Error('Request is existed');
+            }
             if (existingExchangeCompleted) {
                 throw new Error('Request is existed');
             }  
@@ -185,7 +190,7 @@ class ExchangeService {
     async GetMyTimeshareExchange(userId) {
         return ExchangeModel.find({userId: userId});
     }
-    async DeleteExchange(exchangeId) {
+    async CancelMyExchangeRequest(exchangeId) {
         try {
             const existingExchange = await ExchangeModel.findOne({ _id: exchangeId });
             if (!existingExchange.timeshareId.is_bookable) {
@@ -203,15 +208,26 @@ class ExchangeService {
                 {
                     $set: {
                         status: 'Canceled',
-                        confirmed_at: new Date()
+                        confirmed_at: new Date(),
+                        is_canceled: true,
                     }
                 }
             );
-            const deletedExchange = await ExchangeModel.delete({ _id: exchangeId });
+            const deletedExchange = await ExchangeModel.updateOne({ _id: exchangeId },
+                {
+                    $set: {
+                        is_canceled: true,
+                        confirmed_at: new Date(),
+                    }
+                });
             return deletedExchange;
         } catch (error) {
             throw new Error('Error: ' + error.message);
         }
+    }
+    async DeleteMyExchangeRequest(exchangeId) {
+        const deleteExchange = await ExchangeModel.delete({_id: exchangeId})
+        return deleteExchange;
     }
     
    

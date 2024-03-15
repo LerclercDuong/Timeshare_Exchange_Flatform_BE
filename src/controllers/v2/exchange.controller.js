@@ -176,11 +176,34 @@ class ExchangeController {
             });
         }
     }
-    async DeleteExchange(req, res, next) {
+    async CancelMyExchangeRequest(req, res, next) {
         try {
             const { exchangeId } = req.params;
     
-            const deletedExchange = await exchangeServices.DeleteExchange(exchangeId);
+            const canceledExchange = await exchangeServices.CancelMyExchangeRequest(exchangeId);
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Canceled'
+                },
+                data: canceledExchange
+            });
+        } catch (error) {
+            console.error('Error deleting exchange:', error);
+            res.status(StatusCodes.NO_CONTENT).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Cancel failed'
+                }
+            });
+        }
+    }
+
+    async DeleteMyExchangeRequest(req, res, next) {
+        try {
+            const { exchangeId } = req.params;
+    
+            const deletedExchange = await exchangeServices.DeleteMyExchangeRequest(exchangeId);
             res.status(StatusCodes.OK).json({
                 status: {
                     code: res.statusCode,

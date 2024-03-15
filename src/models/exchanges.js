@@ -63,12 +63,7 @@ const exchangeSchema = new Schema({
         required: true
     },
     
-    is_confirmed: {
-        type: Boolean,
-        default: false,
-        required: true
-    },
-    is_accepted_by_owner: {
+    is_canceled: {
         type: Boolean,
         default: false,
         required: true,
