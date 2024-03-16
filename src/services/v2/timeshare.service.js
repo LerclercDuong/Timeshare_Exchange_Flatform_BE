@@ -75,6 +75,7 @@ class TimeshareService {
                 if (exchangeExists || reservationExists) {
             return false;
         }
+        console.log(timeshareId)
         const deleteTimeshare = await TimeshareModel.delete({_id: timeshareId});
         return deleteTimeshare;
         }catch {
