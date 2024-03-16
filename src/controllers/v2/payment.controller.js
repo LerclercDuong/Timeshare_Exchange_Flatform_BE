@@ -144,8 +144,9 @@ class PaymentController {
 
     async CreateVNPay(req, res) {
         try {
+            const {servicePackId} = req.body;
             const {userId} = req.body;
-            const paymentUrl = await paymentServices.CreateVNPay(req, userId);
+            const paymentUrl = await paymentServices.CreateVNPay(req, userId, servicePackId);
             res.status(StatusCodes.OK).json({
                 status: {
                     code: res.statusCode,
