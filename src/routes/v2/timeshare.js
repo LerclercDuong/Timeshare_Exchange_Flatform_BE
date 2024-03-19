@@ -16,7 +16,7 @@ const CountUploadTimeshareByUser = require('../../middlewares/servicePack')
 // router.patch('/:id/restore', Post.RestoreTimeshare); //khoi phuc
 // router.get('/:id/trash-list', Post.GetTimeShareByTrash); //danh sach timehshare trong thung rac
 // router.get('/post-timeshare', Post.PostTimeshare); //
-router.get('/', timeshareController.GetPost);
+router.get('/', timeshareController.GetPosts);
 router.post('/upload', CheckAuth, CountUploadTimeshareByUser, timeshareController.UploadPostWithS3);
 
 // //--v2--//
