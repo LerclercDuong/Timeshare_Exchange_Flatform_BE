@@ -6,6 +6,7 @@ const RequestModel = require('../../models/requests')
 const nodemailer = require("nodemailer");
 const {uploadToS3} = require("../../utils/s3Store");
 const ResortModel = require("../../models/resorts");
+const ExchangeModel = require('../../models/exchanges.js')
 const appPassword = 'zvpg rhqd qcfg tszn';
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -62,11 +63,26 @@ class TimeshareService {
         }
     }
     
-
-    async DeleteTimeshare(req) {
-        const deleteTimeshare = await TimeshareModel.delete({_id: req.params.id}, req.body)
+    // async findReservationExisted(reservationId,next) {
+    //     const findReservationExisted = await ReservationModel.find({_id: reservationId})
+    //     console.log(findReservationExisted)
+    //     next();
+    // }
+    async DeleteTimeshare(timeshareId, mytimeshareId) {
+        try {
+        const exchangeExists = await ExchangeModel.exists({ $or: [{ timeshareId}, { mytimeshareId }] });
+        const reservationExists = await ReservationModel.exists({ timeshareId});
+                if (exchangeExists || reservationExists) {
+            return false;
+        }
+        console.log(timeshareId)
+        const deleteTimeshare = await TimeshareModel.delete({_id: timeshareId});
         return deleteTimeshare;
-    } // thu vien mongoose soft-delete
+        }catch {
+            throw error;
+        }   
+    }
+     // thu vien mongoose soft-delete
     async UpdateTimeshare(req) {
         const updateTimeshare = await TimeshareModel.updateOne({_id: req.params.id}, req.body)
         return updateTimeshare;

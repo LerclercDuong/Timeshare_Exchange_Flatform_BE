@@ -7,6 +7,8 @@ const RequiredFieldError = require('../../errors/requiredFieldError.js');
 const S3UploadError = require('../../errors/s3UploadError.js');
 const DataProcessingError = require('../../errors/dataProcessingError.js');
 const { StatusCodes } = require('http-status-codes');
+
+
 const query = require("../../utils/query");
 
 class Timeshares {
@@ -129,7 +131,11 @@ class Timeshares {
     };
     async DeleteTimeshare(req, res, next) {
         try {
-            const deleteTimeshare = await timeshareServices.DeleteTimeshare(req);
+            const { timeshareId } = req.params;
+            const { mytimeshareId } = req.body;
+
+
+            const deleteTimeshare = await timeshareServices.DeleteTimeshare(timeshareId, mytimeshareId);
             res.status(StatusCodes.OK).json({
                 status: {
                     code: res.statusCode,

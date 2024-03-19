@@ -166,6 +166,39 @@ class ReservationService {
             throw new Error('Token invalid')
         }
     }
+    async CancelMyRentalRequest(reservationId) {
+        try {
+            const existingRental = await ReservationModel.findOne({ _id: reservationId });
+            if (existingRental.timeshareId.isPaid) {
+                return false; 
+            }
+            if (!existingRental) {
+                throw new Error('Rental not exists');
+            }
+    
+            if (existingRental.deleted) {
+                return false; 
+            }
+            const caneledRental = await ReservationModel.updateOne(
+                { _id: reservationId },
+                {
+                    $set: {
+                        status: 'Canceled',
+                        is_canceled_by_renter: true,
+                        confirmed_at: new Date(),
+                    }
+                }
+            );
+            return caneledRental;
+        } catch (error) {
+            throw new Error('Error: ' + error.message);
+        }
+    }
+    
+    async DeleteMyRentalRequest(reservationId) {
+        const deleteRental = await ReservationModel.delete({_id: reservationId})
+        return deleteRental;
+    }
 
 }
 

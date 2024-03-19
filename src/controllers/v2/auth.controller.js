@@ -34,6 +34,7 @@ class AuthController {
     //Res: userData = {}, tokens = []
     async Login(req, res, next) {
         const {username, password} = req.body;
+        console.log('dddd')
         try {
             const loginData = await authService.LoginWithUsernameAndPassword(username, password);
             if (loginData) {

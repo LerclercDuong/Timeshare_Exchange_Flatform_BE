@@ -11,6 +11,10 @@ const timeshareSchema = new Schema({
         enum: ['rental', 'exchange'],
         required:true
     },
+    servicePack: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'ServicePack' // Thay 'ServicePack' bằng tên của mô hình servicePack nếu cần
+    },
     start_date: {
         type: Date,
         required: true,
@@ -88,7 +92,11 @@ timeshareSchema.pre('save', async function (next) {
         next(error);
     }
 });
-
+timeshareSchema.pre('findOne', async function (docs, next) {
+    this.populate({
+        path: "servicePack"
+    })
+});
 timeshareSchema.plugin(mongooseDelete,
     {deletedAt: true});
 timeshareSchema.pre('find', async function (docs, next) {

@@ -108,7 +108,7 @@ class PaymentService {
     async RefundPayment(){
 
     }
-    async CreateVNPay(req, userId) {
+    async CreateVNPay(req, userId, servicePackId) {
         process.env.TZ = 'Asia/Ho_Chi_Minh';
         let date = new Date();
         let createDate = moment(date).format('YYYYMMDDHHmmss');
@@ -166,22 +166,19 @@ class PaymentService {
         try {
             const vnpayData = {
                 orderId: orderId,
-                vnp_Version: vnp_Params['vnp_Version'],
-                vnp_Command: vnp_Params['vnp_Command'],
-                vnp_TmnCode: tmnCode,
+                userId: userId,
+                app_paymentId: tmnCode,
+                servicePackId: servicePackId,
                 vnp_Locale: locale,
                 vnp_CurrCode: currCode,
-                vnp_TxnRef: orderId,
                 vnp_OrderInfo: 'Thanh toan cho ma GD:' + orderId,
-                vnp_OrderType: vnp_Params['vnp_OrderType'],
-                vnp_Amount: parseFloat(amount), // Assign the original amount here
-                vnp_ReturnUrl: returnUrl,
-                vnp_IpAddr: ipAddr,
+                amount: parseFloat(amount),
                 vnp_CreateDate: createDate,
                 vnp_BankCode: bankCode,
-                vnp_SecureHash: signed,
-                transactionStatus: 'Pending',
-                userId: userId,
+                method: {
+                    name: "vnpay",
+                },
+                status: 'Pending',
             };
     
             const vnpay = new PaymentModel(vnpayData);
@@ -215,9 +212,9 @@ class PaymentService {
             if (secureHash === signed) {
                 let responseData = {};
                 if (vnp_Params['vnp_ResponseCode'] === '00') {
-                    let payment = await PaymentModel.findOneAndUpdate({ orderId: vnp_Params['vnp_TxnRef'] }, { transactionStatus: 'Success' });
+                    let payment = await PaymentModel.findOneAndUpdate({ orderId: vnp_Params['vnp_TxnRef'] }, { status: 'Success' });
                     // console.log(payment.userId)
-                    const servicePack = await ServicePackModel.findOne({ amount: payment.vnp_Amount });
+                    const servicePack = await ServicePackModel.findOne({ amount: payment.amount });
                     const user = await UserModel.findOneAndUpdate({ _id: payment.userId }, { servicePack: servicePack._id });
                     // console.log(user);
                     // console.log(servicePack.role)
@@ -228,7 +225,7 @@ class PaymentService {
                         code: vnp_Params['vnp_ResponseCode']
                     };
                 } else if (vnp_Params['vnp_ResponseCode'] === '24') {
-                    let payment = await PaymentModel.findOneAndUpdate({ orderId: vnp_Params['vnp_TxnRef'] }, { transactionStatus: 'Failed' });
+                    let payment = await PaymentModel.findOneAndUpdate({ orderId: vnp_Params['vnp_TxnRef'] }, { status: 'Failed' });
                     responseData = {
                         success: false,
                         message: 'Payment canceled by user',

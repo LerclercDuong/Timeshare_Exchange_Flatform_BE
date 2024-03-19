@@ -42,6 +42,9 @@ router.post('/confirm/:reservationId', CheckAuth, reservationRouter.ConfirmRent)
 router.patch('/:reservationId/confirm', CheckAuth, reservationRouter.ConfirmReservationByToken);
 router.patch('/:reservationId/accept', CheckAuth, reservationRouter.AcceptReservationByOwner);
 router.patch('/:reservationId/deny', CheckAuth, reservationRouter.DenyReservationByOwner);
+router.put('/canceled/:reservationId', CheckAuth, reservationRouter.CancelMyRentalRequest);
+router.delete('/:reservationId', CheckAuth, reservationRouter.DeleteMyRentalRequest);
+
 
 
 module.exports = router;
