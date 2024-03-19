@@ -5,8 +5,11 @@ const {resortServices} = require("../../services/v2");
 
 class UserController {
     async GetUsers(req, res, next){
-        const filter = query(req.query, ['firstname', 'lastname', 'username']);
-        const options = query(req.query, ['page']);
+        const filter = query(req.query, ['username', 'role']);
+        const options = {
+            ...query(req.query, ['page']),
+            sort: { username: -1 } // Sorting by timestamp in descending order
+        };
         const results = await userServices.QueryUser(filter, options);
         res.status(StatusCodes.OK).json({
             status: {
