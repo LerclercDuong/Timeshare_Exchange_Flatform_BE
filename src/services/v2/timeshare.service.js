@@ -21,9 +21,59 @@ const transporter = nodemailer.createTransport({
 
 class TimeshareService {
 
-    async QueryPost(filter, options) {
-        return await TimeshareModel.paginate(filter, options);
+    async GetPosts(query, filter) {
+        try {
+            const { page = 1, limit = 8, search = "", sort = "price", type = "" } = query; // Thay đổi mặc định của type thành chuỗi rỗng
+    
+            const typeOptions = [
+                "rental",
+                "exchange",
+            ];
+    
+            let types = [...typeOptions]; 
+            if (type !== "") { 
+                types = type.split(",");
+            }
+    
+            let sortBy = {};
+            const sortArray = sort.split(",");
+            sortBy[sortArray[0]] = sortArray[1] || "asc";
+            const data = await TimeshareModel.find({ 
+                "resortId": { 
+                    $in: (await ResortModel.find({ "name": { $regex: search, $options: "i" } }))
+                }, 
+                ...filter 
+                })
+                .where("type")
+                .in(types) 
+                .sort(sortBy)
+                .skip((page - 1) * limit)
+                .limit(parseInt(limit))
+                .populate({
+                    path: "resortId",
+                    select: "name"
+                });
+                
+            data.forEach(timeshare => {
+                timeshare.price = parseInt(timeshare.price); 
+            });
+            
+            const total = await TimeshareModel.countDocuments({
+                type: { $in: types },
+                type: { $regex: search, $options: "i" },
+                ...filter 
+            });
+    
+            return { error: false, total, page: parseInt(page), limit: parseInt(limit), type: typeOptions, data };
+        } catch (err) {
+            console.log(err);
+            return { error: true, message: "Internal Server Error" };
+        }
     }
+    
+    
+    
+    
 
     async GetAllPosts() {
         return TimeshareModel.find({}).select('_id name start_date image end_date location price deletedAt').lean();
@@ -38,15 +88,14 @@ class TimeshareService {
             .lean();
     }
 
-    async GetTimeshareByCurrentOwner(current_owner) {
-        return TimeshareModel
-            .find({current_owner})
-            .populate({
-                path: 'current_owner',
-                select: '_id username profilePicture role'
-            })
-            .lean();
+    async GetTimeshareByCurrentOwner(current_owner, sortBy, filter = {}) {
+        let query = TimeshareModel.find({ current_owner, ...filter }).sort(sortBy).populate({
+            path: 'current_owner',
+            select: '_id username profilePicture role'
+        }).lean();
+        return query;
     }
+    
     async GetTimesharExchangeByCurrentOwner(current_owner) {
         try {
             const timeshares = await TimeshareModel
