@@ -16,16 +16,16 @@ const CountUploadTimeshareByUser = async (req, res, next) => {
         console.log(servicePack?.numberPosts);
     
         // Kiểm tra nếu servicePack?.numberPosts là null thì gán bằng 0
-        const numberOfPostsAllowed = servicePack?.numberPosts !== null ? servicePack.numberPosts : 0;
+        const numberOfPostsAllowed = (servicePack && servicePack.numberPosts) ? servicePack.numberPosts : 0;
     
         if (!servicePack || countUploadTimeshare >= numberOfPostsAllowed) {
             console.log("Exceeded number of allowed posts.");
-            return res.status(403).json({ error: 'Exceeded number of allowed posts' });
+            return res.status(403).json({ message: 'Exceeded number of allowed posts' });
         }
         next();
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ error: 'Internal Server Error' });
+        return res.status(500).json({ message: 'Internal Server Error' });
     }
     
     

@@ -32,13 +32,29 @@ class AdminController {
     
     //[GET] /ban-account/:id
     async BanAccount(req, res, next){
-        await adminServices.banAccount(req.params.id);
-        res.status(StatusCodes.OK).json({
-            status:{
-                code: res.statusCode,
-                message: 'ban success'
+        try {
+            const userId = req.user.userId;
+            const targetId = req.params.id;
+            if (userId == targetId) {
+                res.status(StatusCodes.BAD_REQUEST).json({
+                    message: "You cannot ban yourself"
+                })
             }
-        })
+            else {
+                await adminServices.banAccount(targetId);
+                res.status(StatusCodes.OK).json({
+                    status:{
+                        code: res.statusCode,
+                        message: 'ban success'
+                    }
+                })
+            }
+        }
+        catch (error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                message: error.message,
+            })
+        }
     }
 
     //[GET] /show-banned-accounts

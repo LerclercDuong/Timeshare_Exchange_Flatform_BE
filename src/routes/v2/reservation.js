@@ -4,7 +4,7 @@ const reservationRouter = require('../../controllers/v2/reservation.controller')
 const paymentController = require('../../controllers/v2/payment.controller')
 const multer = require('multer');
 const upload = multer({ dest: 'src/public/img/' });
-const CheckAuth = require('../../middlewares/auth');
+const {auth: CheckAuth} = require('../../middlewares/auth');
 
 /**
  * @openapi

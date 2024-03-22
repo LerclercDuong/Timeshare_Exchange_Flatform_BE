@@ -52,7 +52,7 @@ class AuthController {
                 res.status(StatusCodes.UNAUTHORIZED).json({
                     status: {
                         code: res.statusCode,
-                        message: 'Login fail'
+                        message: 'Wrong username or password!'
                     },
                     data: null
                 });

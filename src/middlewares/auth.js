@@ -34,4 +34,7 @@ const AuthorizeAdmin = async (req, res, next) => {
     }
     else res.status(StatusCodes.FORBIDDEN).json({message: 'Access forbidden'});
 }
-module.exports = auth;
+module.exports = {
+    auth: auth,
+    authorizeAdmin: AuthorizeAdmin
+};
