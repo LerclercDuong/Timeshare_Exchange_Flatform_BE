@@ -98,7 +98,9 @@ users.post('find', async function (docs, next) {
 });
 users.pre('save', async function (next) {
 
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!])(?!.*\s).{8,}$/;
+    const passwordUpperCaseRegex = /[A-Z]+/;
+    const passwordSpecialCharacterRegex = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/
+    const passwordMin = 8;
 
     const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
@@ -108,7 +110,7 @@ users.pre('save', async function (next) {
 
     if (this.email && !emailRegex.test(this.email)) throw new Error('Email must follow condition')
 
-    if (!passwordRegex.test(this.password)) throw new Error('password must follow condition')
+    if (!(passwordSpecialCharacterRegex.test(this.password) && passwordUpperCaseRegex.test(this.password) && this.password.length >= passwordMin)) throw new Error('password must follow condition')
 
     //just hash password when modified password (change password, create new user)
     if (!this.isModified('password')) {
@@ -126,14 +128,16 @@ users.pre('save', async function (next) {
 
 users.pre('findOneAndUpdate', async function (next) {
 
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!])(?!.*\s).{8,}$/;
+    const passwordUpperCaseRegex = /[A-Z]+/;
+    const passwordSpecialCharacterRegex = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/
+    const passwordMin = 8;
 
     const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
     if (this._update.email && !emailRegex.test(this._update.email)) throw new Error('Email must follow condition')
 
     if (this._update.password) {
-        if (!passwordRegex.test(this._update.password)) throw new Error('password must follow condition')
+        if (!(passwordSpecialCharacterRegex.test(this._update.password) && passwordUpperCaseRegex.test(this._update.password) && this._update.password.length >= passwordMin)) throw new Error('password must follow condition')
         try {
             // Generate a salt and hash the password
             const saltRounds = 10;

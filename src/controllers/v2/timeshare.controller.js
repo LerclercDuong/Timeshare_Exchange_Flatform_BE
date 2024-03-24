@@ -13,17 +13,14 @@ const {query}  = require("../../utils/query");
 
 class Timeshares {
 
-    async GetPost(req, res, next){
-        const filter = query(req.query, ['resort', 'current_owner']);
-        const options = query(req.query, ['page']);
-        const results = await timeshareServices.QueryPost(filter, options);
-        res.status(StatusCodes.OK).json({
-            status: {
-                code: res.statusCode,
-                message: 'Query posts'
-            },
-            data: results
-        })
+    async GetPosts(req, res, next){
+        try {
+            const data = await timeshareServices.GetPosts(req.query,  { deleted: false });
+            res.status(200).json(data);
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({ error: true, message: "Internal Server Error" });
+        }
     }
     async GetPostById(req, res, next) {
         const {id} = req.params;
@@ -66,37 +63,49 @@ class Timeshares {
         }
     };
     async GetTimeshareByCurrentOwner(req, res, next) {
-        try{
-            const {current_owner} = req.params;
-            const timeshareData = await timeshareServices.GetTimeshareByCurrentOwner(current_owner);
-            if (timeshareData) {
+        try {
+            const { current_owner } = req.params;
+            let sort = req.query.sortBy || "price";
+    
+            req.query.sort ? (sort = req.query.sort.split(",")) : (sort = [sort]);
+    
+            let sortBy = {};
+            if (sort[1]) {
+                sortBy[sort[0]] = sort[1];
+            } else {
+                sortBy[sort[0]] = "asc";
+            }
+    
+            // Thêm filter để chỉ lấy các timeshare chưa bị xóa (deleted = false)
+            const timeshareData = await timeshareServices.GetTimeshareByCurrentOwner(current_owner, sortBy, { deleted: false });
+    
+            if (timeshareData.length > 0) {
                 res.status(StatusCodes.OK).json({
                     status: {
                         code: res.statusCode,
                         message: 'Timeshare found'
                     },
                     data: timeshareData
-                })
-                return;
+                });
+            } else {
+                res.status(StatusCodes.NO_CONTENT).json({
+                    status: {
+                        code: res.statusCode,
+                        message: 'Timeshare not found'
+                    },
+                    data: timeshareData
+                });
             }
-            res.status(StatusCodes.NO_CONTENT).json({
-                status: {
-                    code: res.statusCode,
-                    message: 'Timeshare not found'
-                },
-                data: timeshareData
-            })
-        }catch(err){
+        } catch(err) {
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 status: {
                     code: res.statusCode,
                     message: 'Server error'
                 },
                 data: null
-            })
+            });
         }
-
-    };
+    }
     async GetTimesharExchangeByCurrentOwner(req, res, next) {
         try{
             const {current_owner} = req.params;

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../../controllers/v2/user.controller');
-const CheckAuth = require('../../middlewares/auth');
+const {auth: CheckAuth} = require('../../middlewares/auth');
 
 router.get('/', User.GetUsers);
 router.get('/:userId', User.GetUserById);

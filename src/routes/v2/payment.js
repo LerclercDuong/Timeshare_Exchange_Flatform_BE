@@ -1,7 +1,7 @@
 const express = require('express');
 const paymentController = require('../../controllers/v2/payment.controller')
 const router = express.Router();
-const CheckAuth = require('../../middlewares/auth');
+const {auth: CheckAuth} = require('../../middlewares/auth');
 
 router.post('/create-paypal-payment', CheckAuth, paymentController.CreatePayment);
 router.post('/execute-paypal-payment', CheckAuth, paymentController.ExecutePayment);
