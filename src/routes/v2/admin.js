@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const Admin = require('../../controllers/v2/admin.controller');
+const {auth: CheckAuth, authorizeAdmin: CheckAdmin} = require('../../middlewares/auth');
 
 //Account Management
-router.get('/ban-account/:id', Admin.BanAccount);
-router.get('/unban-account/:id', Admin.unbanAccount);
+router.get('/ban-account/:id', CheckAuth, CheckAdmin, Admin.BanAccount);
+router.get('/unban-account/:id', CheckAuth, CheckAdmin, Admin.unbanAccount);
 router.get('/show-banned-accounts', Admin.ShowBannedAccount);
 router.get('/account-list', Admin.GetAllAccounts);
 router.get('/delete-account/:id', Admin.DeleteAccount);

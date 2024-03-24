@@ -4,7 +4,7 @@ const timeshareController = require('../../controllers/v2/timeshare.controller')
 const multer = require('multer');
 const { plugin } = require('mongoose');
 const upload = multer({ dest: 'src/public/img/' });
-const CheckAuth = require('../../middlewares/auth');
+const {auth: CheckAuth} = require('../../middlewares/auth');
 const AuthorizeTimeshare = require('../../middlewares/timeshare')
 const CountUploadTimeshareByUser = require('../../middlewares/servicePack')
 

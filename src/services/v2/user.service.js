@@ -27,7 +27,13 @@ class UserService {
     }
 
     async GetUserByEmail(email) {
-        return UserModel.findOne({email: email}).select('_id username profilePicture role').lean();
+        try {
+            const user = await UserModel.findOne({email: email}).select('_id username profilePicture role').lean();
+            return user;
+        }
+        catch (err) {
+            return null;
+        }
     }
 
     async GetUsers() {
@@ -45,6 +51,11 @@ class UserService {
                 ...updatedData,
                 profilePicture: key
             }
+        }
+        const checkUser = await UserModel.findById(userId);
+        // If the email is updated, reset the verify state
+        if (checkUser.email !== data.email) {
+            data.emailVerified = false;
         }
         const updatedUser = await UserModel.findByIdAndUpdate(
             userId,
