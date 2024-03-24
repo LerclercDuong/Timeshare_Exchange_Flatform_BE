@@ -1,8 +1,8 @@
 const axios = require('axios')
 const {resortServices} = require('../../services/v2');
 const {StatusCodes} = require('http-status-codes');
-const query = require('../../utils/query');
-const unitService = require('../../services/v2/unit.service');
+const {query} = require('../../utils/query')
+
 
 class ResortController {
     /**

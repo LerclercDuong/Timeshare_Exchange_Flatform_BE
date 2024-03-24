@@ -130,7 +130,7 @@ reservationSchema.pre('updateOne', async function (next) {
         this.set({
             status: 'Payment phase',
             owner_accepted_at: new Date(),
-            paymentDeadline: (new Date().getTime()) + 36000
+            paymentDeadline: (new Date().getTime()) + 360000
         });
     }
     next();
@@ -178,7 +178,7 @@ reservationSchema.post('updateOne', async function (next) {
             const delay = Math.max(0, paymentDeadlineInMillis - currentTime);
             setTimeout(async () => {
                 const updated = await Reservation.updateOne(
-                    {_id: reservationId},
+                    {_id: reservationId, isPaid: false},
                     {
                         $set: {
                             status: 'Canceled',
