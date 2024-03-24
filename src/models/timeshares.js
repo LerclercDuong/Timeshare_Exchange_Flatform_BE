@@ -67,6 +67,12 @@ const timeshareSchema = new Schema({
         type: Boolean,
         default: false
     },
+    renterId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Users',
+        default: null,
+        required: false,
+    },
     timestamp: {
         type: Date,
         default: Date.now
@@ -77,12 +83,6 @@ timeshareSchema.pre('save', async function (next) {
     try {
         // Lấy thông tin của User dựa trên userId
         const user = await mongoose.model('Users').findById(this.current_owner);
-        // if (!this.postId) {
-        //     const latestPost = await mongoose.model('Posts').findOne({}, {}, { sort: { 'timestamp': -1 } });
-        //     const latestPostNumber = latestPost ? parseInt(latestPost.postId.slice(1)) : 0;
-        //     this.postId = 'P' + (latestPostNumber + 1).toString().padStart(6, '0');
-        // }
-        // Gán giá trị username từ thông tin User vào trường username của Properties
         if (user) {
             this.username = user.username;
         }
@@ -101,12 +101,12 @@ timeshareSchema.plugin(mongooseDelete,
     {deletedAt: true});
 timeshareSchema.pre('find', async function (docs, next) {
     this.populate({
-        path: "resortId current_owner unitId"
+        path: "resortId current_owner unitId renterId"
     })
 });
 timeshareSchema.pre('findOne', async function (docs, next) {
     this.populate({
-        path: "resortId current_owner unitId"
+        path: "resortId current_owner unitId renterId"
     })
 });
 

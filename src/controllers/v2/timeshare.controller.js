@@ -9,7 +9,7 @@ const DataProcessingError = require('../../errors/dataProcessingError.js');
 const { StatusCodes } = require('http-status-codes');
 
 
-const query = require("../../utils/query");
+const {query}  = require("../../utils/query");
 
 class Timeshares {
 

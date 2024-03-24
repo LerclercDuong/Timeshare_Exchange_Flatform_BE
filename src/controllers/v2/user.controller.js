@@ -1,6 +1,6 @@
 const { userServices }  = require('../../services/v2');
 const {StatusCodes} = require('http-status-codes');
-const query = require("../../utils/query");
+const {query} = require("../../utils/query");
 const {resortServices} = require("../../services/v2");
 
 class UserController {
