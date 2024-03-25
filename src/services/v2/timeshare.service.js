@@ -23,7 +23,7 @@ class TimeshareService {
 
     async GetPosts(query, filter) {
         try {
-            const { page = 1, limit = 8, search = "", sort = "price", type = "" } = query; // Thay đổi mặc định của type thành chuỗi rỗng
+            const { page = 1, limit = 8, search = "", sort = "price", type = "", start_date = "", end_date = "" } = query;
     
             const typeOptions = [
                 "rental",
@@ -38,12 +38,21 @@ class TimeshareService {
             let sortBy = {};
             const sortArray = sort.split(",");
             sortBy[sortArray[0]] = sortArray[1] || "asc";
-            const data = await TimeshareModel.find({ 
-                "resortId": { 
-                    $in: (await ResortModel.find({ "name": { $regex: search, $options: "i" } }))
-                }, 
-                ...filter 
-                })
+    
+            const queryFilters = { 
+                type: { $in: types },
+                ...(search !== "" && {
+                    resortId: { 
+                        $in: (await ResortModel.find({ "name": { $regex: search, $options: "i" } }))
+                    }
+                }),
+                ...(start_date && { start_date: { $gte: start_date } }), 
+                ...(end_date && { end_date: { $lte: end_date } }),
+                ...filter, 
+            };
+            
+    
+            const data = await TimeshareModel.find(queryFilters)
                 .where("type")
                 .in(types) 
                 .sort(sortBy)
@@ -53,16 +62,12 @@ class TimeshareService {
                     path: "resortId",
                     select: "name"
                 });
-                
+    
             data.forEach(timeshare => {
                 timeshare.price = parseInt(timeshare.price); 
             });
             
-            const total = await TimeshareModel.countDocuments({
-                type: { $in: types },
-                type: { $regex: search, $options: "i" },
-                ...filter 
-            });
+            const total = await TimeshareModel.countDocuments(queryFilters);
     
             return { error: false, total, page: parseInt(page), limit: parseInt(limit), type: typeOptions, data };
         } catch (err) {
@@ -70,6 +75,60 @@ class TimeshareService {
             return { error: true, message: "Internal Server Error" };
         }
     }
+    async AdminTimeshares(query, filter) {
+        try {
+            const { page = 1, limit = 8, search = "", sort = "price", type = "", start_date = "", end_date = "" } = query;
+    
+            const typeOptions = [
+                "rental",
+                "exchange",
+            ];
+    
+            let types = [...typeOptions]; 
+            if (type !== "") { 
+                types = type.split(",");
+            }
+    
+            let sortBy = {};
+            const sortArray = sort.split(",");
+            sortBy[sortArray[0]] = sortArray[1] || "asc";
+    
+            const queryFilters = { 
+                type: { $in: types },
+                ...(search !== "" && {
+                    resortId: { 
+                        $in: (await ResortModel.find({ "name": { $regex: search, $options: "i" } }))
+                    }
+                }),
+                ...(start_date && { start_date: { $gte: start_date } }), 
+                ...(end_date && { end_date: { $lte: end_date } }), 
+            };
+            
+    
+            const data = await TimeshareModel.find(queryFilters)
+                .where("type")
+                .in(types) 
+                .sort(sortBy)
+                .skip((page - 1) * limit)
+                .limit(parseInt(limit))
+                .populate({
+                    path: "resortId",
+                    select: "name"
+                });
+    
+            data.forEach(timeshare => {
+                timeshare.price = parseInt(timeshare.price); 
+            });
+            
+            const total = await TimeshareModel.countDocuments(queryFilters);
+    
+            return { error: false, total, page: parseInt(page), limit: parseInt(limit), type: typeOptions, data };
+        } catch (err) {
+            console.log(err);
+            return { error: true, message: "Internal Server Error" };
+        }
+    }
+    
     
     
     
@@ -96,10 +155,10 @@ class TimeshareService {
         return query;
     }
     
-    async GetTimesharExchangeByCurrentOwner(current_owner) {
+    async GetTimesharExchangeByCurrentOwner(current_owner, filter) {
         try {
             const timeshares = await TimeshareModel
-                .find({ current_owner, type: 'exchange' })
+                .find({ current_owner, type: 'exchange', ...filter })
                 .populate({
                     path: 'current_owner',
                     select: '_id username profilePicture role'
@@ -145,9 +204,20 @@ class TimeshareService {
         return forceDeleteTimeshare;
     }
 
-    async GetPostById(id) {
-        return await TimeshareModel.findById(id);
+    async GetPostById(id, filter) {
+        try {
+            let query = { _id: id };
+            
+            if (filter) {
+                query = { ...query, ...filter };
+            }
+            
+            return await TimeshareModel.findOne(query);
+        } catch (error) {
+            throw error;
+        }
     }
+    
 
     async UploadPost(req, current_owner, unitId, price, start_date, end_date, resortId, images) {
         const uploadData = {

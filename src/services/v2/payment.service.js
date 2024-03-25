@@ -422,7 +422,21 @@ class PaymentService {
             throw error;
         }
     }
-
+    async GetTotalAmount() {
+        try {
+            const data = await PaymentModel.find({status: 'Success'}).select('amount status'); 
+            let total = 0;
+            data.forEach(payment => {
+                if (payment.status === "Success") {
+                    total += payment.amount;
+                }
+                console.log(payment)
+            });
+            return total;
+        } catch (error) {
+            throw error;
+        }
+    }
 
 }
 

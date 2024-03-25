@@ -203,6 +203,23 @@ class PaymentController {
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
         }
     }
+    async GetTotalAmount(req, res, next) {
+        try {
+            const data = await paymentServices.GetTotalAmount();
+            console.log(data)
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Payment data'
+                },
+                data: data
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+        }
+    }
+    
 }
 
 module.exports = new PaymentController;
