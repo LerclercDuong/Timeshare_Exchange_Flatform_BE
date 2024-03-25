@@ -6,22 +6,23 @@ const path = require('path');
 const RequiredFieldError = require('../../errors/requiredFieldError.js');
 const S3UploadError = require('../../errors/s3UploadError.js');
 const DataProcessingError = require('../../errors/dataProcessingError.js');
-const { StatusCodes } = require('http-status-codes');
+const {StatusCodes} = require('http-status-codes');
 
 
-const {query}  = require("../../utils/query");
+const {query} = require("../../utils/query");
 
 class Timeshares {
 
-    async GetPosts(req, res, next){
+    async GetPosts(req, res, next) {
         try {
-            const data = await timeshareServices.GetPosts(req.query,  { deleted: false });
+            const data = await timeshareServices.GetPosts(req.query, {deleted: false});
             res.status(200).json(data);
         } catch (err) {
             console.log(err);
-            res.status(500).json({ error: true, message: "Internal Server Error" });
+            res.status(500).json({error: true, message: "Internal Server Error"});
         }
     }
+
     async GetPostById(req, res, next) {
         const {id} = req.params;
         try {
@@ -43,6 +44,7 @@ class Timeshares {
             })
         }
     };
+
     async GetAllPosts(req, res, next) {
         try {
             res.status(StatusCodes.OK).json({
@@ -62,23 +64,24 @@ class Timeshares {
             })
         }
     };
+
     async GetTimeshareByCurrentOwner(req, res, next) {
         try {
-            const { current_owner } = req.params;
+            const {current_owner} = req.params;
             let sort = req.query.sortBy || "price";
-    
+
             req.query.sort ? (sort = req.query.sort.split(",")) : (sort = [sort]);
-    
+
             let sortBy = {};
             if (sort[1]) {
                 sortBy[sort[0]] = sort[1];
             } else {
                 sortBy[sort[0]] = "asc";
             }
-    
+
             // Thêm filter để chỉ lấy các timeshare chưa bị xóa (deleted = false)
-            const timeshareData = await timeshareServices.GetTimeshareByCurrentOwner(current_owner, sortBy, { deleted: false });
-    
+            const timeshareData = await timeshareServices.GetTimeshareByCurrentOwner(current_owner, sortBy, {deleted: false});
+
             if (timeshareData.length > 0) {
                 res.status(StatusCodes.OK).json({
                     status: {
@@ -96,7 +99,7 @@ class Timeshares {
                     data: timeshareData
                 });
             }
-        } catch(err) {
+        } catch (err) {
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 status: {
                     code: res.statusCode,
@@ -106,8 +109,9 @@ class Timeshares {
             });
         }
     }
+
     async GetTimesharExchangeByCurrentOwner(req, res, next) {
-        try{
+        try {
             const {current_owner} = req.params;
             const timeshareData = await timeshareServices.GetTimesharExchangeByCurrentOwner(current_owner);
             if (timeshareData) {
@@ -127,7 +131,7 @@ class Timeshares {
                 },
                 data: timeshareData
             })
-        }catch(err){
+        } catch (err) {
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 status: {
                     code: res.statusCode,
@@ -138,10 +142,11 @@ class Timeshares {
         }
 
     };
+
     async DeleteTimeshare(req, res, next) {
         try {
-            const { timeshareId } = req.params;
-            const { mytimeshareId } = req.body;
+            const {timeshareId} = req.params;
+            const {mytimeshareId} = req.body;
 
 
             const deleteTimeshare = await timeshareServices.DeleteTimeshare(timeshareId, mytimeshareId);
@@ -162,26 +167,49 @@ class Timeshares {
             })
         }
     };
+
     async UpdateTimeshare(req, res, next) {
         try {
-            const updateTimeshare = await timeshareServices.UpdateTimeshare(req);
-            res.status(StatusCodes.OK).json({
+            const result = await timeshareServices.UpdateTimeshare(req.params.id, req.files?.imageFiles, req.body)
+            if (result) {
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: 'Timeshare updated'
+                    },
+                    data: result
+                })
+            }
+        } catch (err) {
+            res.status(err.statusCode).json({
                 status: {
                     code: res.statusCode,
-                    message: 'Updated'
+                    message: err.message
                 },
-                data: updateTimeshare
-            })
-        } catch {
-            res.status(StatusCodes.NO_CONTENT).json({
-                status: {
-                    code: res.statusCode,
-                    message: 'Update Failed'
-                },
-                data: updateTimeshare
             })
         }
-    };
+    }
+
+    // async UpdateTimeshare(req, res, next) {
+    //     try {
+    //         const updateTimeshare = await timeshareServices.UpdateTimeshare(req);
+    //         res.status(StatusCodes.OK).json({
+    //             status: {
+    //                 code: res.statusCode,
+    //                 message: 'Updated'
+    //             },
+    //             data: updateTimeshare
+    //         })
+    //     } catch {
+    //         res.status(StatusCodes.NO_CONTENT).json({
+    //             status: {
+    //                 code: res.statusCode,
+    //                 message: 'Update Failed'
+    //             },
+    //             data: updateTimeshare
+    //         })
+    //     }
+    // };
     async RestoreTimeshare(req, res, next) {
         try {
             const restoreTimeshare = await timeshareServices.RestoreTimeshare(req);
@@ -202,6 +230,7 @@ class Timeshares {
             })
         }
     };
+
     async ForceDeleteTimeshare(req, res, next) {
         try {
             const forceDeleteTimeshare = await timeshareServices.ForceDeleteTimeshare(req);
@@ -222,6 +251,7 @@ class Timeshares {
             })
         }
     };
+
     async GetTimeShareByTrash(req, res, next) {
         try {
             const trashList = await timeshareServices.GetTimeShareByTrash();
@@ -242,9 +272,11 @@ class Timeshares {
             })
         }
     };
+
     async PostTimeshare(req, res, next) {
         res.render('timeshare/home.hbs')
     };
+
     async UploadPost(req, res) {
         try {
             const uploadedFiles = req.files;
@@ -288,16 +320,28 @@ class Timeshares {
         }
 
     };
+
     async UploadPostWithS3(req, res, next) {
         try {
             const imageFiles = req.files.imageFiles;
-            const {current_owner, owner_exchange, resortId, unitId, numberOfNights, price, pricePerNight, start_date, end_date, type} = req.body;
-            
+            const {
+                current_owner,
+                owner_exchange,
+                resortId,
+                unitId,
+                numberOfNights,
+                price,
+                pricePerNight,
+                start_date,
+                end_date,
+                type
+            } = req.body;
+
             // Kiểm tra xem các trường bắt buộc có được cung cấp không
             if (!imageFiles || !current_owner || !resortId || !unitId || !numberOfNights || !price || !pricePerNight || !start_date || !end_date || !type) {
                 throw new RequiredFieldError('Missing required fields');
             }
-            
+
             // Xử lý tải lên và xử lý dữ liệu
             const uploadedData = await timeshareServices.UploadPostWithS3({
                 imageFiles,
@@ -312,7 +356,7 @@ class Timeshares {
                 end_date,
                 type
             });
-            
+
             res.status(StatusCodes.OK).json({
                 status: {
                     code: res.statusCode,
@@ -352,7 +396,7 @@ class Timeshares {
             }
         }
     }
-    
+
     async SubmitRentRequest(req, res) {
         try {
             const {name, phone, email, userId, postId, requestId, status, verificationCode} = req.body;
