@@ -7,6 +7,7 @@ const upload = multer({ dest: 'src/public/img/' });
 const {auth: CheckAuth} = require('../../middlewares/auth');
 const AuthorizeTimeshare = require('../../middlewares/timeshare')
 const CountUploadTimeshareByUser = require('../../middlewares/servicePack')
+const CacheMiddleware = require('../../middlewares/cache')
 
 // router.get('/list', Post.GetAllTimeshare); //tat ca
 // router.get('/current-owner/:current_owner', Post.GetTimeshareByCurrentOwner); //Hien thi timeshare by Owner
@@ -16,7 +17,9 @@ const CountUploadTimeshareByUser = require('../../middlewares/servicePack')
 // router.patch('/:id/restore', Post.RestoreTimeshare); //khoi phuc
 // router.get('/:id/trash-list', Post.GetTimeShareByTrash); //danh sach timehshare trong thung rac
 // router.get('/post-timeshare', Post.PostTimeshare); //
-router.get('/', timeshareController.GetPosts);
+router.get('/', CacheMiddleware ,timeshareController.GetPosts);
+router.get('/query',timeshareController.GetPosts);
+
 router.post('/upload', CheckAuth, CountUploadTimeshareByUser, timeshareController.UploadPostWithS3);
 
 // //--v2--//

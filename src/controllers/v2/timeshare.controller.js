@@ -13,9 +13,19 @@ const {query} = require("../../utils/query");
 
 class Timeshares {
 
-    async GetPosts(req, res, next) {
+    async GetPosts(req, res, next){
         try {
-            const data = await timeshareServices.GetPosts(req.query, {deleted: false});
+            const data = await timeshareServices.GetPosts(req.query,  { deleted: false }, {is_verified: true});
+            res.status(200).json(data);
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({ error: true, message: "Internal Server Error" });
+        }
+    }
+    
+    async AdminTimeshares(req, res, next){
+        try {
+            const data = await timeshareServices.AdminTimeshares(req.query,  { deleted: false });
             res.status(200).json(data);
         } catch (err) {
             console.log(err);
@@ -26,7 +36,7 @@ class Timeshares {
     async GetPostById(req, res, next) {
         const {id} = req.params;
         try {
-            const postData = await timeshareServices.GetPostById(id);
+            const postData = await timeshareServices.GetPostById(id, {deleted: false});
             res.status(StatusCodes.OK).json({
                 status: {
                     code: res.statusCode,
@@ -113,7 +123,7 @@ class Timeshares {
     async GetTimesharExchangeByCurrentOwner(req, res, next) {
         try {
             const {current_owner} = req.params;
-            const timeshareData = await timeshareServices.GetTimesharExchangeByCurrentOwner(current_owner);
+            const timeshareData = await timeshareServices.GetTimesharExchangeByCurrentOwner(current_owner, { deleted: false });
             if (timeshareData) {
                 res.status(StatusCodes.OK).json({
                     status: {

@@ -12,5 +12,6 @@ router.get('/rental-transaction', paymentController.GetRentalTransaction);
 router.get('/summarize-financial/:userId', paymentController.SummarizeFinancial);
 router.post('/payout', paymentController.PayoutThroughPaypal);
 router.get('/transaction-history/:userId', paymentController.GetTransactionHistory);
+router.get('/total-amount', paymentController.GetTotalAmount)
 
 module.exports = router;
