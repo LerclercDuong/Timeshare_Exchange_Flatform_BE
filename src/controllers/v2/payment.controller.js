@@ -206,19 +206,32 @@ class PaymentController {
     async GetTotalAmount(req, res, next) {
         try {
             const data = await paymentServices.GetTotalAmount();
-            console.log(data)
-            res.status(StatusCodes.OK).json({
-                status: {
-                    code: res.statusCode,
-                    message: 'Payment data'
-                },
-                data: data
-            });
+            res.status(StatusCodes.OK).json(data
+            );
         } catch (error) {
             console.error(error);
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
         }
     }
+    async GetTotalServicePack(req, res, next) {
+        try {
+            const data = await paymentServices.GetTotalServicePack();
+            res.status(StatusCodes.OK).json(data);
+        } catch (error) {
+            console.error(error);
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+        }
+    }
+    async CountAllUsers(req, res, next) {
+        try {
+            const data = await paymentServices.CountAllUsers();
+            res.status(StatusCodes.OK).json(data);
+        } catch (error) {
+            console.error(error);
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+        }
+    }
+    
     
 }
 

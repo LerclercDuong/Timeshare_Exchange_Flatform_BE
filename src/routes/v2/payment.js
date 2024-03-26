@@ -13,5 +13,8 @@ router.get('/summarize-financial/:userId', paymentController.SummarizeFinancial)
 router.post('/payout', paymentController.PayoutThroughPaypal);
 router.get('/transaction-history/:userId', paymentController.GetTransactionHistory);
 router.get('/total-amount', paymentController.GetTotalAmount)
+router.get('/total-servicePack', paymentController.GetTotalServicePack)
+router.get('/count-users', paymentController.CountAllUsers);
+
 
 module.exports = router;

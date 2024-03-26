@@ -102,6 +102,17 @@ class UserController {
             res.status(StatusCodes.UNAUTHORIZED).json({message: err.message});
         }
     }
+    
+
+    async CountAllUsers(req, res, next){
+        try {
+            const data = await userServices.CountAllUsers();
+            res.status(200).json(data);
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({ error: true, message: "Internal Server Error" });
+        }
+    }
 }
 
 module.exports = new UserController;

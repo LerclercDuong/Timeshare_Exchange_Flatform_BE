@@ -22,6 +22,11 @@ router.get('/query',timeshareController.GetPosts);
 
 router.post('/upload', CheckAuth, CountUploadTimeshareByUser, timeshareController.UploadPostWithS3);
 
+router.get('/countTimeshare', timeshareController.CountTimeshare);
+router.get('/countAllTimeshare', timeshareController.CountAllTimeshare);
+router.get('/count-timeshare-success', timeshareController.CountTimeshareSuccess);
+
+
 // //--v2--//
 // router.get('/list-timeshare-availability', Post.PostTimeshare); //
 // router.get('/:id', Post.GetTimeshareById); //

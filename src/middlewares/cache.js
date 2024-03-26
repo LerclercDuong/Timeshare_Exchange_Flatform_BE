@@ -1,10 +1,11 @@
 
 const redis = require('redis');
 const axios = require('axios');
-
 const CacheMiddleware = async (req, res, next) => {
     try {
-        const client = redis.createClient();
+        const client = redis.createClient({
+            url: process.env.REDIS_URI
+        });
         await client.connect();
         const cachedData = await client.get('cachedData');
         if (cachedData) {
@@ -22,7 +23,9 @@ const CacheMiddleware = async (req, res, next) => {
 }
 async function deleteCachedData() {
     try {
-        const client = redis.createClient();
+        const client = redis.createClient({
+            url: process.env.REDIS_URI
+        });
         await client.connect();
         await client.del('cachedData');
         console.log("Cached data deleted successfully.");
@@ -30,5 +33,5 @@ async function deleteCachedData() {
         console.error("Error deleting cached data:", err);
     }
 }
-setInterval(deleteCachedData, 600000);//10p
+setInterval(deleteCachedData, 300000);//5p
 module.exports = CacheMiddleware;

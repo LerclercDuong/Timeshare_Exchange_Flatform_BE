@@ -12,6 +12,8 @@ const ServicePackModel = require('../../models/servicePacks'); // Import model S
 const RentalTransactionModel = require('../../models/rental_transaction')
 const WidthdrawTransactionModel = require('../../models/withdraw_transactions')
 const axios = require("axios");
+const tripService = require("./trip.service");
+
 var request = require('request');
 
 
@@ -240,8 +242,8 @@ class PaymentService {
     }
 
     async ExecutePayPalPayment(data) {
-        console.log(data)
         const {sender, receiver, reservationId, timeshareId, payerID, paymentId, method, amount} = data;
+        const reservation = await ReservationModel.findById(reservationId);
         const execute_payment_json = {
             "payer_id": payerID,
             "transactions": [{
@@ -278,6 +280,7 @@ class PaymentService {
                 is_widthdraw: false,
                 timestamp: new Date(),
             });
+            await tripService.CreateTripByTimeshareId(reservation);
             return newRentalTransaction.save();
         }
     }
@@ -307,7 +310,6 @@ class PaymentService {
         let orderId = moment(date).format('DDHHmmss');
         let amount = req.body.amount;
         let bankCode = req.body.bankCode;
-
         let locale = req.body.language;
         if (locale === null || locale === '') {
             locale = 'vn';
@@ -437,6 +439,25 @@ class PaymentService {
             throw error;
         }
     }
+
+    async GetTotalServicePack() {
+        try {
+            const data = await PaymentModel.countDocuments({status: 'Success'}); 
+            return data;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async CountAllUsers() {
+        try {
+            const data = await UserModel.countDocuments({role: "user"}); 
+            return data;
+        } catch (error) {
+            throw error;
+        }
+    }
+    
+    
 
 }
 

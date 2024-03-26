@@ -11,6 +11,7 @@ router.get('/:id', resortController.GetResortById);
 router.get('/get-all', resortController.GetAllResorts);
 router.put('/update/:id', resortController.UpdateResort);
 router.get('/:id/timeshare-rentals', resortController.GetAllPostByResortId);
+router.get('/count/all-resort', resortController.CountResort);
 
 
 module.exports = router;
