@@ -221,6 +221,23 @@ class ExchangeController {
             });
         }
     }
+
+    async GetAllExchange(req, res, next) {
+        try {
+            const data = await exchangeServices.GetAllExchange();
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Reservation data'
+                },
+                data: data
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+        }
+    }
+    
 }
 
 module.exports = new ExchangeController;

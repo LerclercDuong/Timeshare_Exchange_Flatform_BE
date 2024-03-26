@@ -38,12 +38,12 @@ const paginate = (schema) => {
         const skip = (page - 1) * limit;
 
         // Convert string fields to regex for a "contains" search
-        // Object.keys(filter).forEach((key) => {
-        //     console.log(filter[key])
-        //     if (typeof filter[key] === 'string') {
-        //         filter[key] = { $regex: new RegExp(filter[key], 'i') };
-        //     }
-        // });
+        Object.keys(filter).forEach((key) => {
+            console.log(filter[key])
+            if (typeof filter[key] === 'string') {
+                filter[key] = { $regex: new RegExp(filter[key], 'i') };
+            }
+        });
 
         const countPromise = this.countDocuments(filter).exec();
         let docsPromise = this.find(filter).sort(sort).skip(skip).limit(limit);

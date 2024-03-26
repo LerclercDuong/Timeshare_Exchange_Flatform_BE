@@ -230,6 +230,15 @@ class ExchangeService {
         return deleteExchange;
     }
     
+    async GetAllExchange() {
+        try {
+            const data = await ExchangeModel.find({}); 
+            return data;
+        } catch (error) {
+            throw error;
+        }
+    }
+    
    
 }
 

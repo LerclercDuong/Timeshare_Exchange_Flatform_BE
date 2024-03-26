@@ -98,6 +98,16 @@ class ResortService {
             throw new ApiError(500, 'Internal Server Error');
         }
     }
+    
+    async CountResort(){
+        try {
+            const countResort = await ResortModel.countDocuments({});
+            return countResort;
+        }
+        catch {
+            return { error: true, message: "Internal Server Error" };
+        }
+    }
 }
 
 module.exports = new ResortService;

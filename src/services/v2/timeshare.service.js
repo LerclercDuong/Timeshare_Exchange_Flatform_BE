@@ -135,6 +135,50 @@ class TimeshareService {
             return { error: true, message: "Internal Server Error" };
         }
     }
+    async CountTimeshare(){
+        try {
+            const countRental = await TimeshareModel.countDocuments({ type: 'rental' });
+            const countTimeshare = await TimeshareModel.countDocuments({});
+            const perRental = (countRental/ countTimeshare) * 100 ;
+            return perRental;
+        }
+        catch {
+            return { error: true, message: "Internal Server Error" };
+        }
+
+    }
+
+    async CountAllTimeshare(){
+        try {
+            const countTimeshare = await TimeshareModel.countDocuments({});
+            return countTimeshare;
+        }
+        catch {
+            return { error: true, message: "Internal Server Error" };
+        }
+    }
+    
+
+    async CountTimeshareSuccess(){
+        try {
+            const countTimeshare = await TimeshareModel.countDocuments({is_bookable: false});
+            return countTimeshare;
+        }
+        catch {
+            return { error: true, message: "Internal Server Error" };
+        }
+    }
+    async CountAllTimeshareSuccess(){
+        try {
+            const countTimeshare = await TimeshareModel.countDocuments({});
+            return countTimeshare;
+        }
+        catch {
+            return { error: true, message: "Internal Server Error" };
+        }
+    }
+    
+
     async AdminTimeshares(query, filter) {
         try {
             const { page = 1, limit = 8, search = "", sort = "price", type = "", start_date = "", end_date = "" } = query;

@@ -12,6 +12,6 @@ router.get('/:exchangeId', exchangeRouter.GetExchangeById);
 router.get('/of-user/:userId', exchangeRouter.GetExchangeOfUser)
 router.put('/canceled/:exchangeId', exchangeRouter.CancelMyExchangeRequest);
 router.delete('/:exchangeId', exchangeRouter.DeleteMyExchangeRequest);
-
+router.get('/get-all/exchange', exchangeRouter.GetAllExchange);
 
 module.exports = router;

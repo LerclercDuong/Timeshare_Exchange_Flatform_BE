@@ -44,6 +44,8 @@ router.patch('/:reservationId/accept', CheckAuth, reservationRouter.AcceptReserv
 router.patch('/:reservationId/deny', CheckAuth, reservationRouter.DenyReservationByOwner);
 router.put('/canceled/:reservationId', CheckAuth, reservationRouter.CancelMyRentalRequest);
 router.delete('/:reservationId', CheckAuth, reservationRouter.DeleteMyRentalRequest);
+router.get('/get-all/reservation', reservationRouter.GetAllReservation);
+
 
 
 
