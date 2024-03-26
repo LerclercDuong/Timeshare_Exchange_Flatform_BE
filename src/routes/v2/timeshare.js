@@ -4,7 +4,7 @@ const timeshareController = require('../../controllers/v2/timeshare.controller')
 const multer = require('multer');
 const { plugin } = require('mongoose');
 const upload = multer({ dest: 'src/public/img/' });
-const {auth: CheckAuth} = require('../../middlewares/auth');
+const {auth: CheckAuth, authorizeAdmin: CheckAdmin, authorizeAdmin} = require('../../middlewares/auth');
 const AuthorizeTimeshare = require('../../middlewares/timeshare')
 const CountUploadTimeshareByUser = require('../../middlewares/servicePack')
 const CacheMiddleware = require('../../middlewares/cache')
@@ -18,6 +18,7 @@ const CacheMiddleware = require('../../middlewares/cache')
 // router.get('/:id/trash-list', Post.GetTimeShareByTrash); //danh sach timehshare trong thung rac
 // router.get('/post-timeshare', Post.PostTimeshare); //
 router.get('/', CacheMiddleware ,timeshareController.GetPosts);
+router.get('/all', CheckAuth, CheckAdmin, timeshareController.AdminTimeshares);
 router.get('/query',timeshareController.GetPosts);
 
 router.post('/upload', CheckAuth, CountUploadTimeshareByUser, timeshareController.UploadPostWithS3);
@@ -109,8 +110,8 @@ router.get('/list', timeshareController.GetAllPosts);
  *               message: Timeshares not found
  *               data: []
  */
-router.get('/current-owner/:current_owner', timeshareController.GetTimeshareByCurrentOwner);
-router.get('/exchange/:current_owner', timeshareController.GetTimesharExchangeByCurrentOwner);
+router.get('/current-owner/:current_owner', CheckAuth, timeshareController.GetTimeshareByCurrentOwner);
+router.get('/exchange/:current_owner', CheckAuth, timeshareController.GetTimesharExchangeByCurrentOwner);
 /**
  * @openapi
  * /api/v2/timeshare/{id}:
@@ -143,7 +144,7 @@ router.get('/exchange/:current_owner', timeshareController.GetTimesharExchangeBy
  *               message: Delete failed
  *               data: {}
  */
-router.delete('/:timeshareId',  timeshareController.DeleteTimeshare);
+router.delete('/:id', CheckAuth, AuthorizeTimeshare, timeshareController.DeleteTimeshare);
 // CheckAuth, AuthorizeTimeshare,
 /**
  * @openapi
@@ -513,6 +514,7 @@ router.get('/:id', timeshareController.GetPostById);
  *               data: {}
  */
 router.post('/:postId/book', CheckAuth, timeshareController.SubmitRentRequest);
+router.patch('/verify/:id', CheckAuth, CheckAdmin, timeshareController.VerifyTimeshare)
 
 
 

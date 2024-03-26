@@ -158,7 +158,6 @@ class TimeshareService {
         }
     }
     
-
     async CountTimeshareSuccess(){
         try {
             const countTimeshare = await TimeshareModel.countDocuments({is_bookable: false});
@@ -179,7 +178,7 @@ class TimeshareService {
     }
     
 
-    async AdminTimeshares(query, filter) {
+    async AdminTimeshares(query) {
         try {
             const { page = 1, limit = 8, search = "", sort = "price", type = "", start_date = "", end_date = "" } = query;
     
@@ -249,6 +248,10 @@ class TimeshareService {
         })
             .select('_id name start_date end_date current_owner location price deletedAt')
             .lean();
+    }
+
+    async GetTimeshareByUnitId(unitId) {
+        return TimeshareModel.find({unitId: unitId});
     }
 
     async GetTimeshareByCurrentOwner(current_owner, sortBy, filter = {}) {
@@ -411,6 +414,13 @@ class TimeshareService {
             console.error('Error processing rent request:', error);
             throw new ApiError('Error processing rent request', 500);
         }
+    }
+    async VerifyTimeshare(timeshareId) {
+        const result = await TimeshareModel.findByIdAndUpdate(
+            {_id: timeshareId},
+            {is_verified: true}
+        )
+        return result;
     }
 }
 

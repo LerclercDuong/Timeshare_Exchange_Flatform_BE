@@ -1,6 +1,7 @@
 const express = require('express');
 const { StatusCodes } = require('http-status-codes');
 const {reviewServices, resortServices} = require('../../services/v2');
+const { GetReviewById, DeleteReview } = require('../../services/v2/review.service');
 
 class Reviews {
     async GetReviewByResortId(req, res, next) {
@@ -43,6 +44,21 @@ class Reviews {
             }
             else res.status(StatusCodes.BAD_REQUEST).json({
                 message: 'Resort not found',
+            })
+        }
+        catch (error) {
+            console.log(error);
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                message: error.message,
+            })
+        }
+    }
+    async DeleteReview(req, res, next) {
+        try {
+            const review = req.review.data;
+            await DeleteReview(review._id);
+            res.status(StatusCodes.NO_CONTENT).json({
+                message: "success"
             })
         }
         catch (error) {

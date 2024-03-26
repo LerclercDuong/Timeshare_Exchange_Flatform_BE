@@ -63,7 +63,7 @@ class Timeshares {
 
     async AdminTimeshares(req, res, next){
         try {
-            const data = await timeshareServices.AdminTimeshares(req.query,  { deleted: false });
+            const data = await timeshareServices.AdminTimeshares(req.query);
             res.status(200).json(data);
         } catch (err) {
             console.log(err);
@@ -193,11 +193,11 @@ class Timeshares {
 
     async DeleteTimeshare(req, res, next) {
         try {
-            const {timeshareId} = req.params;
+            const {id} = req.params;
             const {mytimeshareId} = req.body;
 
 
-            const deleteTimeshare = await timeshareServices.DeleteTimeshare(timeshareId, mytimeshareId);
+            const deleteTimeshare = await timeshareServices.DeleteTimeshare(id, mytimeshareId);
             res.status(StatusCodes.OK).json({
                 status: {
                     code: res.statusCode,
@@ -206,7 +206,8 @@ class Timeshares {
                 data: deleteTimeshare
             })
         } catch {
-            res.status(StatusCodes.NO_CONTENT).json({
+            console.log(error);
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 status: {
                     code: res.statusCode,
                     message: 'Delete failed'
@@ -268,13 +269,9 @@ class Timeshares {
                 },
                 data: restoreTimeshare
             })
-        } catch {
-            res.status(StatusCodes.NO_CONTENT).json({
-                status: {
-                    code: res.statusCode,
-                    message: 'Restore failed'
-                },
-                data: restoreTimeshare
+        } catch(error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                message: error.message
             })
         }
     };
@@ -476,6 +473,33 @@ class Timeshares {
             });
         }
     };
+
+    async VerifyTimeshare(req, res, next) {
+        try {
+            console.log(req.params.id)
+            const timeshareId = req.params.id;
+            if (timeshareId) {
+                const result = await timeshareServices.VerifyTimeshare(timeshareId)
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: 'Verify Successful'
+                    },
+                    data: result
+                });
+            }
+            else {
+                res.status(StatusCodes.BAD_REQUEST).json({
+                    message: 'Timeshare ID is required'
+                });
+            }
+        }
+        catch (error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                    message: error.message
+                });
+        }
+    }
 }
 
 module.exports = new Timeshares;
