@@ -99,7 +99,7 @@ class UserController {
             res.status(StatusCodes.OK).json({message: "Change password successfully"})
         }
         catch (err) {
-            res.status(StatusCodes.UNAUTHORIZED).json({message: err.message});
+            res.status(StatusCodes.BAD_REQUEST).json({message: err.message});
         }
     }
 }

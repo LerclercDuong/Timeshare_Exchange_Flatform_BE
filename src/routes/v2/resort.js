@@ -5,11 +5,14 @@ const multer = require('multer');
 const {auth, authorizeAdmin} = require('../../middlewares/auth');
 const upload = multer({ dest: 'src/public/img/'});
 
-router.get('/', resortController.GetResort);
+router.get('/', resortController.GetActiveResorts);
+router.get('/all', auth, authorizeAdmin, resortController.GetAllResorts);
 router.post('/', auth, authorizeAdmin, resortController.UploadResort);
 router.get('/:id', resortController.GetResortById);
+router.patch('/:id', auth, authorizeAdmin, resortController.UpdateResort);
+router.delete('/:id', auth, authorizeAdmin, resortController.DeleteResort);
+router.post('/:id/restore', auth, authorizeAdmin, resortController.RestoreResort);
 router.get('/get-all', resortController.GetAllResorts);
-router.put('/update/:id', resortController.UpdateResort);
 router.get('/:id/timeshare-rentals', resortController.GetAllPostByResortId);
 
 

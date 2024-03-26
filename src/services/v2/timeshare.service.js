@@ -135,7 +135,7 @@ class TimeshareService {
             return { error: true, message: "Internal Server Error" };
         }
     }
-    async AdminTimeshares(query, filter) {
+    async AdminTimeshares(query) {
         try {
             const { page = 1, limit = 8, search = "", sort = "price", type = "", start_date = "", end_date = "" } = query;
     
@@ -205,6 +205,10 @@ class TimeshareService {
         })
             .select('_id name start_date end_date current_owner location price deletedAt')
             .lean();
+    }
+
+    async GetTimeshareByUnitId(unitId) {
+        return TimeshareModel.find({unitId: unitId});
     }
 
     async GetTimeshareByCurrentOwner(current_owner, sortBy, filter = {}) {
