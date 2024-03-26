@@ -237,6 +237,13 @@ class TimeshareService {
             throw new ApiError('Error processing rent request', 500);
         }
     }
+    async VerifyTimeshare(timeshareId) {
+        const result = await TimeshareModel.findByIdAndUpdate(
+            {_id: timeshareId},
+            {is_verified: true}
+        )
+        return result;
+    }
 }
 
 module.exports = new TimeshareService;

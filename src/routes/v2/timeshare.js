@@ -4,7 +4,7 @@ const timeshareController = require('../../controllers/v2/timeshare.controller')
 const multer = require('multer');
 const { plugin } = require('mongoose');
 const upload = multer({ dest: 'src/public/img/' });
-const {auth: CheckAuth} = require('../../middlewares/auth');
+const {auth: CheckAuth, authorizeAdmin: CheckAdmin} = require('../../middlewares/auth');
 const AuthorizeTimeshare = require('../../middlewares/timeshare')
 const CountUploadTimeshareByUser = require('../../middlewares/servicePack')
 
@@ -101,8 +101,8 @@ router.get('/list', timeshareController.GetAllPosts);
  *               message: Timeshares not found
  *               data: []
  */
-router.get('/current-owner/:current_owner', timeshareController.GetTimeshareByCurrentOwner);
-router.get('/exchange/:current_owner', timeshareController.GetTimesharExchangeByCurrentOwner);
+router.get('/current-owner/:current_owner', CheckAuth, timeshareController.GetTimeshareByCurrentOwner);
+router.get('/exchange/:current_owner', CheckAuth, timeshareController.GetTimesharExchangeByCurrentOwner);
 /**
  * @openapi
  * /api/v2/timeshare/{id}:
@@ -135,7 +135,7 @@ router.get('/exchange/:current_owner', timeshareController.GetTimesharExchangeBy
  *               message: Delete failed
  *               data: {}
  */
-router.delete('/:timeshareId',  timeshareController.DeleteTimeshare);
+router.delete('/:timeshareId', CheckAuth, AuthorizeTimeshare, timeshareController.DeleteTimeshare);
 // CheckAuth, AuthorizeTimeshare,
 /**
  * @openapi
@@ -505,6 +505,7 @@ router.get('/:id', timeshareController.GetPostById);
  *               data: {}
  */
 router.post('/:postId/book', CheckAuth, timeshareController.SubmitRentRequest);
+router.patch('/verify/:id', CheckAuth, CheckAdmin, timeshareController.VerifyTimeshare)
 
 
 
