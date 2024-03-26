@@ -2,7 +2,7 @@ const UserModel = require('../../models/users');
 const RequestModel = require('../../models/requests');
 const PaymentModel = require('../../models/payments');
 const {StatusCodes} = require('http-status-codes');
-const query = require('../../utils/query')
+// const { query } = require('../../utils/query')
 
 class AdminService {
     //request management

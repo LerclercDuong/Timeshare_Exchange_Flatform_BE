@@ -6,7 +6,8 @@ const RequestModel = require('../../models/requests')
 const nodemailer = require("nodemailer");
 const {uploadToS3} = require("../../utils/s3Store");
 const ResortModel = require("../../models/resorts");
-const ExchangeModel = require('../../models/exchanges.js')
+const ExchangeModel = require('../../models/exchanges.js');
+const ApiError = require('../../utils/ApiError');
 const appPassword = 'zvpg rhqd qcfg tszn';
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -20,10 +21,69 @@ const transporter = nodemailer.createTransport({
 });
 
 class TimeshareService {
+    async UpdateTimeshare(timeshareId, imageFiles, data) {
+        // Check if the timeshare is bookable
+        const timeshare = await TimeshareModel.findById(timeshareId);
+        if (!timeshare) {
+            throw new ApiError(404, 'Timeshare not found');
+        }
+        if (!timeshare.is_bookable) {
+            throw new ApiError(400, 'Timeshare is not bookable and cannot be updated');
+        }
+        // Check if there are reservations with status not "canceled"
+        const reservations = await ReservationModel.find({ timeshareId, status: { $ne: 'Canceled' } });
+        if (reservations.length > 0) {
+            throw new ApiError(400, 'There are active reservations for this timeshare, cannot update');
+        }
+        // Check if there are exchanges with status not "canceled"
+        const exchanges = await ExchangeModel.find({ timeshareId, status: { $ne: 'Canceled' } });
+        if (exchanges.length > 0) {
+            throw new ApiError(400, 'There are active exchanges for this timeshare, cannot update');
+        }
+        // Update the timeshare
+        try {
+            const {current_owner} = data;
+            const imageKeys = [];
+            //Get existing image of timeshare
+            if(data.imageFiles){
+                if (!Array.isArray(data.imageFiles)) {
+                    const urlWithoutQueryParams = (data.imageFiles).split('?')[0]; // Remove query parameters
+                    const urlParts = urlWithoutQueryParams.split('/'); // Split the URL by '/'
+                    const keyPart = urlParts.slice(3).join('/'); // Join parts starting from index 3
+                    console.log(keyPart)
+                    imageKeys.push(keyPart);
+                } else {
+                    for (const imageFile of data.imageFiles) {
+                        const urlWithoutQueryParams = imageFile.split('?')[0]; // Remove query parameters
+                        const urlParts = urlWithoutQueryParams.split('/'); // Split the URL by '/'
+                        const keyPart = urlParts.slice(3).join('/'); // Join parts starting from index 3
+                        console.log(keyPart)
+                        imageKeys.push(keyPart);
+                    }
+                }
+            }
+            //additional image when update
+            if(imageFiles){
+                if (!Array.isArray(imageFiles)) {
+                    const {key} = await uploadToS3({file: imageFiles, userId: current_owner});
+                    imageKeys.push(key);
+                } else {
+                    for (const imageFile of imageFiles) {
+                        const {key} = await uploadToS3({file: imageFile, userId: current_owner});
+                        imageKeys.push(key);
+                    }
+                }
+            }
+
+            return await TimeshareModel.updateOne({ _id: timeshareId }, { $set: { ...data, images: imageKeys } });
+        } catch (error) {
+            throw new ApiError(500, 'Failed to update timeshare');
+        }
+    }
 
     async GetPosts(query, filter) {
         try {
-            const { page = 1, limit = 8, search = "", sort = "price", type = "" } = query; // Thay đổi mặc định của type thành chuỗi rỗng
+            const { page = 1, limit = 8, search = "", sort = "price", type = "", start_date = "", end_date = "" } = query;
     
             const typeOptions = [
                 "rental",
@@ -38,12 +98,21 @@ class TimeshareService {
             let sortBy = {};
             const sortArray = sort.split(",");
             sortBy[sortArray[0]] = sortArray[1] || "asc";
-            const data = await TimeshareModel.find({ 
-                "resortId": { 
-                    $in: (await ResortModel.find({ "name": { $regex: search, $options: "i" } }))
-                }, 
-                ...filter 
-                })
+    
+            const queryFilters = { 
+                type: { $in: types },
+                ...(search !== "" && {
+                    resortId: { 
+                        $in: (await ResortModel.find({ "name": { $regex: search, $options: "i" } }))
+                    }
+                }),
+                ...(start_date && { start_date: { $gte: start_date } }), 
+                ...(end_date && { end_date: { $lte: end_date } }),
+                ...filter, 
+            };
+            
+    
+            const data = await TimeshareModel.find(queryFilters)
                 .where("type")
                 .in(types) 
                 .sort(sortBy)
@@ -53,16 +122,12 @@ class TimeshareService {
                     path: "resortId",
                     select: "name"
                 });
-                
+    
             data.forEach(timeshare => {
                 timeshare.price = parseInt(timeshare.price); 
             });
             
-            const total = await TimeshareModel.countDocuments({
-                type: { $in: types },
-                type: { $regex: search, $options: "i" },
-                ...filter 
-            });
+            const total = await TimeshareModel.countDocuments(queryFilters);
     
             return { error: false, total, page: parseInt(page), limit: parseInt(limit), type: typeOptions, data };
         } catch (err) {
@@ -70,6 +135,60 @@ class TimeshareService {
             return { error: true, message: "Internal Server Error" };
         }
     }
+    async AdminTimeshares(query, filter) {
+        try {
+            const { page = 1, limit = 8, search = "", sort = "price", type = "", start_date = "", end_date = "" } = query;
+    
+            const typeOptions = [
+                "rental",
+                "exchange",
+            ];
+    
+            let types = [...typeOptions]; 
+            if (type !== "") { 
+                types = type.split(",");
+            }
+    
+            let sortBy = {};
+            const sortArray = sort.split(",");
+            sortBy[sortArray[0]] = sortArray[1] || "asc";
+    
+            const queryFilters = { 
+                type: { $in: types },
+                ...(search !== "" && {
+                    resortId: { 
+                        $in: (await ResortModel.find({ "name": { $regex: search, $options: "i" } }))
+                    }
+                }),
+                ...(start_date && { start_date: { $gte: start_date } }), 
+                ...(end_date && { end_date: { $lte: end_date } }), 
+            };
+            
+    
+            const data = await TimeshareModel.find(queryFilters)
+                .where("type")
+                .in(types) 
+                .sort(sortBy)
+                .skip((page - 1) * limit)
+                .limit(parseInt(limit))
+                .populate({
+                    path: "resortId",
+                    select: "name"
+                });
+    
+            data.forEach(timeshare => {
+                timeshare.price = parseInt(timeshare.price); 
+            });
+            
+            const total = await TimeshareModel.countDocuments(queryFilters);
+    
+            return { error: false, total, page: parseInt(page), limit: parseInt(limit), type: typeOptions, data };
+        } catch (err) {
+            console.log(err);
+            return { error: true, message: "Internal Server Error" };
+        }
+    }
+    
     
     
     
@@ -96,10 +215,10 @@ class TimeshareService {
         return query;
     }
     
-    async GetTimesharExchangeByCurrentOwner(current_owner) {
+    async GetTimesharExchangeByCurrentOwner(current_owner, filter) {
         try {
             const timeshares = await TimeshareModel
-                .find({ current_owner, type: 'exchange' })
+                .find({ current_owner, type: 'exchange', ...filter })
                 .populate({
                     path: 'current_owner',
                     select: '_id username profilePicture role'
@@ -132,10 +251,11 @@ class TimeshareService {
         }   
     }
      // thu vien mongoose soft-delete
-    async UpdateTimeshare(req) {
-        const updateTimeshare = await TimeshareModel.updateOne({_id: req.params.id}, req.body)
-        return updateTimeshare;
-    } // thu vien mongoose soft-delete
+    // async UpdateTimeshare(req) {
+    //     const updateTimeshare = await TimeshareModel.updateOne({_id: req.params.id}, req.body)
+    //     return updateTimeshare;
+    // }
+    // thu vien mongoose soft-delete
     async RestoreTimeshare(req) {
         const restoreTimeshare = await TimeshareModel.restore({_id: req.params.id}, req.body)
         return restoreTimeshare;
@@ -145,9 +265,20 @@ class TimeshareService {
         return forceDeleteTimeshare;
     }
 
-    async GetPostById(id) {
-        return await TimeshareModel.findById(id);
+    async GetPostById(id, filter) {
+        try {
+            let query = { _id: id };
+            
+            if (filter) {
+                query = { ...query, ...filter };
+            }
+            
+            return await TimeshareModel.findOne(query);
+        } catch (error) {
+            throw error;
+        }
     }
+    
 
     async UploadPost(req, current_owner, unitId, price, start_date, end_date, resortId, images) {
         const uploadData = {

@@ -5,7 +5,6 @@ const ReservationModel = require('../../models/reservations')
 const ConversationModel = require('../../models/conversations')
 const MessageModel = require('../../models/messages')
 const {StatusCodes} = require('http-status-codes')
-const query = require('../../utils/query')
 
 class ChatService {
     async CreateConversation(ownerId, reservationId) {

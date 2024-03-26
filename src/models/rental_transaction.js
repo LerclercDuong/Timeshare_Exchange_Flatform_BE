@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const paginate = require("./plugin/paginate");
 const Schema = mongoose.Schema;
 
 // Enum for allowed payment methods
@@ -11,8 +12,18 @@ const logoImages = {
     visa: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png',
 };
 
-const transactionSchema = new Schema({
-    userId: {
+const rentalTransactionSchema = new Schema({
+    reservationId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Reservations',
+        required: true,
+    },
+    sender: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Users',
+        required: true,
+    },
+    receiver: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Users',
         required: true,
@@ -20,11 +31,6 @@ const transactionSchema = new Schema({
     app_paymentId: {
         type: String,
         required: false,
-    },
-    reservationId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Reservations',
-        required: true,
     },
     method: {
         name: {
@@ -40,23 +46,36 @@ const transactionSchema = new Schema({
         type: Number,
         required: true
     },
-    // payment_deadline: {
-    //     type: Date,
-    //     default: () => Date.now() + 30 * 1000, // Set default value to current time + 30 seconds
-    //     expires: 30
-    // },
+    is_withdraw: {
+        type: Boolean,
+        default: false,
+        required: true,
+    },
     timestamp: {
         type: Date,
         default: Date.now,
         required: true,
     },
 });
-transactionSchema.pre('save', function (next) {
+rentalTransactionSchema.pre('save', function (next) {
     const method = this.method.name;
     this.method.logoImg = logoImages[method];
     next();
 });
+rentalTransactionSchema.pre('find', function(next) {
+    this.populate({
+        path: "sender"
+    })
+    next();
+});
+rentalTransactionSchema.pre('findOne', function(next) {
+    this.populate({
+        path: "sender"
+    })
+    next();
+});
+rentalTransactionSchema.plugin(paginate);
 
-const Transaction = mongoose.model('Transactions', transactionSchema);
+const Rental_transaction = mongoose.model('Rental_transactions', rentalTransactionSchema);
 
-module.exports = Transaction;
+module.exports = Rental_transaction;

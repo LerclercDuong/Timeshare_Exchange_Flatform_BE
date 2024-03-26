@@ -6,7 +6,7 @@ const RequestModel = require("../../models/requests");
 const tripService = require("./trip.service");
 const emailService = require('./email.service');
 const tokenService = require('./token.service')
-const TransactionModel = require("../../models/transaction");
+const TransactionModel = require("../../models/rental_transaction");
 
 class ReservationService {
     async GetReservationOfUser(userId) {
