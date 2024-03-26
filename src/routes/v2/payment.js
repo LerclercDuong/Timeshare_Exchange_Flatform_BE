@@ -15,6 +15,6 @@ router.get('/transaction-history/:userId', paymentController.GetTransactionHisto
 router.get('/total-amount', paymentController.GetTotalAmount)
 router.get('/total-servicePack', paymentController.GetTotalServicePack)
 router.get('/count-users', paymentController.CountAllUsers);
-
+router.get('/all-payment-upgrade', paymentController.GetAllPaymentUpgrade);
 
 module.exports = router;

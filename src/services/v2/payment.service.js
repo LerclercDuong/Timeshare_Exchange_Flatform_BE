@@ -456,9 +456,17 @@ class PaymentService {
             throw error;
         }
     }
-    
-    
 
+    async GetAllPaymentUpgrade() {
+        try {
+            const data = await PaymentModel.find({}).populate('userId'); 
+            return data;
+        } catch (error) {
+            throw error;
+        }
+    }
+    
+    
 }
 
 function sortObject(obj) {

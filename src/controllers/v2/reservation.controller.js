@@ -249,6 +249,22 @@ class ReservationController {
             });
         }
     }
+    async GetAllReservation(req, res, next) {
+        try {
+            const data = await reservationServices.GetAllReservation();
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Reservation data'
+                },
+                data: data
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+        }
+    }
+    
     
 }
 
