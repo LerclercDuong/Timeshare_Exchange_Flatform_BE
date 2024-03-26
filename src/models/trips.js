@@ -30,11 +30,11 @@ const tripSchema = new Schema({
         ref: 'Reservations',
         required: true,
     },
-    trip_code: {
+    phone: {
         type: String,
-        required: false,
+        required: true,
     },
-    romon_code: {
+    trip_code: {
         type: String,
         required: false,
     },

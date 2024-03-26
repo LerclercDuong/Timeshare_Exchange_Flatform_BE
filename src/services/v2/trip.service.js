@@ -1,3 +1,5 @@
+const moment = require("moment");
+
 const TripModel = require("../../models/trips")
 class TripService {
     async CheckInTrip(tripId){
@@ -7,14 +9,18 @@ class TripService {
         return TripModel.find({userId: userId});
     }
 
-    async CreateTripByTimeshareId(reservation){
+    async CreateTripByTimeshareId(reservationId){
+        let date = new Date();
+        let trip_code = moment(date).format('MMDDHHmmssSSS');
         const newTrip = new TripModel({
-            reservationId: reservation._id,
-            userId: reservation.userId._id,
-            resortId: reservation.timeshareId.resortId._id,
-            unitId: reservation.timeshareId.unitId._id,
-            check_in: reservation.timeshareId.start_date,
-            check_out: reservation.timeshareId.end_date,
+            reservationId: reservationId._id,
+            userId: reservationId.userId._id,
+            resortId: reservationId.timeshareId.resortId._id,
+            unitId: reservationId.timeshareId.unitId._id,
+            check_in: reservationId.timeshareId.start_date,
+            check_out: reservationId.timeshareId.end_date,
+            phone: reservationId.phone,
+            trip_code: trip_code,
         });
         // Save the trip to the database
         return await newTrip.save();
@@ -22,6 +28,8 @@ class TripService {
 
 
     async CreateTripByMyTimeshareId(exchange){
+        let date = new Date();
+        let trip_code = moment(date).format('MMDDHHmmssSSS');
         const newTrip = new TripModel({
             reservationId: exchange._id,
             userId: exchange.userId._id,
@@ -29,12 +37,16 @@ class TripService {
             unitId: exchange.timeshareId.unitId._id,
             check_in: exchange.timeshareId.start_date,
             check_out: exchange.timeshareId.end_date,
+            phone: exchange.phone,
+            trip_code: trip_code,
         });
         // Save the trip to the database
         return await newTrip.save();
     }
 
     async CreateTripExchange(exchange){
+        let date = new Date();
+        let trip_code = moment(date).format('MMDDHHmmssSSS');
         const newTrip1 = new TripModel({
             reservationId: exchange._id,
             userId: exchange.timeshareId.current_owner._id,
@@ -42,6 +54,8 @@ class TripService {
             unitId: exchange.myTimeshareId.unitId._id,
             check_in: exchange.myTimeshareId.start_date,
             check_out: exchange.myTimeshareId.end_date,
+            phone: exchange.phone,
+            trip_code: trip_code,
         });
         // Save the trip to the database
         return await newTrip1.save();

@@ -118,6 +118,15 @@ class ResortController {
             })
         }
     }
+    async CountResort(req, res, next){
+        try {
+            const data = await resortServices.CountResort();
+            res.status(200).json(data);
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({ error: true, message: "Internal Server Error" });
+        }
+    }
     async UploadResort(req, res, next) {
         try {
             const userId = req.user.userId;

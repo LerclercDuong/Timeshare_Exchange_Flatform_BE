@@ -22,7 +22,45 @@ class Timeshares {
             res.status(500).json({ error: true, message: "Internal Server Error" });
         }
     }
+    async CountTimeshare(req, res, next){
+        try {
+            const data = await timeshareServices.CountTimeshare();
+            res.status(200).json(data);
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({ error: true, message: "Internal Server Error" });
+        }
+    }
     
+    async CountAllTimeshare(req, res, next){
+        try {
+            const data = await timeshareServices.CountAllTimeshare();
+            res.status(200).json(data);
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({ error: true, message: "Internal Server Error" });
+        }
+    }
+    
+    async CountTimeshareSuccess(req, res, next){
+        try {
+            const data = await timeshareServices.CountTimeshareSuccess();
+            res.status(200).json(data);
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({ error: true, message: "Internal Server Error" });
+        }
+    }
+    async CountTimeshareRental(req, res, next){
+        try {
+            const data = await timeshareServices.CountTimeshareRental();
+            res.status(200).json(data);
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({ error: true, message: "Internal Server Error" });
+        }
+    }
+
     async AdminTimeshares(req, res, next){
         try {
             const data = await timeshareServices.AdminTimeshares(req.query);

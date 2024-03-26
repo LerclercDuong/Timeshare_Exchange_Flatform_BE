@@ -199,7 +199,15 @@ class ReservationService {
         const deleteRental = await ReservationModel.delete({_id: reservationId})
         return deleteRental;
     }
-
+    
+    async GetAllReservation() {
+        try {
+            const data = await ReservationModel.find({}); 
+            return data;
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 

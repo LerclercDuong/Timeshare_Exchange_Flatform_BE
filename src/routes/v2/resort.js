@@ -14,6 +14,7 @@ router.delete('/:id', auth, authorizeAdmin, resortController.DeleteResort);
 router.post('/:id/restore', auth, authorizeAdmin, resortController.RestoreResort);
 router.get('/get-all', resortController.GetAllResorts);
 router.get('/:id/timeshare-rentals', resortController.GetAllPostByResortId);
+router.get('/count/all-resort', resortController.CountResort);
 
 
 module.exports = router;

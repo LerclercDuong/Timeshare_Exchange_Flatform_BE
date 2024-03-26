@@ -10,4 +10,5 @@ router.get('/users', User.GetAllUsers);
 router.post('/update/:userId', CheckAuth, User.UpdateUser);
 router.post('/change-password', CheckAuth, User.ChangePassword);
 
+
 module.exports = router;
