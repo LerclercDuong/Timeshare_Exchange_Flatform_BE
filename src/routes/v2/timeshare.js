@@ -19,6 +19,7 @@ const CacheMiddleware = require('../../middlewares/cache')
 // router.get('/post-timeshare', Post.PostTimeshare); //
 router.get('/', CacheMiddleware ,timeshareController.GetPosts);
 router.get('/query',timeshareController.GetPosts);
+router.get('/all', CheckAuth, timeshareController.AdminTimeshares);
 
 router.post('/upload', CheckAuth, CountUploadTimeshareByUser, timeshareController.UploadPostWithS3);
 
