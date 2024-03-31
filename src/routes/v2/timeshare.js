@@ -17,7 +17,7 @@ const CacheMiddleware = require('../../middlewares/cache')
 // router.patch('/:id/restore', Post.RestoreTimeshare); //khoi phuc
 // router.get('/:id/trash-list', Post.GetTimeShareByTrash); //danh sach timehshare trong thung rac
 // router.get('/post-timeshare', Post.PostTimeshare); //
-router.get('/', CacheMiddleware, timeshareController.GetPosts);
+router.get('/', timeshareController.GetPosts);
 router.get('/query',timeshareController.GetPosts);
 router.get('/all', CheckAuth, timeshareController.AdminTimeshares);
 
