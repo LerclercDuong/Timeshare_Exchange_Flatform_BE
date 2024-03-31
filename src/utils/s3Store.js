@@ -6,11 +6,10 @@ const getSignedUrl = require("@aws-sdk/s3-request-presigner").getSignedUrl;
 const uuid = require("uuid").v4;
 const fs = require("fs");
 const configs = require("../configs/default.json");
-const ACCESS_KEY = configs.ACCESS_KEY_ID;
-const SECRET_KEY = configs.SECRET_ACCESS_KEY;
+
 const credentials = {
-    accessKeyId: ACCESS_KEY,
-    secretAccessKey: SECRET_KEY,
+    accessKeyId: "AKIA2UC3APRF5E545EHU",
+    secretAccessKey: "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",
 }
 
 // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/interfaces/s3clientconfig.html
@@ -23,8 +22,8 @@ const config = {
 const s3 = new S3Client({
     region: 'ap-southeast-1',
     credentials: {
-        accessKeyId: ACCESS_KEY,
-        secretAccessKey: SECRET_KEY,
+        accessKeyId: "AKIA2UC3APRF5E545EHU",
+        secretAccessKey: "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",
     }
 });
 
