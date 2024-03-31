@@ -203,8 +203,8 @@ class PaymentService {
                 "payment_method": "paypal"
             },
             "redirect_urls": {
-                "return_url": `http://localhost:3000/timeshare/${paymentInfo.timeshareId?._id}/book/review-order/${paymentInfo._id}`,
-                "cancel_url": "http://localhost:3000/cancel"
+                "return_url": `https://nicetrip-vn.vercel.app/timeshare/${paymentInfo.timeshareId?._id}/book/review-order/${paymentInfo._id}`,
+                "cancel_url": "https://nicetrip-vn.vercel.app/cancel"
             },
             "transactions": [{
                 "item_list": {
@@ -305,7 +305,7 @@ class PaymentService {
         let tmnCode = "TG4G0CYV";
         let secretKey = "OIEUZLVYEHNDVYKFPDOAJXIMTWIDVKJT";
         let vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-        let returnUrl = `http://localhost:3000/payment/${userId}/vnpay_return`;
+        let returnUrl = `https://nicetrip-vn.vercel.app/payment/${userId}/vnpay_return`;
 
         let orderId = moment(date).format('DDHHmmss');
         let amount = req.body.amount;

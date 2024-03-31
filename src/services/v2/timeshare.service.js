@@ -109,6 +109,7 @@ class TimeshareService {
                 ...(start_date && { start_date: { $gte: start_date } }), 
                 ...(end_date && { end_date: { $lte: end_date } }),
                 ...filter, 
+                is_verified: true 
             };
             
     
@@ -121,7 +122,8 @@ class TimeshareService {
                 .populate({
                     path: "resortId",
                     select: "name"
-                });
+                })
+                ;
     
             data.forEach(timeshare => {
                 timeshare.price = parseInt(timeshare.price); 
@@ -179,7 +181,7 @@ class TimeshareService {
     }
     
 
-    async AdminTimeshares(query, filter) {
+    async AdminTimeshares(query) {
         try {
             const { page = 1, limit = 8, search = "", sort = "price", type = "", start_date = "", end_date = "" } = query;
     
@@ -287,7 +289,6 @@ class TimeshareService {
                 if (exchangeExists || reservationExists) {
             return false;
         }
-        console.log(timeshareId)
         const deleteTimeshare = await TimeshareModel.delete({_id: timeshareId});
         return deleteTimeshare;
         }catch {
@@ -411,6 +412,13 @@ class TimeshareService {
             console.error('Error processing rent request:', error);
             throw new ApiError('Error processing rent request', 500);
         }
+    }
+    async VerifyTimeshare(timeshareId) {
+        const result = await TimeshareModel.findByIdAndUpdate(
+            {_id: timeshareId},
+            {is_verified: true}
+        )
+        return result;
     }
 }
 

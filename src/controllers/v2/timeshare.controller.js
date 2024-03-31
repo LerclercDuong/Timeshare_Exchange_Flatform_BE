@@ -205,11 +205,12 @@ class Timeshares {
                 },
                 data: deleteTimeshare
             })
-        } catch {
-            res.status(StatusCodes.NO_CONTENT).json({
+        } catch(err) {
+            console.log(err)
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 status: {
                     code: res.statusCode,
-                    message: 'Delete failed'
+                    message: err.message
                 },
                 data: deleteTimeshare
             })
@@ -476,6 +477,32 @@ class Timeshares {
             });
         }
     };
+    async VerifyTimeshare(req, res, next) {
+        try {
+            console.log(req.params.id)
+            const timeshareId = req.params.id;
+            if (timeshareId) {
+                const result = await timeshareServices.VerifyTimeshare(timeshareId)
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: 'Verify Successful'
+                    },
+                    data: result
+                });
+            }
+            else {
+                res.status(StatusCodes.BAD_REQUEST).json({
+                    message: 'Timeshare ID is required'
+                });
+            }
+        }
+        catch (error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                    message: error.message
+                });
+        }
+    }
 }
 
 module.exports = new Timeshares;

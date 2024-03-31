@@ -38,18 +38,31 @@ class AuthController {
         try {
             const loginData = await authService.LoginWithUsernameAndPassword(username, password);
             if (loginData) {
-                const tokens = await authService.GenerateAuthToken(loginData);
-                res.status(StatusCodes.OK).json(
-                    {
-                        status: {
-                            code: res.statusCode,
-                            message: 'Login successfully'
-                        },
-                        data: {user: loginData, tokens}
-                    }
-                );
+                if (!loginData.isBanned) {
+                    const tokens = await authService.GenerateAuthToken(loginData);
+                    res.status(StatusCodes.OK).json(
+                        {
+                            status: {
+                                code: res.statusCode,
+                                message: 'Login successfully'
+                            },
+                            data: {user: loginData, tokens}
+                        }
+                    );
+                }
+                else {
+                    res.status(StatusCodes.FORBIDDEN).json(
+                        {
+                            status: {
+                                code: res.statusCode,
+                                message: 'You have been banned from the system!'
+                            },
+                            data: null
+                        }
+                    );
+                }
             } else {
-                res.status(StatusCodes.UNAUTHORIZED).json({
+                res.status(StatusCodes.BAD_REQUEST).json({
                     status: {
                         code: res.statusCode,
                         message: 'Wrong username or password!'

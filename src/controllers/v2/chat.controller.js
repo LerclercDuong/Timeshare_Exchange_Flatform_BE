@@ -45,7 +45,29 @@ class ChatController {
             })
         }
     }
+    
 
+    async CreateConversationExchange(req, res, next) {
+        try {
+            const {ownerId, exchangeId} = req.body;
+            const newConversation = await chatServices.CreateConversationExchange(ownerId, exchangeId);
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'New conversation created'
+                },
+                data: newConversation
+            })
+        } catch (e) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Create conversation fail'
+                },
+                data: null
+            })
+        }
+    }
     async GetConversationOfUser(req, res, next) {
         try {
             const userId = req.params.userId;

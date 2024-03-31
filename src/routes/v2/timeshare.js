@@ -17,8 +17,9 @@ const CacheMiddleware = require('../../middlewares/cache')
 // router.patch('/:id/restore', Post.RestoreTimeshare); //khoi phuc
 // router.get('/:id/trash-list', Post.GetTimeShareByTrash); //danh sach timehshare trong thung rac
 // router.get('/post-timeshare', Post.PostTimeshare); //
-router.get('/', CacheMiddleware ,timeshareController.GetPosts);
+router.get('/', CacheMiddleware, timeshareController.GetPosts);
 router.get('/query',timeshareController.GetPosts);
+router.get('/all', CheckAuth, timeshareController.AdminTimeshares);
 
 router.post('/upload', CheckAuth, CountUploadTimeshareByUser, timeshareController.UploadPostWithS3);
 
@@ -513,7 +514,7 @@ router.get('/:id', timeshareController.GetPostById);
  *               data: {}
  */
 router.post('/:postId/book', CheckAuth, timeshareController.SubmitRentRequest);
-
+router.patch('/verify/:id', CheckAuth, timeshareController.VerifyTimeshare)
 
 
 module.exports = router;

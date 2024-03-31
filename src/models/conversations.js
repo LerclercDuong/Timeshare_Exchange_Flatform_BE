@@ -2,10 +2,15 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const conversationSchema = new Schema({
+    exchangeId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Exchanges',
+        required: false,
+    },
     reservationId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Reservations',
-        required: true,
+        required: false,
     },
     participants: [
         {
