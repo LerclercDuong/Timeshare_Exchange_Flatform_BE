@@ -205,12 +205,14 @@ class Timeshares {
                 },
                 data: deleteTimeshare
             })
-        } catch {
-            console.log(error);
+
+        } catch(err) {
+            console.log(err)
+
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 status: {
                     code: res.statusCode,
-                    message: 'Delete failed'
+                    message: err.message
                 },
                 data: deleteTimeshare
             })

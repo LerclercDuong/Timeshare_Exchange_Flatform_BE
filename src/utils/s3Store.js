@@ -5,24 +5,25 @@ const PutObjectCommand = require("@aws-sdk/client-s3").PutObjectCommand;
 const getSignedUrl = require("@aws-sdk/s3-request-presigner").getSignedUrl;
 const uuid = require("uuid").v4;
 const fs = require("fs");
+const configs = require("../configs/default.json");
 
 const credentials = {
-    accessKeyId: 'AKIAYU72HXP47UF7HFE',
-    secretAccessKey: 'Bbm0keuATPiGP6z20RHjrICSMiFuFJ5KqKP99jO2',
+    accessKeyId: "AKIA2UC3APRF5E545EHU",
+    secretAccessKey: "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",
 }
 
 // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/interfaces/s3clientconfig.html
 const config = {
-    region: 'ap-southeast-2',
+    region: 'ap-southeast-1',
     credentials,
 }
 
 // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/classes/s3client.html
 const s3 = new S3Client({
-    region: 'ap-southeast-2',
+    region: 'ap-southeast-1',
     credentials: {
-        accessKeyId: 'AKIAYU72HXP47UF7HFEL',
-        secretAccessKey: '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',
+        accessKeyId: "AKIA2UC3APRF5E545EHU",
+        secretAccessKey: "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",
     }
 });
 
@@ -32,7 +33,7 @@ const uploadToS3 = async ({file, userId}) => {
     const key = `${userId}/${uuid()}`;
     if (file) {
         const command = new PutObjectCommand({
-            Bucket: 'chatongpt',
+            Bucket: 'vipoptic',
             Key: key,
             Body: file.data,
             ContentType: file.mimetype
@@ -51,7 +52,7 @@ const uploadToS3 = async ({file, userId}) => {
 const uploadBase64ToS3 = async ({file, userId}) => {
     const key = `${userId}/${uuid()}`;
     const command = new PutObjectCommand({
-        Bucket: 'chatongpt',
+        Bucket: 'vipoptic',
         Key: key,
         Body: file,
         ContentEncoding: 'base64',
@@ -79,7 +80,7 @@ const getImageKeysByUser = async (userId) => {
 const GetPresignedUrl = async (key) => {
     try {
         if (key) {
-            const command = new GetObjectCommand({Bucket: 'chatongpt', Key: key});
+            const command = new GetObjectCommand({Bucket: 'vipoptic', Key: key});
             return getSignedUrl(s3, command, {expiresIn: 900}); // default
         }
     } catch (error) {

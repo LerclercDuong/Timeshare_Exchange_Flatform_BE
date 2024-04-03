@@ -5,7 +5,7 @@ const ReservationModel = require('../../models/reservations')
 const ConversationModel = require('../../models/conversations')
 const MessageModel = require('../../models/messages')
 const {StatusCodes} = require('http-status-codes')
-
+const ExchangeModel = require('../../models/exchanges')
 class ChatService {
     async CreateConversation(ownerId, reservationId) {
         const reservation = await ReservationModel.findById(reservationId);
@@ -18,18 +18,41 @@ class ChatService {
             // If a conversation already exists, you can handle this situation accordingly
             throw new Error("Conversation already exists for these participants in the same reservation");
         }
-
+        console.log(ownerId)
         if (!reservation) {
             throw new Error("Reservation not found");
         }
 
-        return await ConversationModel.create({
-            reservationId,
-            participants: [ownerId, reservation.userId],
-            messages: [], // Initially, the conversation starts with no messages
-        });
-    }
 
+            return await ConversationModel.create({
+                reservationId,
+                participants: [ownerId, reservation.userId],
+                messages: [], // Initially, the conversation starts with no messages
+            });
+
+    }
+    
+    async CreateConversationExchange(ownerId, exchangeId) {
+        const exchange = await ExchangeModel.findById(exchangeId);
+        const existingConversation = await ConversationModel.findOne({
+            exchangeId,
+            participants: { $all: [ownerId, exchange.userId] } // Check if a conversation already exists with the same participants
+        });
+        if (existingConversation) {
+            // If a conversation already exists, you can handle this situation accordingly
+            throw new Error("Conversation already exists for these participants in the same reservation");
+        }
+
+        if (!reservation) {
+            throw new Error("Reservation not found");
+        }
+            return await ConversationModel.create({
+                exchangeId,
+                participants: [ownerId, exchange.userId],
+                messages: [],
+            });
+
+    }
     async GetConversationOfUser(userId) {
         return ConversationModel.find({
             participants: userId,

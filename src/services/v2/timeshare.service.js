@@ -109,6 +109,7 @@ class TimeshareService {
                 ...(start_date && { start_date: { $gte: start_date } }), 
                 ...(end_date && { end_date: { $lte: end_date } }),
                 ...filter, 
+                is_verified: true 
             };
             
     
@@ -121,7 +122,8 @@ class TimeshareService {
                 .populate({
                     path: "resortId",
                     select: "name"
-                });
+                })
+                ;
     
             data.forEach(timeshare => {
                 timeshare.price = parseInt(timeshare.price); 
@@ -290,7 +292,6 @@ class TimeshareService {
                 if (exchangeExists || reservationExists) {
             return false;
         }
-        console.log(timeshareId)
         const deleteTimeshare = await TimeshareModel.delete({_id: timeshareId});
         return deleteTimeshare;
         }catch {
