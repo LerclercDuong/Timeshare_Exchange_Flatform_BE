@@ -160,7 +160,6 @@ class TimeshareService {
         }
     }
     
-
     async CountTimeshareSuccess(){
         try {
             const countTimeshare = await TimeshareModel.countDocuments({is_bookable: false});
@@ -251,6 +250,10 @@ class TimeshareService {
         })
             .select('_id name start_date end_date current_owner location price deletedAt')
             .lean();
+    }
+
+    async GetTimeshareByUnitId(unitId) {
+        return TimeshareModel.find({unitId: unitId});
     }
 
     async GetTimeshareByCurrentOwner(current_owner, sortBy, filter = {}) {

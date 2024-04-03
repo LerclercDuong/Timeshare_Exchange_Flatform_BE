@@ -33,5 +33,7 @@ async function deleteCachedData() {
         console.error("Error deleting cached data:", err);
     }
 }
+
 setInterval(deleteCachedData, 2000000);//10p
+
 module.exports = CacheMiddleware;

@@ -63,7 +63,7 @@ class Timeshares {
 
     async AdminTimeshares(req, res, next){
         try {
-            const data = await timeshareServices.AdminTimeshares(req.query,  { deleted: false });
+            const data = await timeshareServices.AdminTimeshares(req.query);
             res.status(200).json(data);
         } catch (err) {
             console.log(err);
@@ -193,11 +193,11 @@ class Timeshares {
 
     async DeleteTimeshare(req, res, next) {
         try {
-            const {timeshareId} = req.params;
+            const {id} = req.params;
             const {mytimeshareId} = req.body;
 
 
-            const deleteTimeshare = await timeshareServices.DeleteTimeshare(timeshareId, mytimeshareId);
+            const deleteTimeshare = await timeshareServices.DeleteTimeshare(id, mytimeshareId);
             res.status(StatusCodes.OK).json({
                 status: {
                     code: res.statusCode,
@@ -205,8 +205,10 @@ class Timeshares {
                 },
                 data: deleteTimeshare
             })
+
         } catch(err) {
             console.log(err)
+
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 status: {
                     code: res.statusCode,
@@ -269,13 +271,9 @@ class Timeshares {
                 },
                 data: restoreTimeshare
             })
-        } catch {
-            res.status(StatusCodes.NO_CONTENT).json({
-                status: {
-                    code: res.statusCode,
-                    message: 'Restore failed'
-                },
-                data: restoreTimeshare
+        } catch(error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                message: error.message
             })
         }
     };
@@ -477,6 +475,7 @@ class Timeshares {
             });
         }
     };
+
     async VerifyTimeshare(req, res, next) {
         try {
             console.log(req.params.id)
