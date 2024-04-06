@@ -11,7 +11,7 @@ const multer  = require('multer')
 // Set multer file storage folder
 const socketIO = require('./src/socket/index');
 const upload = multer({ dest: 'uploads/' })
-/////----////
+/////----////s
 const hbs = require('express-handlebars');
 const swaggerDocs = require("./src/docs/swagger");
 const fileUpload = require('express-fileupload');
