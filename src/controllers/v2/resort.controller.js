@@ -1,7 +1,8 @@
 const axios = require('axios')
 const {resortServices} = require('../../services/v2');
 const {StatusCodes} = require('http-status-codes');
-const query = require('../../utils/query')
+const {query} = require('../../utils/query')
+
 
 class ResortController {
     /**
@@ -116,7 +117,78 @@ class ResortController {
             })
         }
     }
-
+    async CountResort(req, res, next){
+        try {
+            const data = await resortServices.CountResort();
+            res.status(200).json(data);
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({ error: true, message: "Internal Server Error" });
+        }
+    }
+    async UploadResort(req, res, next) {
+        try {
+            const userId = req.user.userId;
+            const {name, description, location, facilities, attractions, policies, units} = req.body;
+            const {images, unitImages} = req.files;
+            console.log(unitImages);
+            // Convert the string to an array of objects
+            const unitsArray = JSON.parse(units);
+            const resortData = await resortServices.UploadResortWithS3({
+                name,
+                description,
+                location,
+                facilities,
+                attractions,
+                policies,
+                images,
+                userId
+            })
+            //console.log(resortData);
+            // If the resort is saved, upload units
+            if (resortData && resortData._id) {
+                unitsArray.forEach(async (unit, index) => {
+                    const resortId = resortData._id;
+                    let image;
+                    if (!Array.isArray(unitImages)) {
+                        image = unitImages;
+                    }
+                    else image = unitImages[index];
+                    const {name, roomType, kitchenType, sleeps, bathrooms, features} = unit;
+    
+                    // UPLOAD UNITS
+                    const unitData = await unitService.UploadUnitWithS3({
+                        name, 
+                        roomType,
+                        kitchenType,
+                        sleeps,
+                        bathrooms,
+                        image,
+                        features,
+                        resortId,
+                        userId,
+                    })
+                    console.log(unitData)
+                    if (unitData) {
+                        await resortServices.AddUnit(resortId, unitData._id);
+                    }
+                })
+            }
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Uploaded successful'
+                },
+                data: null
+            });
+        }
+        catch (err) {
+            console.log(err);
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                message: err.message
+            });
+        }
+    }
 }
 
 module.exports = new ResortController;

@@ -1,23 +1,40 @@
 const jwt = require('jsonwebtoken');
 const UnauthenticatedError = require('../errors/un-authenticated')
 const moment = require("moment");
-const {StatusCodes} = require('http-status-codes');
+const { StatusCodes } = require('http-status-codes');
+const { GetUserById } = require('../services/v2/user.service');
 
-const auth = (req, res, next) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer')) {
-        throw new Error('JWT token not found');
-    }
-    const token = authHeader.split(' ')[1];
+const auth = async (req, res, next) => {
     try {
-        const payload = jwt.verify(token, process.env.ACCESS_SECRET_KEY)
-        req.user = {
-            userId: payload.sub
+        const authHeader = req.headers.authorization;
+        //Token not found
+        if (!authHeader || !authHeader.startsWith('Bearer')) {
+            res.status(StatusCodes.UNAUTHORIZED).json({message: 'JWT token not found'})
         }
-        next();
+        else {
+            const token = authHeader.split(' ')[1];
+            const payload = jwt.verify(token, process.env.ACCESS_SECRET_KEY)
+            const userData = await GetUserById(payload.sub);
+            req.user = {
+                userId: payload.sub,
+                data: userData,
+            }
+            next();
+        }
     } catch {
-        res.status(StatusCodes.UNAUTHORIZED).json({message: 'You are unauthorized to access this resource'})
+        res.status(StatusCodes.UNAUTHORIZED).json({ message: 'You are unauthorized to access this resource' })
     }
 }
 
-module.exports = auth;
+
+const AuthorizeAdmin = async (req, res, next) => {
+    const user = req.user.data;
+    if (user.role === 'admin') {
+        next();
+    }
+    else res.status(StatusCodes.FORBIDDEN).json({message: 'Access forbidden'});
+}
+module.exports = {
+    auth: auth,
+    authorizeAdmin: AuthorizeAdmin
+};

@@ -50,7 +50,28 @@ class TokenService {
     async logOut(username, password) {
 
     }
-
+    async GenerateReservationConfirmToken(userId){
+        try {
+            const data = {
+                _id: userId,
+                role: '',
+            }
+            const tokenId = await this.GenerateToken(data, 'CONFIRM_RESERVATION', process.env.CONFIRM_RESERVATION_SECRET_KEY, process.env.CONFIRM_RESERVATION_LIFE_HOUR + 'h');
+            const verifyTokenExpires = moment().add(process.env.CONFIRM_RESERVATION_LIFE_HOUR, 'hours');
+            await this.SaveTokenToDB(userId, tokenId, 'CONFIRM_RESERVATION', verifyTokenExpires);
+            return {
+                token: tokenId,
+                exp: verifyTokenExpires.toDate()
+            };
+        }
+        catch (err) {
+            throw err;
+        }
+    }
+    async VerifyConfirmReservationToken(token){
+        console.log(token)
+        return this.VerifyToken(`Bearer ${token}`, 'CONFIRM_RESERVATION', process.env.CONFIRM_RESERVATION_SECRET_KEY);
+    }
     async CheckPassword(username, password) {
         let password_correct = false;
         const hash_password = await users.findOne({username: username})

@@ -30,6 +30,14 @@ const tripSchema = new Schema({
         ref: 'Reservations',
         required: true,
     },
+    phone: {
+        type: String,
+        required: true,
+    },
+    trip_code: {
+        type: String,
+        required: false,
+    },
     created_at: {
         type: Date,
         default: Date.now,

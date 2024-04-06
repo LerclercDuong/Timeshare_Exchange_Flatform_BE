@@ -1,12 +1,12 @@
 const nodemailer = require("nodemailer");
-const appPassword = 'deqovodjyfjvsacs';
+const appPassword = 'fiib vxuw eaqk auir';
 module.exports =  nodemailer.createTransport({
     service: 'gmail',
     host: 'smtp.gmail.com',
     port: 465,
     secure: true,
     auth: {
-        user: "06122003anonymous@gmail.com",
+        user: "contact.us.nicetrip@gmail.com",
         pass: appPassword,
     },
 });

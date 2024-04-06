@@ -15,6 +15,12 @@ class AuthController {
             if (password !== repeatPassword) {
                 throw new Error('Password and repeat password do not match');
             }
+            if (await userService.GetUserByName(username)) {
+                throw new Error('Username already exist');
+            }
+            if (await userService.GetUserByEmail(email)) {
+                throw new Error('Email already exist');
+            }
             const userData = await authService.SignUp(firstname, lastname, username, email, password);
             const tokens = await authService.GenerateAuthToken(userData);
             res.status(StatusCodes.CREATED).json({ userData, tokens });
@@ -28,29 +34,44 @@ class AuthController {
     //Res: userData = {}, tokens = []
     async Login(req, res, next) {
         const {username, password} = req.body;
+        console.log('dddd')
         try {
             const loginData = await authService.LoginWithUsernameAndPassword(username, password);
             if (loginData) {
-                const tokens = await authService.GenerateAuthToken(loginData);
-                res.status(StatusCodes.OK).json(
-                    {
-                        status: {
-                            code: res.statusCode,
-                            message: 'Login successfully'
-                        },
-                        data: {user: loginData, tokens}
-                    }
-                );
+                if (!loginData.isBanned) {
+                    const tokens = await authService.GenerateAuthToken(loginData);
+                    res.status(StatusCodes.OK).json(
+                        {
+                            status: {
+                                code: res.statusCode,
+                                message: 'Login successfully'
+                            },
+                            data: {user: loginData, tokens}
+                        }
+                    );
+                }
+                else {
+                    res.status(StatusCodes.FORBIDDEN).json(
+                        {
+                            status: {
+                                code: res.statusCode,
+                                message: 'You have been banned from the system!'
+                            },
+                            data: null
+                        }
+                    );
+                }
             } else {
-                res.status(StatusCodes.UNAUTHORIZED).json({
+                res.status(StatusCodes.BAD_REQUEST).json({
                     status: {
                         code: res.statusCode,
-                        message: 'Login fail'
+                        message: 'Wrong username or password!'
                     },
                     data: null
                 });
             }
         } catch (err) {
+            console.log(err);
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({message: err.message});
         }
     }
@@ -95,10 +116,6 @@ class AuthController {
     }
 
     async loginWithGoogle(req, res, next) {
-
-    }
-
-    async forgotPassword(req, res) {
 
     }
 }

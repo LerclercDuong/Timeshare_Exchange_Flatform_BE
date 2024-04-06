@@ -2,13 +2,16 @@ const express = require('express');
 const router = express.Router();
 const resortController = require('../../controllers/v2/resort.controller');
 const multer = require('multer');
+const {auth, authorizeAdmin} = require('../../middlewares/auth');
 const upload = multer({ dest: 'src/public/img/'});
 
 router.get('/', resortController.GetResort);
+router.post('/', auth, authorizeAdmin, resortController.UploadResort);
 router.get('/:id', resortController.GetResortById);
 router.get('/get-all', resortController.GetAllResorts);
 router.put('/update/:id', resortController.UpdateResort);
 router.get('/:id/timeshare-rentals', resortController.GetAllPostByResortId);
+router.get('/count/all-resort', resortController.CountResort);
 
 
 module.exports = router;

@@ -14,4 +14,10 @@ const query = (object, keys) => {
     }, {});
 };
 
-module.exports = query;
+const queryRentalTransaction = (object, keys) =>{
+    return query(object?._id, keys);
+}
+module.exports = {
+    query,
+    queryRentalTransaction
+}

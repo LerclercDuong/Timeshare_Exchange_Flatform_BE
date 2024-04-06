@@ -1,9 +1,7 @@
-const ReservationModel = require('../../models/reservations')
-const PostModel = require('../../models/posts')
 const {StatusCodes} = require('http-status-codes');
 const paypal = require('paypal-rest-sdk');
-const {paymentServices} = require('../../services/v2')
-
+const {paymentServices, resortServices} = require('../../services/v2')
+const {query} = require("../../utils/query");
 const {PAYPAL_MODE, PAYPAL_CLIENT_KEY, PAYPAL_SECRET_KEY} = process.env;
 
 paypal.configure({
@@ -13,53 +11,95 @@ paypal.configure({
 });
 
 class PaymentController {
+    async PayoutThroughPaypal(req, res, next) {
+        const {rental_transaction_id, receiver, amount} = req.body;
+        try {
+            const accessToken = await paymentServices.GetPaypalAccessToken();
+            const result = await paymentServices.Payout(accessToken, {rental_transaction_id, receiver, amount});
+            console.log(result)
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Payout successs to' + receiver
+                },
+                data: result
+            })
+        } catch (err) {
+
+        }
+    }
+
+    async SummarizeFinancial(req, res, next) {
+        try {
+            const data = await paymentServices.SummarizeFinancial(req.params.userId)
+            console.log(data)
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Financial summary'
+                },
+                data: data
+            })
+        } catch (err) {
+
+        }
+    }
+
+    async GetTransactionHistory(req, res, next) {
+        try {
+            const results = await paymentServices.GetTransactionHistory(req.params.userId);
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Query rental transaction'
+                },
+                data: results
+            })
+        } catch (err) {
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: err.message
+                }
+            })
+        }
+    }
+
+    async GetRentalTransaction(req, res, next) {
+        try {
+            const filter = query(req.query, ['reservationId', 'sender', 'receiver']);
+            const options = query(req.query, ['page']);
+            const results = await paymentServices.QueryRentalTransaction(filter, options);
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Query rental transaction'
+                },
+                data: results
+            })
+        } catch (err) {
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: err.message
+                }
+            })
+        }
+
+    }
+
     async CreatePayment(req, res, next) {
         try {
-            const paymentInfo = req.reservation;
-            console.log(paymentInfo)
-            const create_payment_json = {
-                "intent": "sale",
-                "payer": {
-                    "payment_method": "paypal"
-                },
-                "redirect_urls": {
-                    "return_url": `http://localhost:3000/post/${paymentInfo.postId}/book/review-order/${paymentInfo._id}`,
-                    "cancel_url": "http://localhost:3000/cancel"
-                },
-                "transactions": [{
-                    "item_list": {
-                        "items": [{
-                            "name": paymentInfo.fullName,
-                            "sku": paymentInfo._id.toString(), // Assuming reservationId is a string
-                            "price": paymentInfo.amount.toString(), // Assuming amount is a string
-                            "currency": "USD",
-                            "quantity": 1
-                        }]
+            const result = await paymentServices.CreatePayPalPayment(req.body);
+            if (result) {
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: 'Create payment success'
                     },
-                    "amount": {
-                        "currency": "USD",
-                        "total": paymentInfo.amount.toString(), // Assuming amount is a string
-                    },
-                    "description": `Reservation for ${paymentInfo.fullName}`
-                }]
-            };
-            paypal.payment.create(create_payment_json, function (error, payment) {
-                if (error) {
-                    console.log(error);
-                } else {
-                    for (let i = 0; i < payment.links.length; i++) {
-                        if (payment.links[i].rel === 'approval_url') {
-                            res.status(StatusCodes.OK).json({
-                                status: {
-                                    code: res.statusCode,
-                                    message: 'Request successful'
-                                },
-                                data: payment.links[i].href
-                            })
-                        }
-                    }
-                }
-            });
+                    data: result
+                });
+            }
         } catch (error) {
             res.status(StatusCodes.OK).json({
                 status: {
@@ -73,66 +113,32 @@ class PaymentController {
 
     async ExecutePayment(req, res, next) {
         try {
-            const postId = req.params.postId;
-            console.log(postId)
-            const reservationId = req.body.reservationId;
-            const payerId = req.body.PayerID;
-            const paymentId = req.body.paymentId;
-            const amount = req.body.totalAmount;
-            console.log(amount)
-            const execute_payment_json = {
-                "payer_id": payerId,
-                "transactions": [{
-                    "amount": {
-                        "currency": "USD",
-                        "total": amount.toString()
-                    }
-                }]
-            };
-            paypal.payment.execute(paymentId, execute_payment_json, async function (error, payment) {
-                if (error) {
-                    throw error;
-                } else {
-                    // console.log('hello')
-                    // console.log(JSON.stringify(payment));
-                    await ReservationModel.updateOne(
-                        {_id: reservationId},
-                        {$set: {isPaid: true}}
-                    )
-                        .exec()
-                        .then(result => {
-                            console.log('isPaid updated successfully:', result);
-                        })
-                        .catch(err => {
-                            console.error('Error updating isPaid:', err);
-                        });
-                    await PostModel.updateOne(
-                        { _id: postId },
-                        {
-                            $set: {
-                                is_bookable: false
-                            }
-                        }
-                    ).exec();
-                    res.status(StatusCodes.OK).json({
-                        status: {
-                            code: res.statusCode,
-                            message: 'payment data'
-                        },
-                        data: payment
-                    })
-                }
-            });
-
+            const result = await paymentServices.ExecutePayPalPayment(req.body);
+            console.log(result)
+            if (result) {
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: 'Payment success'
+                    },
+                    data: result
+                });
+            }
         } catch (error) {
-            console.log(error.message);
+            res.status(error.status).json({
+                status: {
+                    code: error.status,
+                    message: error.message
+                },
+            });
         }
-
     }
 
     async CreateVNPay(req, res) {
         try {
-            const paymentUrl = await paymentServices.CreateVNPay(req);
+            const {servicePackId} = req.body;
+            const {userId} = req.body;
+            const paymentUrl = await paymentServices.CreateVNPay(req, userId, servicePackId);
             res.status(StatusCodes.OK).json({
                 status: {
                     code: res.statusCode,
@@ -146,21 +152,103 @@ class PaymentController {
         }
     }
 
-    async VNPayReturn(req, res, next) {
+
+    async VNPayReturn(req, res) {
         try {
-            const vnpayReturn = await paymentServices.VNPayReturn(req, res);
+            const {userId} = req.params;
+            const vnpayReturn = await paymentServices.VNPayReturn(req, res, userId);
             res.status(StatusCodes.OK).json({
                 status: {
                     code: res.statusCode,
                     message: 'payment data'
                 },
                 data: vnpayReturn
-            })
+            });
         } catch (error) {
             console.error(error);
-            res.status(500).send("Internal Server Error");
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
         }
     }
+
+    async GetOrderPaymentInfo(req, res, next) {
+        try {
+            const {sender, reservationId} = req.query;
+            const data = await paymentServices.GetOrderPaymentInfo(sender, reservationId);
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'payment data'
+                },
+                data: data
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+        }
+    }
+
+    async GetTransaction(req, res, next) {
+        try {
+            const {ownerId} = req.params;
+            const data = await paymentServices.GetRenterTransactionOfOwner(ownerId);
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Payment data'
+                },
+                data: data
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+        }
+    }
+    async GetTotalAmount(req, res, next) {
+        try {
+            const data = await paymentServices.GetTotalAmount();
+            res.status(StatusCodes.OK).json(data
+            );
+        } catch (error) {
+            console.error(error);
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+        }
+    }
+    async GetTotalServicePack(req, res, next) {
+        try {
+            const data = await paymentServices.GetTotalServicePack();
+            res.status(StatusCodes.OK).json(data);
+        } catch (error) {
+            console.error(error);
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+        }
+    }
+    async CountAllUsers(req, res, next) {
+        try {
+            const data = await paymentServices.CountAllUsers();
+            res.status(StatusCodes.OK).json(data);
+        } catch (error) {
+            console.error(error);
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+        }
+    }
+    async GetAllPaymentUpgrade(req, res, next) {
+        try {
+            const data = await paymentServices.GetAllPaymentUpgrade();
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Payment data'
+                },
+                data: data
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+        }
+    }
+    
+    
+    
 }
 
 module.exports = new PaymentController;

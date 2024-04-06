@@ -29,7 +29,7 @@ class AuthService {
         if (await CheckLogin(username, password)) {
             return await userService.GetUserByName(username);
         } else {
-            throw new ApiError(401, "Wrong username or password");
+            return null;
         }
     }
 

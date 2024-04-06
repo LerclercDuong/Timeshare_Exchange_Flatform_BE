@@ -39,6 +39,7 @@ const paginate = (schema) => {
 
         // Convert string fields to regex for a "contains" search
         Object.keys(filter).forEach((key) => {
+            console.log(filter[key])
             if (typeof filter[key] === 'string') {
                 filter[key] = { $regex: new RegExp(filter[key], 'i') };
             }

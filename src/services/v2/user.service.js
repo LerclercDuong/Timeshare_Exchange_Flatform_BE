@@ -1,6 +1,7 @@
 const UserModel = require('../../models/users');
 const ResortModel = require("../../models/resorts");
-const s3Utils = require("../../utils/s3Store")
+const s3Utils = require("../../utils/s3Store");
+const checkLogin = require('../../utils/checkLogin');
 
 class UserService {
     async QueryUser(filter, options) {
@@ -21,12 +22,18 @@ class UserService {
             const user = await UserModel.findOne({username: username}).lean();
             return user;
         } catch (err) {
-            throw err;
+            return null;
         }
     }
 
     async GetUserByEmail(email) {
-        return UserModel.findOne({email: email}).select('_id username profilePicture role').lean();
+        try {
+            const user = await UserModel.findOne({email: email}).select('_id username profilePicture role').lean();
+            return user;
+        }
+        catch (err) {
+            return null;
+        }
     }
 
     async GetUsers() {
@@ -44,6 +51,11 @@ class UserService {
                 ...updatedData,
                 profilePicture: key
             }
+        }
+        const checkUser = await UserModel.findById(userId);
+        // If the email is updated, reset the verify state
+        if (checkUser.email !== data.email) {
+            data.emailVerified = false;
         }
         const updatedUser = await UserModel.findByIdAndUpdate(
             userId,
@@ -71,7 +83,7 @@ class UserService {
         }
     }
 
-    async UpdatePassword(userId, newPassword) {
+    async ResetPassword(userId, newPassword) {
         try {
             const update = {
                 password: newPassword,
@@ -85,6 +97,19 @@ class UserService {
             throw err;
         }
     }
+    async ChangePassword(userId, oldPassword, newPassword) {
+        try {
+            const userData = await this.GetUserById(userId);
+            if (await checkLogin(userData.username, oldPassword)) {
+                await this.ResetPassword(userId, newPassword);
+            }
+            else throw Error('Wrong password');
+        }
+        catch (err) {
+            throw err;
+        }
+    }
+    
 }
 
 module.exports = new UserService;

@@ -4,15 +4,15 @@ const {StatusCodes} = require('http-status-codes');
 
 
 class ReservationController {
-    async ConfirmReservation(req, res, next) {
+    async AcceptReservationByOwner(req, res, next) {
         try {
             const {reservationId} = req.params;
-            const confirmedData = await reservationServices.ConfirmReservation(reservationId)
+            const confirmedData = await reservationServices.AcceptReservationByOwner(reservationId)
             if(confirmedData){
                 res.status(StatusCodes.OK).json({
                     status: {
                         code: res.statusCode,
-                        message: `Confirm success for reservation ${confirmedData.reservation_id}`
+                        message: `Accept success for reservation ${confirmedData.reservation_id}`
                     },
                     data: confirmedData
                 });
@@ -28,11 +28,57 @@ class ReservationController {
             });
         }
     }
-
+    async DenyReservationByOwner(req, res, next) {
+        try {
+            const {reservationId} = req.params;
+            const confirmedData = await reservationServices.DenyReservationByOwner(reservationId)
+            if(confirmedData){
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: `Deny for reservation ${confirmedData.reservation_id}`
+                    },
+                    data: confirmedData
+                });
+            }
+        } catch (error) {
+            res.status(StatusCodes.BAD_REQUEST).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Error in deny process'
+                },
+                data: null
+            });
+        }
+    }
+    async GetRentRequestOfTimeshare(req, res, next) {
+        try {
+            const { timeshareId } = req.params;
+            const result = await reservationServices.GetRentRequestOfTimeshare(timeshareId);
+            if (result) {
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: "Reservation found"
+                    },
+                    data: result
+                });
+            }
+        } catch (error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Error'
+                },
+                data: null
+            });
+        }
+    }
     async GetReservationOfPost(req, res, next) {
         try {
-            const {postId} = req.params;
-            const result = await reservationServices.GetReservationOfPost(postId);
+            const type = req.query.type;
+            const {timeshareId} = req.params;
+            const result = await reservationServices.GetReservationOfPost(timeshareId, type);
             if (result) {
                 res.status(StatusCodes.OK).json({
                     status: {
@@ -103,17 +149,25 @@ class ReservationController {
 
     async MakeReservation(req, res, next) {
         try {
+            const type = req.query.type;
             const reservedData = req.body;
-            const reservationSaved = await reservationServices.MakeReservation(reservedData);
+            const reservationSaved = await reservationServices.MakeReservation(type, reservedData);
             if (reservationSaved) {
-                req.reservation = reservationSaved
-                next()
+                // req.reservation = reservationSaved;
+                // next();
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: 'Reservation created'
+                    },
+                    data: reservationSaved
+                });
             }
         } catch (error) {
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 status: {
                     code: res.statusCode,
-                    message: 'Error'
+                    message: error.message
                 },
                 data: null
             });
@@ -129,6 +183,89 @@ class ReservationController {
         }
     }
 
+    async ConfirmReservationByToken(req, res, next) {
+        try {
+            const token = req.query.token;
+            console.log(token)
+            const reservationId = req.params.reservationId;
+            if (!token) {
+                res.status(StatusCodes.BAD_REQUEST).json({message: 'Bad request, must have token as a parameter'});
+            } else {
+                const confirmData = await reservationServices.ConfirmReservationByToken(reservationId, token)
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: 'Verify complete'
+                    },
+                    data: confirmData
+                });
+            }
+            // } else res.status(StatusCodes.BAD_REQUEST).json({message: 'Token is invalid or expired'});
+        } catch (error) {
+            next(error);
+        }
+    }
+    async CancelMyRentalRequest(req, res, next) {
+        try {
+            const { reservationId } = req.params;
+    
+            const canceled = await reservationServices.CancelMyRentalRequest(reservationId);
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Canceled'
+                },
+                data: canceled
+            });
+        } catch (error) {
+            console.error('Error deleting exchange:', error);
+            res.status(StatusCodes.NO_CONTENT).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Cancel failed'
+                }
+            });
+        }
+    }
+    async DeleteMyRentalRequest(req, res, next) {
+        try {
+            const { reservationId } = req.params;
+    
+            const deletedRental = await reservationServices.DeleteMyRentalRequest(reservationId);
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Deleted'
+                },
+                data: deletedRental
+            });
+        } catch (error) {
+            console.error('Error deleting exchange:', error);
+            res.status(StatusCodes.NO_CONTENT).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Delete failed'
+                }
+            });
+        }
+    }
+    async GetAllReservation(req, res, next) {
+        try {
+            const data = await reservationServices.GetAllReservation();
+            res.status(StatusCodes.OK).json({
+                status: {
+                    code: res.statusCode,
+                    message: 'Reservation data'
+                },
+                data: data
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+        }
+    }
+    
+    
 }
 
 module.exports = new ReservationController;

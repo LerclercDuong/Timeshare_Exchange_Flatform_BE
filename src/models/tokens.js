@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const tokens = new Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'users',
+        ref: 'Users',
         required: true,
     },
     token: {
@@ -15,7 +15,7 @@ const tokens = new Schema({
     },
     type: {
         type: String,
-        enum: ['REFRESH', 'RESET_PASSWORD', 'VERIFY_EMAIL'],
+        enum: ['REFRESH', 'RESET_PASSWORD', 'VERIFY_EMAIL', 'CONFIRM_RESERVATION'],
         required: true,
     },
     exp: {

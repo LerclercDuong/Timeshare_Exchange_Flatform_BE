@@ -33,7 +33,7 @@ class EmailController {
                 const user = await userService.GetUserByEmail(email);
                 if (user) {
                     const token = await emailService.GeneratePasswordRecoveryToken(user);
-                    await emailService.SendPasswordRecoveryEmail(email, token.token);
+                    await emailService.SendPasswordRecoveryEmail(email, user.username, token.token);
                     res.status(StatusCodes.OK).json({message: 'Email sent'})
                 }
                 else res.status(StatusCodes.NOT_FOUND).json({message: 'Email is not associated with any account'});
@@ -76,7 +76,7 @@ class EmailController {
                 if (data && data.user && data.user._id) {
                     if (password === passwordRepeat) {
                         //Update password
-                        await userService.UpdatePassword(data.user._id, password);
+                        await userService.ResetPassword(data.user._id, password);
                         //TODO: Implement token invalidate
                         await tokenService.expireToken(data._id);
                         res.status(StatusCodes.OK).json({message: 'Password changed'});
@@ -89,6 +89,27 @@ class EmailController {
         catch (err) {
             console.log(err);
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({message: err.message});
+        }
+    }
+    async SendConfirmReservationEmail(req, res, next) {
+        try {
+            const reservationInfo = req.body;
+            const user = await userService.GetUserById(reservationInfo.userId._id);
+            console.log(user)
+            if (reservationInfo?.is_confirmed === false) {
+                const token = await tokenService.GenerateReservationConfirmToken(user._id);
+                // Send verification email to the user
+                await emailService.SendReservationConfirmEmail(reservationInfo.email, reservationInfo, token.token);
+                res.status(StatusCodes.OK).json({
+                    status: {
+                        code: res.statusCode,
+                        message: "Confirm reservation email was sent"
+                    },
+                    data: null
+                })
+            } else res.status(StatusCodes.FORBIDDEN).json({message: 'The reservation has been already confirmed'});
+        } catch (err) {
+            // res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
         }
     }
 }
