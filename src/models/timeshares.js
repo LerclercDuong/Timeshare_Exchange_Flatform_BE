@@ -112,12 +112,12 @@ timeshareSchema.pre('findOne', async function (docs, next) {
 
 timeshareSchema.post('find', async function (docs, next) {
     for (let doc of docs) {
-        if (doc && doc.images) doc.images = await Promise.all(doc.images.map(GetPresignedUrl));
+        if (doc.images) doc.images = await Promise.all(doc.images.map(GetPresignedUrl));
     }
     next()
 });
 timeshareSchema.post('findOne', async function (doc, next) {
-    if (doc && doc.images) doc.images = await Promise.all(doc.images.map(GetPresignedUrl));
+    if (doc.images) doc.images = await Promise.all(doc.images.map(GetPresignedUrl));
     next()
 });
 
