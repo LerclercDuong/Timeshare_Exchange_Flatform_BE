@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const paginate = require("./plugin/paginate");
-const mongooseDelete = require('mongoose-delete');
 const {GetPresignedUrl} = require("../utils/s3Store");
 const {isValidURL} = require("../utils/url");
 
@@ -33,8 +32,7 @@ const resortSchema = new mongoose.Schema({
 });
 
 resortSchema.plugin(paginate);
-resortSchema.plugin(mongooseDelete,
-    {deletedAt: true});
+
 resortSchema.post('find', async function (docs, next) {
     for (let doc of docs) {
         if (doc && doc.image_urls) {

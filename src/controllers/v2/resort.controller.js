@@ -1,9 +1,7 @@
 const axios = require('axios')
-const { resortServices } = require('../../services/v2');
-const { StatusCodes } = require('http-status-codes');
-const { query } = require('../../utils/query');
-const { GetTimeshareByUnitId } = require('../../services/v2/timeshare.service');
-const { DeleteResort, RestoreResort } = require('../../services/v2/resort.service');
+const {resortServices} = require('../../services/v2');
+const {StatusCodes} = require('http-status-codes');
+const {query} = require('../../utils/query')
 
 
 class ResortController {
@@ -76,9 +74,7 @@ class ResortController {
     }
 
     async GetAllResorts(req, res, next) {
-        const filter = query(req.query, ['name'])
-        const options = query(req.query, ['page'])
-        const allResorts = await resortServices.QueryResort(filter, options);
+        const allResorts = await resortServices.GetAll();
         res.status(StatusCodes.OK).json({
             status: {
                 code: res.statusCode,
@@ -87,14 +83,17 @@ class ResortController {
             data: allResorts
         })
     }
-    async GetActiveResorts(req, res, next) {
-        const allResorts = await resortServices.GetActiveResorts();
+
+    async UpdateResort(req, res, next){
+        const resortId = req.params.id;
+        const updateField = req.body;
+        const updated = await resortServices.UpdateResort(resortId, updateField);
         res.status(StatusCodes.OK).json({
             status: {
                 code: res.statusCode,
-                message: 'Resort found'
+                message: 'Update resort'
             },
-            data: allResorts
+            data: updated
         })
     }
 
@@ -130,8 +129,8 @@ class ResortController {
     async UploadResort(req, res, next) {
         try {
             const userId = req.user.userId;
-            const { name, description, location, facilities, attractions, policies, units } = req.body;
-            const { images, unitImages } = req.files;
+            const {name, description, location, facilities, attractions, policies, units} = req.body;
+            const {images, unitImages} = req.files;
             console.log(unitImages);
             // Convert the string to an array of objects
             const unitsArray = JSON.parse(units);
@@ -155,11 +154,11 @@ class ResortController {
                         image = unitImages;
                     }
                     else image = unitImages[index];
-                    const { name, roomType, kitchenType, sleeps, bathrooms, features } = unit;
-
+                    const {name, roomType, kitchenType, sleeps, bathrooms, features} = unit;
+    
                     // UPLOAD UNITS
                     const unitData = await unitService.UploadUnitWithS3({
-                        name,
+                        name, 
                         roomType,
                         kitchenType,
                         sleeps,
@@ -175,7 +174,7 @@ class ResortController {
                     }
                 })
             }
-            res.status(StatusCodes.CREATED).json({
+            res.status(StatusCodes.OK).json({
                 status: {
                     code: res.statusCode,
                     message: 'Uploaded successful'
@@ -188,84 +187,6 @@ class ResortController {
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 message: err.message
             });
-        }
-    }
-    async UpdateResort(req, res, next) {
-        try {
-            console.log(req.body);
-            console.log(req.files);
-            const userId = req.user.userId
-            const result = await resortServices.UpdateResortPartial(req.params.id, req.files?.images, req.body, userId)
-            if (result) {
-                res.status(StatusCodes.OK).json({
-                    status: {
-                        code: res.statusCode,
-                        message: 'Update successful'
-                    },
-                    data: null
-                });
-            }
-        }
-        catch (error) {
-            console.log(error);
-            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-                message: error.message
-            })
-        }
-
-    }
-    async DeleteResort(req, res, next) {
-        try {
-            const resortId = req.params.id;
-            const resort = await resortServices.GetById(resortId);
-            let hasActiveTimeshare = false;
-            resort.units.forEach(async unitId => {
-                const timeshare = await GetTimeshareByUnitId(unitId);
-                console.log(timeshare);
-                if (timeshare.start_date > Date.now()) {
-                    res.status(StatusCodes.BAD_REQUEST).json({
-                        message: "This resort already have active timeshares, delete all active timeshare and try again"
-                    })
-                    hasActiveTimeshare = true;
-                }
-            });
-            //If the resort has no active timeshare then its safe to delete
-            if (!hasActiveTimeshare) {
-                const data = await DeleteResort(resortId)
-                res.status(StatusCodes.NO_CONTENT).json({
-                    status: {
-                        code: res.statusCode,
-                        message: 'Deleted'
-                    },
-                    data: data
-                })
-            }
-        }
-        catch (error) {
-            console.log(error);
-            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-                message: error.message
-            })
-        }
-    }
-    async RestoreResort(req, res, next) {
-        try {
-            const resortId = req.params.id;
-            const resort = await resortServices.GetById(resortId);
-            const data = await RestoreResort(resortId)
-                res.status(StatusCodes.OK).json({
-                    status: {
-                        code: res.statusCode,
-                        message: 'Restored'
-                    },
-                    data: data
-                })
-        }
-        catch (error) {
-            console.log(error);
-            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-                message: error.message
-            })
         }
     }
 }

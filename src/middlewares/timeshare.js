@@ -4,7 +4,7 @@ const { GetPostById } = require("../services/v2/timeshare.service");
 
 const AuthorizeTimeshare = async (req, res, next) => {
     const user = req.user.data;
-    const timeshare = await GetPostById(req.params.id, null);
+    const timeshare = await GetPostById(req.params.id);
     //Check if timeshare found
     if (timeshare) {
         //Check if the user has admin role or the timeshare owner

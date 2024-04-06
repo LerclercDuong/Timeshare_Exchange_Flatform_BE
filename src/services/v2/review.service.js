@@ -10,12 +10,6 @@ class ReviewService {
         const review = new ReviewModel({...data});
         return review.save().catch();
     }
-    async GetReviewById(id) {
-        return ReviewModel.findById(id).populate({
-            path: 'userId',
-            select: '_id username profilePicture'
-        });
-    }
     async GetReviewByResortId(resortId) {
         return ReviewModel
             .find({resortId: resortId})
@@ -27,7 +21,7 @@ class ReviewService {
             .lean();
     }
     async DeleteReview(reviewId) {
-        const deleteTimeshare = await ReviewModel.deleteOne({_id: reviewId})
+        const deleteTimeshare = await ReviewModel.delete({_id: reviewId})
         return deleteTimeshare;
     }
     async ForceDeleteReview(reviewId) {
